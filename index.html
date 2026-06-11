@@ -335,6 +335,33 @@
   .ota-bar { height:8px; border-radius:4px; background:var(--card2); margin-top:18px; overflow:hidden; }
   .ota-bar i { display:block; height:100%; width:0; border-radius:4px; background:var(--brand); transition:width 2.4s ease; }
 
+  /* ============ 诊断报告预览 ============ */
+  .drawer.tall { max-height:88%; height:88%; }
+  .rep-banner { border-radius:14px; padding:22px 16px; text-align:center; }
+  .rep-banner.ok { background:var(--green-soft); }
+  .rep-banner.bad { background:var(--red-soft); }
+  .rep-banner .bic { font-size:34px; }
+  .rep-banner h2 { font-size:20px; font-weight:800; margin-top:8px; }
+  .rep-banner.ok h2 { color:var(--green); }
+  .rep-banner.bad h2 { color:var(--red); }
+  .rep-banner .bs { font-size:12.5px; color:var(--tx2); margin-top:5px; }
+  .rep-fault { display:flex; gap:10px; background:var(--red-soft); border-left:4px solid var(--red); border-radius:10px; padding:11px 13px; margin-top:9px; }
+  .rep-fault .ft { font-size:13.5px; font-weight:800; color:var(--red); }
+  .rep-fault .fd { font-size:11.5px; color:var(--tx2); margin-top:2px; }
+  .rep-sec { font-size:11px; font-weight:800; color:var(--tx3); letter-spacing:1.2px; text-transform:uppercase; margin:18px 2px 6px; }
+  .rep-card { background:var(--card); border-radius:13px; padding:2px 15px; box-shadow:var(--shadow); }
+  .rep-row { display:flex; align-items:center; min-height:42px; font-size:13.5px; }
+  .rep-row + .rep-row { border-top:1px solid var(--line); }
+  .rep-row .k { color:var(--tx2); }
+  .rep-row .v { margin-left:auto; font-weight:700; }
+  .rep-row .v.good { color:var(--green); }
+  .rep-row .v.warn { color:var(--red); }
+  .rep-meta { text-align:center; font-size:11px; color:var(--tx3); margin-top:14px; line-height:1.8; }
+  .rep-actions { flex:none; display:flex; gap:10px; padding:12px 20px 4px; border-top:1px solid var(--line); }
+  .rep-actions button { flex:1; height:48px; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; border:none; }
+  .rep-actions .ghost { background:var(--card2); color:var(--tx2); }
+  .rep-actions .solid { background:var(--brand); color:#fff; flex:1.6; }
+
   .toast {
     position:absolute; left:50%; bottom:110px; transform:translateX(-50%); z-index:60;
     background:rgba(20,21,24,.92); color:#fff; font-size:13px; padding:11px 18px; border-radius:12px;
@@ -668,7 +695,7 @@ function iqFaults() {
         <div class="s2">22 / 22 items passed</div>
       </div>
       <div class="fold-link" onclick="openOv('checks')">▸ View all 22 check items</div>
-      <button class="btn-primary btn-report" onclick="toast('📸 Diagnostic report generated · Sent to support ✅')">📸 Generate Report · Send to Support</button>`;
+      <button class="btn-primary btn-report" onclick="openOv('report')">📸 Generate Report · Send to Support</button>`;
   }
   const cards = FAULTS.map(f => `
     <div class="card fault-card">
@@ -680,13 +707,13 @@ function iqFaults() {
     <div class="fault-sum">⚠️ 2 faults detected</div>
     ${cards}
     <div class="fold-link" onclick="openOv('checks')">▸ 20 other items normal — view all</div>
-    <button class="btn-primary btn-report" onclick="toast('📸 Diagnostic report generated · Sent to support ✅')">📸 Generate Report · Send to Support</button>`;
+    <button class="btn-primary btn-report" onclick="openOv('report')">📸 Generate Report · Send to Support</button>`;
 }
 
 /* ================= Tab 4 · Support ================= */
 function tabSupport() {
   return `<div class="content">
-    <div class="diag-hero" onclick="toast('📸 Diagnostic report generated · Sent to support ✅')">
+    <div class="diag-hero" onclick="openOv('report')">
       <div class="ic">📸</div>
       <h2>One-Tap Diagnostic Report</h2>
       <p>Auto-bundles data & screenshots · Straight to our support team</p>
@@ -757,6 +784,49 @@ function overlayHTML() {
     <div class="drawer"><div class="grip"></div>
       <div class="dhead"><h3>All Check Items (22)</h3><span class="x" onclick="closeOv()">✕</span></div>
       <div class="dbody">${rows}</div>
+    </div>`;
+  }
+  if (S.overlay === 'report') {
+    const v = cells();
+    const max = Math.max(...v), min = Math.min(...v), delta = max - min;
+    const iMax = v.indexOf(max), iMin = v.indexOf(min);
+    const id = i => '#' + String(i+1).padStart(2,'0');
+    const fmt = mv => (mv/1000).toFixed(3) + ' V';
+    const banner = S.alarm
+      ? `<div class="rep-banner bad"><div class="bic">⚠️</div><h2>${FAULTS.length} Issues Detected</h2><div class="bs">${22-FAULTS.length} of 22 diagnostic checks passed</div></div>`
+        + FAULTS.map(f => `<div class="rep-fault">🔴<div><div class="ft">${f.en}</div><div class="fd">${f.desc}</div></div></div>`).join('')
+      : `<div class="rep-banner ok"><div class="bic" style="color:var(--green)">${ic.shield}</div><h2>All Systems Normal</h2><div class="bs">22 diagnostic checks passed</div></div>`;
+    const row = (k, val, cls='') => `<div class="rep-row"><span class="k">${k}</span><span class="v ${cls}">${val}</span></div>`;
+    return `<div class="mask" onclick="closeOv()"></div>
+    <div class="drawer tall"><div class="grip"></div>
+      <div class="dhead"><h3>📋 Diagnostic Report</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dbody" style="flex:1;">
+        ${banner}
+        <div class="rep-sec">Battery Snapshot</div>
+        <div class="rep-card">
+          ${row('State of Charge (SOC)', '72%')}
+          ${row('Total Voltage', '48.2 V')}
+          ${row('Current', '+12.5 A · Charging')}
+          ${row('Cell Delta', delta + ' mV', delta > 20 ? 'warn' : 'good')}
+          ${row('Highest Cell', id(iMax) + ' · ' + fmt(max))}
+          ${row('Lowest Cell', id(iMin) + ' · ' + fmt(min), min <= 2900 ? 'warn' : '')}
+          ${row('Battery Health (SOH)', '94 / 100')}
+          ${row('Cycle Count', '127')}
+          ${row('Temperature', '28–32 °C')}
+        </div>
+        <div class="rep-sec">Device</div>
+        <div class="rep-card">
+          ${row('Device Name', 'VEVOR-BT-A3F2')}
+          ${row('Serial Number', 'VEVOR-BT-2024-A3F2')}
+          ${row('Firmware', 'v2.3.1')}
+          ${row('App Version', 'v1.2.0')}
+        </div>
+        <div class="rep-meta">Report ID VB-260612-0941 · Generated Jun 12, 2026 · 9:41 AM<br>Sending shares this report and app screenshots with VEVOR Support</div>
+      </div>
+      <div class="rep-actions">
+        <button class="ghost" onclick="closeOv()">Cancel</button>
+        <button class="solid" onclick="sendReport()">📤 Send to Support</button>
+      </div>
     </div>`;
   }
   if (S.overlay === 'ota') {
@@ -880,6 +950,14 @@ const OV_NOTES = {
   cell: `<h4>电芯历史曲线（底部抽屉）</h4><ul><li>电芯编号 + 24h 历史电压折线图</li><li>采样间隔 30min（演示数据）</li></ul>`,
   checks: `<h4>全部检测项目（底部抽屉）</h4><ul><li>22 项完整列表，<b>异常项置顶</b>并红色标识</li><li>仅抽屉内部可滚动</li></ul>`,
   ota: `<h4>OTA 升级（居中 Modal）</h4><ul><li>版本对比 + 更新日志 + 立即更新</li><li>升级中显示进度条，完成后显示新版本号</li></ul>`,
+  report: `<h4>📋 诊断报告预览（全屏抽屉，高度 88%）</h4>
+    <ul><li><b>流程：</b>点"生成报告" → 先预览内容 → 用户确认后才发送（替代直接发送的黑盒操作）</li>
+    <li><b>顶部状态横幅：</b>正常 = 绿色，大字 All Systems Normal + 小字 22 diagnostic checks passed；告警 = 红色，大字 X Issues Detected，故障项红卡片<b>置顶显眼展示</b></li>
+    <li><b>Battery Snapshot：</b>SOC / 总电压 / 电流 / 压差（&gt;20mV 标红）/ 最高最低电芯 / SOH / 循环次数 / 温度</li>
+    <li><b>Device：</b>设备名 / SN / 固件 / APP 版本</li>
+    <li>底部注明 Report ID + 生成时间 + 隐私提示（发送内容包含截图）</li>
+    <li>双按钮：Cancel（灰）/ Send to Support（品牌色，占比更宽）</li>
+    <li><span class="tag">演示</span>切换顶部"模拟告警"后再打开报告，可看红色版本</li></ul>`,
 };
 
 /* ================= 渲染 ================= */
@@ -938,6 +1016,7 @@ function confirmSched() {
 function toggleSchedQuick() { S.schedOn ? (S.schedOn = false, render(), toast('Off-peak charging turned off')) : openOv('sched'); }
 function confirmSupply() { S.supplyOn = !S.supplyOn; S.overlay = null; render(); toast(S.supplyOn ? '⚡ Supply Mode enabled' : 'Supply Mode disabled'); }
 function startOTA() { S.otaState = 'progress'; render(); }
+function sendReport() { S.overlay = null; render(); toast('📤 Report VB-260612-0941 sent to support ✅'); }
 function toast(msg) {
   clearTimeout(toastTimer);
   document.querySelectorAll('.toast').forEach(e => e.remove());
