@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VEVOR Golf Cart Battery App · 交互原型 V2.1</title>
+<title>VEVOR Golf Cart Battery App · 交互原型 V2.2</title>
 <style>
   /* ============ 外层页面（工具栏 + 画布） ============ */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -288,8 +288,7 @@
   .fault-sum .ic { width:19px; height:19px; color:var(--red); }
   .fault-card { border-left:4px solid var(--red); padding:13px 15px; margin-bottom:10px; }
   .fault-card .t1 { font-size:15px; font-weight:800; color:var(--red); display:flex; align-items:center; gap:8px; }
-  .fault-card .t2 { font-size:11.5px; color:var(--tx3); margin-top:3px; }
-  .fault-card .t3 { font-size:12.5px; color:var(--tx2); margin-top:5px; }
+  .fault-card .t3 { font-size:12.5px; color:var(--tx2); margin-top:6px; }
   .fold-link { text-align:center; font-size:13px; color:var(--tx2); padding:13px 0; cursor:pointer; }
   .btn-report { margin-top:auto; margin-bottom:12px; }
 
@@ -332,7 +331,6 @@
   }
   .modal h3 { font-size:17px; font-weight:800; text-align:center; }
   .modal .mic2 { width:52px; height:52px; margin:0 auto 12px; color:var(--brand); display:flex; padding:4px; }
-  .modal .mic2.red { color:var(--red); }
   .modal p { font-size:13px; color:var(--tx2); line-height:1.8; margin-top:10px; }
   .modal .mbtns { display:flex; gap:10px; margin-top:20px; }
   .modal .mbtns button { flex:1; height:46px; border-radius:12px; font-size:14.5px; font-weight:700; cursor:pointer; border:none; }
@@ -348,9 +346,7 @@
 
   .chk-row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
   .chk-row .cic { width:16px; height:16px; color:var(--green); flex:none; }
-  .chk-row .en { margin-left:auto; font-size:11px; color:var(--tx3); }
   .chk-row.bad { color:var(--red); font-weight:700; }
-  .chk-row.bad .en { color:var(--red); opacity:.7; }
 
   .chart-box { background:var(--card2); border-radius:12px; padding:12px 8px 6px; margin-top:8px; }
   .chart-meta { display:flex; gap:14px; font-size:12px; color:var(--tx2); margin-bottom:8px; padding:0 6px; }
@@ -374,9 +370,9 @@
   .rep-banner h2 { font-size:20px; font-weight:800; margin-top:9px; }
   .rep-banner.ok h2 { color:var(--green); }
   .rep-banner.bad h2 { color:var(--red); }
-  .rep-banner .bs { font-size:12.5px; color:var(--tx2); margin-top:5px; }
-  .rep-banner.ok .bs, .rep-banner.bad .bs { color:var(--bn-ok-tx); opacity:.75; }
-  .rep-banner.bad .bs { color:var(--bn-bad-tx); }
+  .rep-banner .bs { font-size:12.5px; margin-top:5px; }
+  .rep-banner.ok .bs { color:var(--bn-ok-tx); opacity:.75; }
+  .rep-banner.bad .bs { color:var(--bn-bad-tx); opacity:.8; }
   .rep-fault { display:flex; gap:10px; background:var(--red-soft); border-left:4px solid var(--red); border-radius:10px; padding:11px 13px; margin-top:9px; align-items:flex-start; }
   .rep-fault .dot { margin-top:4px; background:var(--red); }
   .rep-fault .ft { font-size:13.5px; font-weight:800; color:var(--red); }
@@ -408,7 +404,7 @@
 <body>
 
 <div id="toolbar">
-  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V2.1</div>
+  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V2.2</div>
   <div class="sep"></div>
   <select id="jumpSel" class="tbtn" onchange="jumpTo(this.value)">
     <option value="">⤵ 跳转到页面…</option>
@@ -423,6 +419,7 @@
     <option value="tab:iq">Tab 3 · Battery IQ™ 诊断</option>
     <option value="tab:support">Tab 4 · Support 服务</option>
   </select>
+  <button class="tbtn on" id="langBtn" onclick="toggleLang()">🌐 界面语言：中文</button>
   <button class="tbtn" id="themeBtn" onclick="toggleTheme()">🌙 深色主题</button>
   <button class="tbtn on" id="notesBtn" onclick="toggleNotes()">📋 中文标注</button>
   <button class="tbtn" id="alarmBtn" onclick="toggleAlarm()">⚠️ 模拟告警：关</button>
@@ -442,6 +439,7 @@
 <script>
 /* ================= 状态 ================= */
 const S = {
+  lang: 'zh',
   theme: 'dark',
   notes: true,
   screen: 'bt01',
@@ -459,6 +457,166 @@ const S = {
 const LIMITS = { daily: 85, trip: 100, storage: 50 };
 let timer = null, toastTimer = null;
 
+/* ================= 多语言文案（[英文, 中文]，一一对应） ================= */
+const TXT = {
+  connected: ['Connected','已连接'],
+  /* Tabs */
+  tabDash: ['Dashboard','总览'],
+  tabGuard: ['Lifetime Guard™','充电管家'],
+  tabIQ: ['Battery IQ™','电池诊断'],
+  tabSupport: ['Support','服务支持'],
+  /* BT-01 */
+  btAccess: ['Bluetooth Access','蓝牙权限'],
+  btAccessSub: ['Find and connect to nearby batteries','搜索并连接附近设备'],
+  locAccess: ['Location Access','位置权限'],
+  locAccessSub: ['Required by the system for Bluetooth scanning','蓝牙扫描系统必需'],
+  allowBtn: ['Allow & Continue','允许并继续'],
+  legal: ['We never collect or store your location data','我们不收集任何位置数据'],
+  /* BT-02 */
+  searching: ['Searching for nearby batteries…','正在搜索附近的电池…'],
+  makeSure: ['Please make sure:','请确认:'],
+  tip1: ['Battery is powered on (dashboard switch)','电池已按仪表盘开关开机'],
+  tip2: ['Phone is within 3 m / 10 ft of the battery','手机与电池距离小于 3 米'],
+  devicesFound: ['Devices found','发现的设备'],
+  noDevices: ['No devices yet — they will appear here','暂无设备 — 发现后将实时显示在这里'],
+  /* BT-03 */
+  oneFound: ['1 device found','发现 1 个设备'],
+  signalGood: ['Signal: Good','信号：良好'],
+  connect: ['Connect','连接'],
+  cantFind: ['Can\'t find my device','找不到我的设备'],
+  /* BT-04 / 05 */
+  connectingTo: ['Connecting to','正在连接'],
+  connectedOk: ['Connected!','连接成功！'],
+  guardActivated: ['Lifetime Guard™ Activated','Lifetime Guard™ 已激活'],
+  /* BT-06 */
+  notFound: ['No VEVOR battery found','未发现 VEVOR 电池'],
+  s1t: ['Power on the battery','确认电池已开机'],
+  s1s: ['Press the switch on the battery dashboard','按仪表盘开关开机'],
+  s2t: ['Move closer — within 3 m / 10 ft','靠近电池，距离小于 3 米'],
+  s2s: ['Bluetooth range is limited','蓝牙有效范围有限'],
+  s3t: ['Check phone Bluetooth is ON','确认手机蓝牙已开启'],
+  s3s: ['Settings → Bluetooth','设置 → 蓝牙'],
+  s4t: ['Remove old pairing, then rescan','删除历史配对后重新搜索'],
+  s4s: ['Forget the device in system settings','在系统设置中忽略此设备'],
+  searchAgain: ['Search Again','重新搜索'],
+  stillCant: ['Still can\'t connect?','仍然无法连接？'],
+  contactCs: ['Contact Support ›','联系售后 ›'],
+  /* Dashboard */
+  charging: ['Charging','充电中'],
+  health: ['Health','健康分'],
+  totalVoltage: ['Total Voltage','总电压'],
+  current: ['Current','电流'],
+  maxTemp: ['Max Temp','最高温'],
+  minTemp: ['Min Temp','最低温'],
+  allNormal: ['All Systems Normal','所有系统正常'],
+  bannerBad: ['2 faults — Cell Under-voltage','2 项故障 — 单体欠压'],
+  view: ['View','查看'],
+  /* Guard */
+  active: ['Active','已启用'],
+  currentLbl: ['Current:','当前:'],
+  stopAt: ['Charging will stop automatically at {x}%','充电将在 {x}% 自动停止'],
+  lifeExt: ['Estimated battery life extension {x}','预计延长电池寿命 {x}'],
+  chargeLimitMode: ['Charge Limit Mode','充电上限模式'],
+  daily: ['Daily','日常'],
+  longTrip: ['Long Trip','长途'],
+  storage: ['Storage','存储'],
+  dailyDs: ['Daily recommended','每日推荐'],
+  tripDs: ['Full range today','今日满程'],
+  storageDs: ['Long-term parking','长期存放'],
+  tripHint: ['⚠ Charges to 100% for today\'s trip only — automatically reverts to Daily (85%) after this charge.','⚠ 仅本次充电充至 100% — 本次充电结束后自动恢复日常模式（85%）。'],
+  storageHint: ['Holds 50% for long-term storage — the healthiest level when parked for weeks.','保持 50% 长期存放 — 停放数周时最健康的电量水平。'],
+  schedTitle: ['Scheduled<br>Off-Peak Charging','预约错峰充电'],
+  supplyTitle: ['Supply Mode<br>Geek Boost','极客强充<br>Supply Mode'],
+  off: ['Off','关'],
+  offUpper: ['OFF','关'],
+  activeDot: ['● Active','● 已开启'],
+  lastCharge: ['Last charge','上次充电'],
+  saved: ['Saved','省'],
+  /* IQ */
+  cellStatus: ['Cell Status','电芯状态'],
+  faultDetect: ['Fault Detection','故障检测'],
+  highestCell: ['Highest Cell','最高电芯'],
+  delta: ['Delta','压差'],
+  lowestCell: ['Lowest Cell','最低电芯'],
+  normal: ['Normal','正常'],
+  abnormal: ['Abnormal','异常'],
+  batteryHealth: ['Battery Health','电池健康'],
+  cyclesTemp: ['Cycles · Avg Temp','循环 · 平均温度'],
+  everyPassed: ['Every protection check passed','所有检测项目正常'],
+  allPassed: ['22 / 22 items passed','22 项全部通过'],
+  viewAll22: ['▸ View all 22 check items','▸ 查看全部 22 项检测项目'],
+  genReport: ['Generate Report · Send to Support','生成诊断报告 · 发送客服'],
+  faultsDetected: ['2 faults detected','发现 2 项异常'],
+  others20: ['▸ 20 other items normal — view all','▸ 其余 20 项正常，点击查看'],
+  /* Support */
+  oneTap: ['One-Tap Diagnostic Report','一键故障诊断报告'],
+  oneTapSub: ['Auto-bundles data & screenshots · Straight to our support team','自动打包数据与截图 · 直连官方客服'],
+  ota: ['OTA Firmware Update','OTA 固件升级'],
+  upToDate: ['Up to date ✓','已是最新 ✓'],
+  manual: ['Digital Product Manual','产品数字手册'],
+  viewSt: ['View','查看'],
+  contactSupport: ['Contact Support','联系官方售后'],
+  liveChat: ['Live chat','在线客服'],
+  fw: ['Firmware','固件版本'],
+  /* Drawers / modals */
+  schedHead: ['Scheduled Off-Peak Charging','预约错峰充电'],
+  schedNote: ['Charge during off-peak utility hours to save on electricity. The battery starts charging automatically inside this window.','在电价低谷时段充电，节省电费。电池将在该时间窗口内自动开始充电。'],
+  start: ['Start','开始'],
+  end: ['End','结束'],
+  confirm: ['Confirm','确认'],
+  supplyHead: ['Enable Supply Mode?','开启极客强充？'],
+  supplyBody: ['Geek Boost charges at maximum supported current and bypasses the Lifetime Guard™ limit for this session. Battery temperature will be monitored continuously. Long-term use may reduce battery lifespan.','极客强充将以最大支持电流充电，并在本次充电中绕过 Lifetime Guard™ 上限。电池温度将被持续监控。长期使用可能缩短电池寿命。'],
+  cancel: ['Cancel','取消'],
+  enableBtn: ['I Understand, Enable','我已了解，开启'],
+  disableBtn: ['Disable','关闭'],
+  cellHist: ['Cell {x} · Voltage History','电芯 {x} · 历史电压'],
+  now: ['Now','当前'],
+  min24: ['24h Min','24h 最低'],
+  max24: ['24h Max','24h 最高'],
+  sampleNote: ['Last 24 hours · sampled every 30 min','最近 24 小时 · 每 30 分钟采样'],
+  nowLbl: ['Now','现在'],
+  allChecks: ['All Check Items (22)','全部检测项目（22 项）'],
+  otaHead: ['OTA Firmware Update','OTA 固件升级'],
+  whatsNew: ['What\'s new:','更新内容:'],
+  log1: ['Improved SOC accuracy at low temperature','提升低温环境下 SOC 精度'],
+  log2: ['Faster Bluetooth reconnection','加快蓝牙重连速度'],
+  log3: ['Cell balancing optimization','优化电芯均衡策略'],
+  later: ['Later','稍后'],
+  updateNow: ['Update Now','立即更新'],
+  updating: ['Updating firmware… keep the app open<br>and stay near the battery.','固件升级中… 请保持 APP 开启<br>并停留在电池附近。'],
+  updatedTo: ['Firmware updated to','固件已更新至'],
+  done: ['Done','完成'],
+  /* Report */
+  repHead: ['Diagnostic Report','诊断报告'],
+  repPassedAll: ['22 diagnostic checks passed','22 项诊断检测全部通过'],
+  issuesDetected: ['{x} Issues Detected','发现 {x} 项异常'],
+  repPassedPart: ['{x} of 22 diagnostic checks passed','22 项检测通过 {x} 项'],
+  snapshot: ['Battery Snapshot','电池快照'],
+  socRow: ['State of Charge (SOC)','电量 (SOC)'],
+  chargingRow: ['+12.5 A · Charging','+12.5 A · 充电中'],
+  cellDelta: ['Cell Delta','电芯压差'],
+  sohRow: ['Battery Health (SOH)','电池健康 (SOH)'],
+  cycleCount: ['Cycle Count','循环次数'],
+  temperature: ['Temperature','温度'],
+  device: ['Device','设备信息'],
+  devName: ['Device Name','设备名称'],
+  sn: ['Serial Number','序列号'],
+  appVer: ['App Version','APP 版本'],
+  repMeta: ['Report ID VB-260612-0941 · Generated Jun 12, 2026 · 9:41 AM','报告编号 VB-260612-0941 · 生成时间 2026-06-12 09:41'],
+  repPrivacy: ['Sending shares this report and app screenshots with VEVOR Support','发送将向 VEVOR 客服共享此报告及应用截图'],
+  sendBtn: ['Send to Support','发送给客服'],
+  /* Toasts */
+  tManual: ['Opens the digital product manual','打开产品数字手册'],
+  tChat: ['Opens live chat with VEVOR support','打开 VEVOR 在线客服对话'],
+  tSchedSet: ['Off-peak charging set: {x}','错峰充电已设置: {x}'],
+  tSchedOff: ['Off-peak charging turned off','错峰充电已关闭'],
+  tSupplyOn: ['Supply Mode enabled','极客强充已开启'],
+  tSupplyOff: ['Supply Mode disabled','极客强充已关闭'],
+  tSent: ['Report VB-260612-0941 sent to support ✓','报告 VB-260612-0941 已发送给客服 ✓'],
+};
+const t = k => TXT[k][S.lang === 'en' ? 0 : 1];
+const tf = (k, x) => t(k).replace('{x}', x);
+
 const CELLS_OK  = [3296,3297,3302,3299,3294,3295,3293,3292,3291,3290,3289,3292,3290,3290,3291,3293];
 const CELLS_BAD = [3296,3297,3302,3299,3262,3295,3293,3292,3291,3290,2890,3292,3290,3290,3291,3293];
 function cells() { return S.alarm ? CELLS_BAD : CELLS_OK; }
@@ -474,9 +632,13 @@ const CHECK_ITEMS = [
   ['Communication','通信检测'],
 ];
 const FAULTS = [
-  { en:'Cell Under-voltage', zh:'单体欠压', desc:'Cell #11 voltage below protection threshold (2.90V)' },
-  { en:'Discharge Over-current', zh:'放电过流', desc:'Discharge current exceeded safe range' },
+  { en:'Cell Under-voltage', zh:'单体欠压',
+    descEn:'Cell #11 voltage below protection threshold (2.90V)', descZh:'电芯 #11 电压低于保护阈值（2.90V）' },
+  { en:'Discharge Over-current', zh:'放电过流',
+    descEn:'Discharge current exceeded safe range', descZh:'放电电流超出安全范围' },
 ];
+const fName = f => S.lang === 'en' ? f.en : f.zh;
+const fDesc = f => S.lang === 'en' ? f.descEn : f.descZh;
 
 /* ================= SVG 图标库 ================= */
 const sv = (p, fill) => `<svg viewBox="0 0 24 24" fill="${fill||'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
@@ -487,7 +649,6 @@ const I = {
   smile: sv('<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1 2.1 1.6 3.5 1.6s2.6-.6 3.5-1.6"/><circle cx="9" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".7" fill="currentColor" stroke="none"/>'),
   bell: sv('<path d="M18 9a6 6 0 10-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 004 0"/>'),
   shieldCheck: sv('<path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M8.5 11.5l2.5 2.5 4.5-4.5"/>'),
-  shield: sv('<path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/>'),
   check: sv('<path d="M4 12.5l5.5 5.5L20 6.5"/>'),
   checkC: sv('<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>'),
   bolt: sv('<path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5L13 2z" fill="currentColor" stroke="none"/>'),
@@ -498,7 +659,6 @@ const I = {
   trend: sv('<path d="M3 17l6-6 4 4 7-8"/><path d="M14 7h6v6"/>'),
   clip: sv('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4a3 3 0 016 0"/><path d="M9 11h6M9 15h4"/>'),
   camera: sv('<path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.2"/>'),
-  refresh: sv('<path d="M20 11a8 8 0 10-2.2 6.3"/><path d="M20 5v6h-6"/>'),
   book: sv('<path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/><path d="M12 6v14"/>'),
   msg: sv('<path d="M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.5 0-3-.4-4.2-1L3 20l1-4.3A8.5 8.5 0 1121 11.5z"/>'),
   warn: sv('<path d="M12 3.5L21.5 20h-19L12 3.5z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r=".7" fill="currentColor" stroke="none"/>'),
@@ -528,17 +688,17 @@ function statusbar() {
 function appheader() {
   return `<div class="appheader">
     <span class="dev">VEVOR-BT-A3F2</span>
-    <span class="conn">Connected</span>
+    <span class="conn">${t('connected')}</span>
     <span class="bell">${I.bell}</span>
   </div>`;
 }
 function tabbar() {
-  const t = (id, icn, name) => `<div class="tab ${S.tab===id?'on':''}" onclick="goTab('${id}')">${ic(icn,23)}<span>${name}</span></div>`;
+  const tb = (id, icn, name) => `<div class="tab ${S.tab===id?'on':''}" onclick="goTab('${id}')">${ic(icn,23)}<span>${name}</span></div>`;
   return `<div class="tabbar">
-    ${t('dash', 'home', 'Dashboard')}
-    ${t('guard', 'guard', 'Lifetime Guard™')}
-    ${t('iq', 'chart', 'Battery IQ™')}
-    ${t('support', 'smile', 'Support')}
+    ${tb('dash', 'home', t('tabDash'))}
+    ${tb('guard', 'guard', t('tabGuard'))}
+    ${tb('iq', 'chart', t('tabIQ'))}
+    ${tb('support', 'smile', t('tabSupport'))}
   </div>`;
 }
 
@@ -550,12 +710,12 @@ function pageBT01() {
       <h1><span>VEVOR</span> Battery</h1>
     </div>
     <div class="card perm-card">
-      <div class="perm-row"><span class="pic">${I.bt}</span><div><div class="t1">Bluetooth Access</div><div class="t2">Find and connect to nearby batteries</div></div></div>
-      <div class="perm-row"><span class="pic">${I.pin}</span><div><div class="t1">Location Access</div><div class="t2">Required by the system for Bluetooth scanning</div></div></div>
+      <div class="perm-row"><span class="pic">${I.bt}</span><div><div class="t1">${t('btAccess')}</div><div class="t2">${t('btAccessSub')}</div></div></div>
+      <div class="perm-row"><span class="pic">${I.pin}</span><div><div class="t1">${t('locAccess')}</div><div class="t2">${t('locAccessSub')}</div></div></div>
     </div>
     <div class="bt-foot">
-      <button class="btn-primary" onclick="go('bt02')">Allow & Continue</button>
-      <div class="legal">We never collect or store your location data</div>
+      <button class="btn-primary" onclick="go('bt02')">${t('allowBtn')}</button>
+      <div class="legal">${t('legal')}</div>
     </div>
   </div>`;
 }
@@ -565,28 +725,28 @@ function pageBT02() {
       <div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div>
       <div class="pulse-core">${I.battery}</div>
     </div>
-    <div class="scan-txt">Searching for nearby batteries…</div>
+    <div class="scan-txt">${t('searching')}</div>
     <div class="tips-box">
-      <div class="tt">${ic('bulb',16)} Please make sure:</div>
-      &nbsp;&nbsp;· Battery is powered on (dashboard switch)<br>&nbsp;&nbsp;· Phone is within 3 m / 10 ft of the battery
+      <div class="tt">${ic('bulb',16)} ${t('makeSure')}</div>
+      &nbsp;&nbsp;· ${t('tip1')}<br>&nbsp;&nbsp;· ${t('tip2')}
     </div>
-    <div class="found-label">Devices found</div>
-    <div class="scan-txt" style="font-size:12.5px; opacity:.6;">No devices yet — they will appear here</div>
+    <div class="found-label">${t('devicesFound')}</div>
+    <div class="scan-txt" style="font-size:12.5px; opacity:.6;">${t('noDevices')}</div>
   </div>`;
 }
 function pageBT03() {
   return statusbar() + `<div class="bt-page">
-    <h2 style="font-size:19px; font-weight:800; padding:14px 2px 16px;">1 device found</h2>
+    <h2 style="font-size:19px; font-weight:800; padding:14px 2px 16px;">${t('oneFound')}</h2>
     <div class="card dev-card">
       <span class="pic">${I.battery}</span>
       <div>
         <div class="nm">VEVOR-BT-2024-A3F2</div>
-        <div class="sig"><span class="sigbars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:8px"></i><i style="height:10px"></i><i class="off" style="height:12px"></i></span> Signal: Good</div>
+        <div class="sig"><span class="sigbars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:8px"></i><i style="height:10px"></i><i class="off" style="height:12px"></i></span> ${t('signalGood')}</div>
       </div>
-      <button class="btn-sm" onclick="go('bt04')">Connect</button>
+      <button class="btn-sm" onclick="go('bt04')">${t('connect')}</button>
     </div>
     <div class="bt-foot" style="margin-top:auto; padding-bottom:30px;">
-      <div class="link" onclick="go('bt06')">Can't find my device <b>›</b></div>
+      <div class="link" onclick="go('bt06')">${t('cantFind')} <b>›</b></div>
     </div>
   </div>`;
 }
@@ -594,7 +754,7 @@ function pageBT04() {
   return statusbar() + `<div class="bt-page">
     <div class="connect-zone">
       <div class="conn-anim">${ic('battery',36)}<div class="conn-line"></div>${ic('phone',36)}</div>
-      <div class="conn-txt">Connecting to<br><b style="color:var(--tx)">VEVOR-BT-2024-A3F2</b> …</div>
+      <div class="conn-txt">${t('connectingTo')}<br><b style="color:var(--tx)">VEVOR-BT-2024-A3F2</b> …</div>
     </div>
   </div>`;
 }
@@ -602,24 +762,24 @@ function pageBT05() {
   return statusbar() + `<div class="bt-page">
     <div class="ok-zone">
       <div class="ok-badge">${I.check}</div>
-      <h2>Connected!</h2>
-      <div class="sub">Lifetime Guard™ Activated</div>
+      <h2>${t('connectedOk')}</h2>
+      <div class="sub">${t('guardActivated')}</div>
       <div class="sn">VEVOR-BT-2024-A3F2</div>
     </div>
   </div>`;
 }
 function pageBT06() {
   return statusbar() + `<div class="bt-page">
-    <div class="nf-head"><span class="nic">${I.radar}</span><h2>No VEVOR battery found</h2></div>
+    <div class="nf-head"><span class="nic">${I.radar}</span><h2>${t('notFound')}</h2></div>
     <div class="card steps-card">
-      <div class="step-row"><span class="no">1</span><div><div class="t1">Power on the battery</div><div class="t2">Press the switch on the battery dashboard</div></div></div>
-      <div class="step-row"><span class="no">2</span><div><div class="t1">Move closer — within 3 m / 10 ft</div><div class="t2">Bluetooth range is limited</div></div></div>
-      <div class="step-row"><span class="no">3</span><div><div class="t1">Check phone Bluetooth is ON</div><div class="t2">Settings → Bluetooth</div></div></div>
-      <div class="step-row"><span class="no">4</span><div><div class="t1">Remove old pairing, then rescan</div><div class="t2">Forget the device in system settings</div></div></div>
+      <div class="step-row"><span class="no">1</span><div><div class="t1">${t('s1t')}</div><div class="t2">${t('s1s')}</div></div></div>
+      <div class="step-row"><span class="no">2</span><div><div class="t1">${t('s2t')}</div><div class="t2">${t('s2s')}</div></div></div>
+      <div class="step-row"><span class="no">3</span><div><div class="t1">${t('s3t')}</div><div class="t2">${t('s3s')}</div></div></div>
+      <div class="step-row"><span class="no">4</span><div><div class="t1">${t('s4t')}</div><div class="t2">${t('s4s')}</div></div></div>
     </div>
     <div class="bt-foot">
-      <button class="btn-primary" onclick="go('bt02')">Search Again</button>
-      <div class="legal" style="font-size:13px; margin-top:16px; color:var(--tx2); cursor:pointer;">Still can't connect? <b style="color:var(--brand)">Contact Support ›</b></div>
+      <button class="btn-primary" onclick="go('bt02')">${t('searchAgain')}</button>
+      <div class="legal" style="font-size:13px; margin-top:16px; color:var(--tx2); cursor:pointer;">${t('stillCant')} <b style="color:var(--brand)">${t('contactCs')}</b></div>
     </div>
   </div>`;
 }
@@ -635,8 +795,8 @@ function tabDash() {
   const dash = C * S.soc / 100;
   const [s1,s2,s3] = ringStops();
   const banner = S.alarm
-    ? `<div class="alert-banner bad" onclick="goFaults()">${ic('warn',21)}<span>2 faults — Cell Under-voltage</span><span class="arr">›</span></div>`
-    : `<div class="alert-banner ok">${ic('shieldCheck',21)}<span>All Systems Normal</span><span class="arr">›</span></div>`;
+    ? `<div class="alert-banner bad" onclick="goFaults()">${ic('warn',21)}<span>${t('bannerBad')}</span><span class="arr">${t('view')} ›</span></div>`
+    : `<div class="alert-banner ok">${ic('shieldCheck',21)}<span>${t('allNormal')}</span><span class="arr">›</span></div>`;
   return `<div class="content">
     <div class="soc-zone">
       <div class="ring-box">
@@ -655,16 +815,16 @@ function tabDash() {
           <div class="lbl">SOC</div>
           <div class="val">${S.soc}<small>%</small></div>
           <div class="amp">${ic('arrowUp',14)} 12.5A</div>
-          <div class="chg">Charging</div>
+          <div class="chg">${t('charging')}</div>
         </div>
       </div>
-      <div class="health-line">${ic('shieldCheck',19)} Health&nbsp; <b>94</b>&nbsp;/ 100</div>
+      <div class="health-line">${ic('shieldCheck',19)} ${t('health')}&nbsp; <b>94</b>&nbsp;/ 100</div>
     </div>
     <div class="quad">
-      <div class="q"><div class="v">48.2<small>V</small></div><div class="k">Total Voltage</div></div>
-      <div class="q"><div class="v">12.5<small>A</small></div><div class="k">Current</div></div>
-      <div class="q"><div class="v">32<small>°C</small></div><div class="k">Max Temp</div></div>
-      <div class="q"><div class="v">28<small>°C</small></div><div class="k">Min Temp</div></div>
+      <div class="q"><div class="v">48.2<small>V</small></div><div class="k">${t('totalVoltage')}</div></div>
+      <div class="q"><div class="v">12.5<small>A</small></div><div class="k">${t('current')}</div></div>
+      <div class="q"><div class="v">32<small>°C</small></div><div class="k">${t('maxTemp')}</div></div>
+      <div class="q"><div class="v">28<small>°C</small></div><div class="k">${t('minTemp')}</div></div>
     </div>
     ${banner}
   </div>`;
@@ -675,14 +835,14 @@ function tabGuard() {
   const lim = LIMITS[S.mode];
   const hints = {
     daily: '',
-    trip: `<div class="mode-hint warn">⚠ Charges to 100% for today's trip only — automatically reverts to Daily (85%) after this charge.</div>`,
-    storage: `<div class="mode-hint info">Holds 50% for long-term storage — the healthiest level when parked for weeks.</div>`,
+    trip: `<div class="mode-hint warn">${t('tripHint')}</div>`,
+    storage: `<div class="mode-hint info">${t('storageHint')}</div>`,
   };
   const gain = { daily:'+30%', trip:'—', storage:'+35%' }[S.mode];
   return `<div class="content" style="overflow-y:hidden;">
-    <div class="lg-title">${ic('bolt',19)}<h2>Lifetime Guard™</h2><span class="act">Active</span></div>
+    <div class="lg-title">${ic('bolt',19)}<h2>Lifetime Guard™</h2><span class="act">${t('active')}</span></div>
     <div class="card guard-card">
-      <div class="gbar-labels"><span>Current: <b>${S.soc}%</b></span><span class="lim">${ic('shieldCheck',16)} ${lim}%</span></div>
+      <div class="gbar-labels"><span>${t('currentLbl')} <b>${S.soc}%</b></span><span class="lim">${ic('shieldCheck',16)} ${lim}%</span></div>
       <div class="gbar">
         <div class="restzone" style="width:${100-lim}%"></div>
         <div class="fill" style="width:${S.soc}%"></div>
@@ -690,27 +850,27 @@ function tabGuard() {
         <div class="knob" style="left:${S.soc}%"></div>
       </div>
       <div class="gbar-scale"><span>0%</span><span>100%</span></div>
-      <div class="guard-sub">Charging will stop automatically at ${lim}%</div>
-      ${gain !== '—' ? `<div class="guard-gain">${ic('trend',16)} Estimated battery life extension ${gain}</div>` : ''}
+      <div class="guard-sub">${tf('stopAt', lim)}</div>
+      ${gain !== '—' ? `<div class="guard-gain">${ic('trend',16)} ${tf('lifeExt', gain)}</div>` : ''}
     </div>
-    <div class="sec-title">Charge Limit Mode</div>
+    <div class="sec-title">${t('chargeLimitMode')}</div>
     <div class="modes">
-      ${modeCard('daily','leaf','g','Daily','Daily recommended')}
-      ${modeCard('trip','car','b','Long Trip','Full range today')}
-      ${modeCard('storage','box','p','Storage','Long-term parking')}
+      ${modeCard('daily','leaf','g',t('daily'),t('dailyDs'))}
+      ${modeCard('trip','car','b',t('longTrip'),t('tripDs'))}
+      ${modeCard('storage','box','p',t('storage'),t('storageDs'))}
     </div>
     ${hints[S.mode]}
     <div class="duo">
       <div class="fn card" onclick="toggleSchedQuick(event)">
-        <div class="t">${ic('moon',17)}<span>Scheduled<br>Off-Peak Charging</span></div>
-        <div class="s"><span class="switch ${S.schedOn?'on':''}" onclick="event.stopPropagation(); openOv('sched')"></span><span onclick="event.stopPropagation(); openOv('sched')" style="cursor:pointer">${S.schedOn ? S.schedStart+'–'+S.schedEnd : 'OFF'} ›</span></div>
+        <div class="t">${ic('moon',17)}<span>${t('schedTitle')}</span></div>
+        <div class="s"><span class="switch ${S.schedOn?'on':''}" onclick="event.stopPropagation(); openOv('sched')"></span><span onclick="event.stopPropagation(); openOv('sched')" style="cursor:pointer">${S.schedOn ? S.schedStart+'–'+S.schedEnd : t('offUpper')} ›</span></div>
       </div>
       <div class="fn card" onclick="openOv('supply')">
-        <div class="t">${ic('bolt',17)}<span>Supply Mode<br>Geek Boost</span></div>
-        <div class="s"><span style="color:${S.supplyOn?'var(--brand)':'var(--tx3)'}; font-weight:600;">${S.supplyOn?'● Active':'Off'}</span><span>›</span></div>
+        <div class="t">${ic('bolt',17)}<span>${t('supplyTitle')}</span></div>
+        <div class="s"><span style="color:${S.supplyOn?'var(--brand)':'var(--tx3)'}; font-weight:600;">${S.supplyOn?t('activeDot'):t('off')}</span><span>›</span></div>
       </div>
     </div>
-    <div class="lastchg">${ic('clip',15)}<span class="w">Last charge</span>&nbsp; <b class="gain">+23Ah</b> · 1h 20min · Saved <b class="save">$0.8</b></div>
+    <div class="lastchg">${ic('clip',15)}<span class="w">${t('lastCharge')}</span>&nbsp; <b class="gain">+23Ah</b> · 1h 20min · ${t('saved')} <b class="save">$0.8</b></div>
   </div>`;
 }
 function modeCard(id, icn, colorCls, nm, ds) {
@@ -722,8 +882,8 @@ function modeCard(id, icn, colorCls, nm, ds) {
 /* ================= Tab 3 · Battery IQ ================= */
 function tabIQ() {
   const seg = `<div class="segment">
-    <div class="sg ${S.iqSeg==='cells'?'on':''}" onclick="setSeg('cells')">Cell Status</div>
-    <div class="sg ${S.iqSeg==='faults'?'on':''}" onclick="setSeg('faults')">Fault Detection</div>
+    <div class="sg ${S.iqSeg==='cells'?'on':''}" onclick="setSeg('cells')">${t('cellStatus')}</div>
+    <div class="sg ${S.iqSeg==='faults'?'on':''}" onclick="setSeg('faults')">${t('faultDetect')}</div>
   </div>`;
   return `<div class="content">${seg}${S.iqSeg==='cells' ? iqCells() : iqFaults()}</div>`;
 }
@@ -748,14 +908,14 @@ function iqCells() {
   }).join('');
   return `
     <div class="iq-stats">
-      <div class="st hi"><div class="k">Highest Cell</div><div class="v"><span class="id">${id(iMax)}</span><em>${fmt(max)}</em></div></div>
-      <div class="st delta ${delta>20?'warn':''}"><div class="k">Delta</div><div class="v">${delta}mV ${delta>20?ic('warn',14):ic('checkC',14)}</div><div class="k2">${delta>20?'Abnormal':'Normal'}</div></div>
-      <div class="st lo"><div class="k">Lowest Cell</div><div class="v"><span class="id">${id(iMin)}</span><em>${fmt(min)}</em></div></div>
+      <div class="st hi"><div class="k">${t('highestCell')}</div><div class="v"><span class="id">${id(iMax)}</span><em>${fmt(max)}</em></div></div>
+      <div class="st delta ${delta>20?'warn':''}"><div class="k">${t('delta')}</div><div class="v">${delta}mV ${delta>20?ic('warn',14):ic('checkC',14)}</div><div class="k2">${delta>20?t('abnormal'):t('normal')}</div></div>
+      <div class="st lo"><div class="k">${t('lowestCell')}</div><div class="v"><span class="id">${id(iMin)}</span><em>${fmt(min)}</em></div></div>
     </div>
     <div class="cellgrid">${grid}</div>
     <div class="iq-foot">
-      <div class="f"><span class="fic ic" style="color:var(--green)">${I.shieldCheck}</span><div><div class="k">Battery Health</div><div class="v">94 / 100</div></div></div>
-      <div class="f"><span class="fic ic" style="color:var(--tx2)">${I.thermo}</span><div><div class="k">Cycles · Avg Temp</div><div class="v">127 · 29°C</div></div></div>
+      <div class="f"><span class="fic ic" style="color:var(--green)">${I.shieldCheck}</span><div><div class="k">${t('batteryHealth')}</div><div class="v">94 / 100</div></div></div>
+      <div class="f"><span class="fic ic" style="color:var(--tx2)">${I.thermo}</span><div><div class="k">${t('cyclesTemp')}</div><div class="v">127 · 29°C</div></div></div>
     </div>`;
 }
 function iqFaults() {
@@ -763,24 +923,23 @@ function iqFaults() {
     return `
       <div class="fault-ok">
         <div class="shield">${I.shieldCheck}</div>
-        <h2>All Systems Normal</h2>
-        <div class="s1">Every protection check passed</div>
-        <div class="s2">22 / 22 items passed</div>
+        <h2>${t('allNormal')}</h2>
+        <div class="s1">${t('everyPassed')}</div>
+        <div class="s2">${t('allPassed')}</div>
       </div>
-      <div class="fold-link" onclick="openOv('checks')">▸ View all 22 check items</div>
-      <button class="btn-primary btn-report" onclick="openOv('report')">${ic('camera',18)} Generate Report · Send to Support</button>`;
+      <div class="fold-link" onclick="openOv('checks')">${t('viewAll22')}</div>
+      <button class="btn-primary btn-report" onclick="openOv('report')">${ic('camera',18)} ${t('genReport')}</button>`;
   }
   const cards = FAULTS.map(f => `
     <div class="card fault-card">
-      <div class="t1"><span class="dot" style="background:var(--red)"></span>${f.en}</div>
-      <div class="t2">${f.zh}</div>
-      <div class="t3">${f.desc}</div>
+      <div class="t1"><span class="dot" style="background:var(--red)"></span>${fName(f)}</div>
+      <div class="t3">${fDesc(f)}</div>
     </div>`).join('');
   return `
-    <div class="fault-sum">${ic('warn',19)} 2 faults detected</div>
+    <div class="fault-sum">${ic('warn',19)} ${t('faultsDetected')}</div>
     ${cards}
-    <div class="fold-link" onclick="openOv('checks')">▸ 20 other items normal — view all</div>
-    <button class="btn-primary btn-report" onclick="openOv('report')">${ic('camera',18)} Generate Report · Send to Support</button>`;
+    <div class="fold-link" onclick="openOv('checks')">${t('others20')}</div>
+    <button class="btn-primary btn-report" onclick="openOv('report')">${ic('camera',18)} ${t('genReport')}</button>`;
 }
 
 /* ================= Tab 4 · Support ================= */
@@ -788,15 +947,15 @@ function tabSupport() {
   return `<div class="content">
     <div class="diag-hero" onclick="openOv('report')">
       <div class="hic">${I.camera}</div>
-      <h2>One-Tap Diagnostic Report</h2>
-      <p>Auto-bundles data & screenshots · Straight to our support team</p>
+      <h2>${t('oneTap')}</h2>
+      <p>${t('oneTapSub')}</p>
     </div>
     <div class="card svc-list">
-      <div class="svc-row" onclick="openOv('ota')"><span class="sic">${I.up}</span><span class="t">OTA Firmware Update</span><span class="st okk">Up to date ✓</span><span class="arr ic">${I.chev}</span></div>
-      <div class="svc-row" onclick="toast('Opens the digital product manual')"><span class="sic">${I.book}</span><span class="t">Digital Product Manual</span><span class="st">View</span><span class="arr ic">${I.chev}</span></div>
-      <div class="svc-row" onclick="toast('Opens live chat with VEVOR support')"><span class="sic">${I.msg}</span><span class="t">Contact Support</span><span class="st">Live chat</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" onclick="openOv('ota')"><span class="sic">${I.up}</span><span class="t">${t('ota')}</span><span class="st okk">${t('upToDate')}</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" onclick="toast(t('tManual'))"><span class="sic">${I.book}</span><span class="t">${t('manual')}</span><span class="st">${t('viewSt')}</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" onclick="toast(t('tChat'))"><span class="sic">${I.msg}</span><span class="t">${t('contactSupport')}</span><span class="st">${t('liveChat')}</span><span class="arr ic">${I.chev}</span></div>
     </div>
-    <div class="dev-info">SN: VEVOR-BT-2024-A3F2<br>Firmware v2.3.1 · App v1.2.0</div>
+    <div class="dev-info">SN: VEVOR-BT-2024-A3F2<br>${t('fw')} v2.3.1 · App v1.2.0</div>
   </div>`;
 }
 
@@ -805,17 +964,17 @@ function overlayHTML() {
   if (!S.overlay) return '';
   if (S.overlay === 'sched') {
     const opts = sel => ['20:00','21:00','22:00','23:00','00:00','05:00','06:00','07:00','08:00']
-      .map(t => `<option ${t===sel?'selected':''}>${t}</option>`).join('');
+      .map(x => `<option ${x===sel?'selected':''}>${x}</option>`).join('');
     return `<div class="mask" onclick="closeOv()"></div>
     <div class="drawer"><div class="grip"></div>
-      <div class="dhead"><h3>${ic('moon',18)} Scheduled Off-Peak Charging</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dhead"><h3>${ic('moon',18)} ${t('schedHead')}</h3><span class="x" onclick="closeOv()">✕</span></div>
       <div class="dbody">
-        <div class="offpeak-note">Charge during off-peak utility hours to save on electricity. The battery starts charging automatically inside this window.</div>
+        <div class="offpeak-note">${t('schedNote')}</div>
         <div class="time-row">
-          <div class="time-col"><label>Start</label><select id="schedS">${opts(S.schedStart)}</select></div>
-          <div class="time-col"><label>End</label><select id="schedE">${opts(S.schedEnd)}</select></div>
+          <div class="time-col"><label>${t('start')}</label><select id="schedS">${opts(S.schedStart)}</select></div>
+          <div class="time-col"><label>${t('end')}</label><select id="schedE">${opts(S.schedEnd)}</select></div>
         </div>
-        <button class="btn-primary" onclick="confirmSched()">Confirm</button>
+        <button class="btn-primary" onclick="confirmSched()">${t('confirm')}</button>
       </div>
     </div>`;
   }
@@ -823,12 +982,11 @@ function overlayHTML() {
     return `<div class="mask"></div>
     <div class="modal">
       <div class="mic2">${I.warn}</div>
-      <h3>Enable Supply Mode?</h3>
-      <p>Geek Boost charges at maximum supported current and bypasses the Lifetime Guard™ limit for this session.
-      Battery temperature will be monitored continuously. Long-term use may reduce battery lifespan.</p>
+      <h3>${t('supplyHead')}</h3>
+      <p>${t('supplyBody')}</p>
       <div class="mbtns">
-        <button class="ghost" onclick="closeOv()">Cancel</button>
-        <button class="${S.supplyOn?'ghost':'danger'}" onclick="confirmSupply()">${S.supplyOn?'Disable':'I Understand, Enable'}</button>
+        <button class="ghost" onclick="closeOv()">${t('cancel')}</button>
+        <button class="${S.supplyOn?'ghost':'danger'}" onclick="confirmSupply()">${S.supplyOn?t('disableBtn'):t('enableBtn')}</button>
       </div>
     </div>`;
   }
@@ -837,11 +995,11 @@ function overlayHTML() {
     const id = '#' + String(S.cellIdx+1).padStart(2,'0');
     return `<div class="mask" onclick="closeOv()"></div>
     <div class="drawer"><div class="grip"></div>
-      <div class="dhead"><h3>Cell ${id} · Voltage History</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dhead"><h3>${tf('cellHist', id)}</h3><span class="x" onclick="closeOv()">✕</span></div>
       <div class="dbody">
-        <div class="chart-meta"><span>Now <b>${(v/1000).toFixed(3)}V</b></span><span>24h Min <b>${((v-18)/1000).toFixed(3)}V</b></span><span>24h Max <b>${((v+9)/1000).toFixed(3)}V</b></span></div>
+        <div class="chart-meta"><span>${t('now')} <b>${(v/1000).toFixed(3)}V</b></span><span>${t('min24')} <b>${((v-18)/1000).toFixed(3)}V</b></span><span>${t('max24')} <b>${((v+9)/1000).toFixed(3)}V</b></span></div>
         <div class="chart-box">${cellChart(v)}</div>
-        <div class="offpeak-note" style="margin-top:12px;">Last 24 hours · sampled every 30 min</div>
+        <div class="offpeak-note" style="margin-top:12px;">${t('sampleNote')}</div>
       </div>
     </div>`;
   }
@@ -851,11 +1009,12 @@ function overlayHTML() {
       .slice().sort((a,b) => (bad.includes(b[0])?1:0) - (bad.includes(a[0])?1:0))
       .map(([en,zh]) => {
         const isBad = bad.includes(en);
-        return `<div class="chk-row ${isBad?'bad':''}">${isBad?'<span class="dot" style="background:var(--red)"></span>':'<span class="cic ic">'+I.checkC+'</span>'} ${en}<span class="en">${zh}</span></div>`;
+        const nm = S.lang === 'en' ? en : zh;
+        return `<div class="chk-row ${isBad?'bad':''}">${isBad?'<span class="dot" style="background:var(--red)"></span>':'<span class="cic ic">'+I.checkC+'</span>'} ${nm}</div>`;
       }).join('');
     return `<div class="mask" onclick="closeOv()"></div>
     <div class="drawer"><div class="grip"></div>
-      <div class="dhead"><h3>All Check Items (22)</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dhead"><h3>${t('allChecks')}</h3><span class="x" onclick="closeOv()">✕</span></div>
       <div class="dbody">${rows}</div>
     </div>`;
   }
@@ -866,56 +1025,56 @@ function overlayHTML() {
     const id = i => '#' + String(i+1).padStart(2,'0');
     const fmt = mv => (mv/1000).toFixed(3) + ' V';
     const banner = S.alarm
-      ? `<div class="rep-banner bad"><div class="bic">${I.warn}</div><h2>${FAULTS.length} Issues Detected</h2><div class="bs">${22-FAULTS.length} of 22 diagnostic checks passed</div></div>`
-        + FAULTS.map(f => `<div class="rep-fault"><span class="dot"></span><div><div class="ft">${f.en}</div><div class="fd">${f.desc}</div></div></div>`).join('')
-      : `<div class="rep-banner ok"><div class="bic">${I.shieldCheck}</div><h2>All Systems Normal</h2><div class="bs">22 diagnostic checks passed</div></div>`;
+      ? `<div class="rep-banner bad"><div class="bic">${I.warn}</div><h2>${tf('issuesDetected', FAULTS.length)}</h2><div class="bs">${tf('repPassedPart', 22-FAULTS.length)}</div></div>`
+        + FAULTS.map(f => `<div class="rep-fault"><span class="dot"></span><div><div class="ft">${fName(f)}</div><div class="fd">${fDesc(f)}</div></div></div>`).join('')
+      : `<div class="rep-banner ok"><div class="bic">${I.shieldCheck}</div><h2>${t('allNormal')}</h2><div class="bs">${t('repPassedAll')}</div></div>`;
     const row = (k, val, cls='') => `<div class="rep-row"><span class="k">${k}</span><span class="v ${cls}">${val}</span></div>`;
     return `<div class="mask" onclick="closeOv()"></div>
     <div class="drawer tall"><div class="grip"></div>
-      <div class="dhead"><h3>${ic('clip',18)} Diagnostic Report</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dhead"><h3>${ic('clip',18)} ${t('repHead')}</h3><span class="x" onclick="closeOv()">✕</span></div>
       <div class="dbody" style="flex:1;">
         ${banner}
-        <div class="rep-sec">Battery Snapshot</div>
+        <div class="rep-sec">${t('snapshot')}</div>
         <div class="rep-card">
-          ${row('State of Charge (SOC)', '72%')}
-          ${row('Total Voltage', '48.2 V')}
-          ${row('Current', '+12.5 A · Charging')}
-          ${row('Cell Delta', delta + ' mV', delta > 20 ? 'warn' : 'good')}
-          ${row('Highest Cell', id(iMax) + ' · ' + fmt(max))}
-          ${row('Lowest Cell', id(iMin) + ' · ' + fmt(min), min <= 2900 ? 'warn' : '')}
-          ${row('Battery Health (SOH)', '94 / 100')}
-          ${row('Cycle Count', '127')}
-          ${row('Temperature', '28–32 °C')}
+          ${row(t('socRow'), '72%')}
+          ${row(t('totalVoltage'), '48.2 V')}
+          ${row(t('current'), t('chargingRow'))}
+          ${row(t('cellDelta'), delta + ' mV', delta > 20 ? 'warn' : 'good')}
+          ${row(t('highestCell'), id(iMax) + ' · ' + fmt(max))}
+          ${row(t('lowestCell'), id(iMin) + ' · ' + fmt(min), min <= 2900 ? 'warn' : '')}
+          ${row(t('sohRow'), '94 / 100')}
+          ${row(t('cycleCount'), '127')}
+          ${row(t('temperature'), '28–32 °C')}
         </div>
-        <div class="rep-sec">Device</div>
+        <div class="rep-sec">${t('device')}</div>
         <div class="rep-card">
-          ${row('Device Name', 'VEVOR-BT-A3F2')}
-          ${row('Serial Number', 'VEVOR-BT-2024-A3F2')}
-          ${row('Firmware', 'v2.3.1')}
-          ${row('App Version', 'v1.2.0')}
+          ${row(t('devName'), 'VEVOR-BT-A3F2')}
+          ${row(t('sn'), 'VEVOR-BT-2024-A3F2')}
+          ${row(t('fw'), 'v2.3.1')}
+          ${row(t('appVer'), 'v1.2.0')}
         </div>
-        <div class="rep-meta">Report ID VB-260612-0941 · Generated Jun 12, 2026 · 9:41 AM<br>Sending shares this report and app screenshots with VEVOR Support</div>
+        <div class="rep-meta">${t('repMeta')}<br>${t('repPrivacy')}</div>
       </div>
       <div class="rep-actions">
-        <button class="ghost" onclick="closeOv()">Cancel</button>
-        <button class="solid" onclick="sendReport()">${ic('send',16)} Send to Support</button>
+        <button class="ghost" onclick="closeOv()">${t('cancel')}</button>
+        <button class="solid" onclick="sendReport()">${ic('send',16)} ${t('sendBtn')}</button>
       </div>
     </div>`;
   }
   if (S.overlay === 'ota') {
     const body = S.otaState === 'idle' ? `
       <div class="ota-ver"><span>v2.3.1</span><span style="color:var(--tx3)">→</span><span class="new">v2.4.0</span></div>
-      <div class="ota-log"><b style="color:var(--tx)">What's new:</b><br>· Improved SOC accuracy at low temperature<br>· Faster Bluetooth reconnection<br>· Cell balancing optimization</div>
-      <div class="mbtns"><button class="ghost" onclick="closeOv()">Later</button><button class="solid" onclick="startOTA()">Update Now</button></div>`
+      <div class="ota-log"><b style="color:var(--tx)">${t('whatsNew')}</b><br>· ${t('log1')}<br>· ${t('log2')}<br>· ${t('log3')}</div>
+      <div class="mbtns"><button class="ghost" onclick="closeOv()">${t('later')}</button><button class="solid" onclick="startOTA()">${t('updateNow')}</button></div>`
     : S.otaState === 'progress' ? `
-      <p style="text-align:center; margin-top:14px;">Updating firmware… keep the app open<br>and stay near the battery.</p>
+      <p style="text-align:center; margin-top:14px;">${t('updating')}</p>
       <div class="ota-bar"><i id="otaFill"></i></div>`
     : `
       <div class="ota-done">${I.check}</div>
-      <p style="text-align:center;">Firmware updated to <b style="color:var(--tx)">v2.4.0</b></p>
-      <div class="mbtns"><button class="solid" onclick="closeOv()">Done</button></div>`;
+      <p style="text-align:center;">${t('updatedTo')} <b style="color:var(--tx)">v2.4.0</b></p>
+      <div class="mbtns"><button class="solid" onclick="closeOv()">${t('done')}</button></div>`;
     return `<div class="mask"></div>
-    <div class="modal"><h3>OTA Firmware Update</h3>${body}</div>`;
+    <div class="modal"><h3>${t('otaHead')}</h3>${body}</div>`;
   }
   return '';
 }
@@ -935,7 +1094,7 @@ function cellChart(nowMv) {
     <circle cx="310" cy="${70-(0+18)*(52/36)}" r="3.5" fill="var(--green)"/>
     <text x="10" y="88" font-size="9" fill="var(--tx3)">-24h</text>
     <text x="155" y="88" font-size="9" fill="var(--tx3)">-12h</text>
-    <text x="296" y="88" font-size="9" fill="var(--tx3)">Now</text>
+    <text x="290" y="88" font-size="9" fill="var(--tx3)">${t('nowLbl')}</text>
   </svg>`;
 }
 
@@ -1068,13 +1227,13 @@ function renderNotes() {
     html += `<div style="margin-top:14px; border-top:1px dashed #dcdfe5; padding-top:10px;">${OV_NOTES[S.overlay]}</div>`;
   }
   html += `<div style="margin-top:16px; font-size:11px; color:#9ca0a8; border-top:1px solid #eceef1; padding-top:10px;">
-    内容基准：UI 线框图规格说明 V2.0 · 视觉基准：高保真参考图 · 界面英文为交付文案 · 数据为模拟值</div>`;
+    内容基准：UI 线框图规格说明 V2.0 · 视觉基准：高保真参考图 · 英文版为最终交付文案，中文版供团队评审 · 数据为模拟值</div>`;
   p.innerHTML = html;
 }
 
 /* ================= 交互 ================= */
 function go(s) { S.screen = s; S.overlay = null; render(); }
-function goTab(t) { S.tab = t; S.overlay = null; render(); }
+function goTab(tb) { S.tab = tb; S.overlay = null; render(); }
 function goFaults() { S.tab = 'iq'; S.iqSeg = 'faults'; render(); }
 function setSeg(s) { S.iqSeg = s; render(); }
 function selMode(m) { S.mode = m; render(); }
@@ -1085,12 +1244,12 @@ function confirmSched() {
   S.schedStart = document.getElementById('schedS').value;
   S.schedEnd = document.getElementById('schedE').value;
   S.schedOn = true; S.overlay = null; render();
-  toast('Off-peak charging set: ' + S.schedStart + '–' + S.schedEnd);
+  toast(tf('tSchedSet', S.schedStart + '–' + S.schedEnd));
 }
-function toggleSchedQuick() { S.schedOn ? (S.schedOn = false, render(), toast('Off-peak charging turned off')) : openOv('sched'); }
-function confirmSupply() { S.supplyOn = !S.supplyOn; S.overlay = null; render(); toast(S.supplyOn ? 'Supply Mode enabled' : 'Supply Mode disabled'); }
+function toggleSchedQuick() { S.schedOn ? (S.schedOn = false, render(), toast(t('tSchedOff'))) : openOv('sched'); }
+function confirmSupply() { S.supplyOn = !S.supplyOn; S.overlay = null; render(); toast(S.supplyOn ? t('tSupplyOn') : t('tSupplyOff')); }
 function startOTA() { S.otaState = 'progress'; render(); }
-function sendReport() { S.overlay = null; render(); toast('Report VB-260612-0941 sent to support ✓'); }
+function sendReport() { S.overlay = null; render(); toast(t('tSent')); }
 function toast(msg) {
   clearTimeout(toastTimer);
   document.querySelectorAll('.toast').forEach(e => e.remove());
@@ -1107,6 +1266,11 @@ function jumpTo(v) {
   else { S.screen = v; S.overlay = null; }
   render();
   document.getElementById('jumpSel').value = '';
+}
+function toggleLang() {
+  S.lang = S.lang === 'zh' ? 'en' : 'zh';
+  document.getElementById('langBtn').textContent = S.lang === 'zh' ? '🌐 界面语言：中文' : '🌐 UI Language: English';
+  render();
 }
 function toggleTheme() {
   S.theme = S.theme === 'dark' ? 'light' : 'dark';
