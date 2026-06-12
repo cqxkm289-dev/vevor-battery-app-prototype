@@ -455,6 +455,7 @@ const S = {
   overlay: null,
   cellIdx: 0,
   otaState: 'idle',
+  tempUnit: 'F',
 };
 const LIMITS = { daily: 85, trip: 100, storage: 50 };
 let timer = null, toastTimer = null;
@@ -563,6 +564,9 @@ const TXT = {
   appearance: ['Appearance','外观主题'],
   darkOpt: ['Dark','深色'],
   lightOpt: ['Light','浅色'],
+  tempUnitLabel: ['Temperature Unit','温度单位'],
+  fahrenheit: ['°F','°F'],
+  celsius: ['°C','°C'],
   /* Drawers / modals */
   schedHead: ['Scheduled Off-Peak Charging','预约错峰充电'],
   schedNote: ['Charge during off-peak utility hours to save on electricity. The battery starts charging automatically inside this window.','在电价低谷时段充电，节省电费。电池将在该时间窗口内自动开始充电。'],
@@ -828,8 +832,8 @@ function tabDash() {
     <div class="quad">
       <div class="q"><div class="v">48.2<small>V</small></div><div class="k">${t('totalVoltage')}</div></div>
       <div class="q"><div class="v">12.5<small>A</small></div><div class="k">${t('current')}</div></div>
-      <div class="q"><div class="v">32<small>°C</small></div><div class="k">${t('maxTemp')}</div></div>
-      <div class="q"><div class="v">28<small>°C</small></div><div class="k">${t('minTemp')}</div></div>
+      <div class="q"><div class="v">${dispTemp(32)}</div><div class="k">${t('maxTemp')}</div></div>
+      <div class="q"><div class="v">${dispTemp(28)}</div><div class="k">${t('minTemp')}</div></div>
     </div>
     ${banner}
   </div>`;
@@ -920,7 +924,7 @@ function iqCells() {
     <div class="cellgrid">${grid}</div>
     <div class="iq-foot">
       <div class="f"><span class="fic ic" style="color:var(--green)">${I.shieldCheck}</span><div><div class="k">${t('batteryHealth')}</div><div class="v">94 / 100</div></div></div>
-      <div class="f"><span class="fic ic" style="color:var(--tx2)">${I.thermo}</span><div><div class="k">${t('cyclesTemp')}</div><div class="v">127 · 29°C</div></div></div>
+      <div class="f"><span class="fic ic" style="color:var(--tx2)">${I.thermo}</span><div><div class="k">${t('cyclesTemp')}</div><div class="v">127 · ${dispTempV(29)}</div></div></div>
     </div>`;
 }
 function iqFaults() {
@@ -963,6 +967,12 @@ function tabSupport() {
         <span class="mini-seg">
           <b class="${S.theme==='dark'?'on':''}" onclick="setTheme('dark')">${t('darkOpt')}</b>
           <b class="${S.theme==='light'?'on':''}" onclick="setTheme('light')">${t('lightOpt')}</b>
+        </span>
+      </div>
+      <div class="svc-row" style="cursor:default;"><span class="sic">${I.thermo}</span><span class="t">${t('tempUnitLabel')}</span>
+        <span class="mini-seg">
+          <b class="${S.tempUnit==='F'?'on':''}" onclick="setTempUnit('F')">${t('fahrenheit')}</b>
+          <b class="${S.tempUnit==='C'?'on':''}" onclick="setTempUnit('C')">${t('celsius')}</b>
         </span>
       </div>
     </div>
@@ -1055,7 +1065,7 @@ function overlayHTML() {
           ${row(t('lowestCell'), id(iMin) + ' · ' + fmt(min), min <= 2900 ? 'warn' : '')}
           ${row(t('sohRow'), '94 / 100')}
           ${row(t('cycleCount'), '127')}
-          ${row(t('temperature'), '28–32 °C')}
+          ${row(t('temperature'), `${dispTempV(28)}–${dispTempV(32)}`)}
         </div>
         <div class="rep-sec">${t('device')}</div>
         <div class="rep-card">
@@ -1285,6 +1295,15 @@ function toggleLang() {
   render();
 }
 function setTheme(v) { S.theme = v; render(); }
+function setTempUnit(v) { S.tempUnit = v; render(); }
+function dispTemp(c) {
+  if (S.tempUnit === 'F') return `${Math.round(c * 1.8 + 32)}<small>°F</small>`;
+  return `${c}<small>°C</small>`;
+}
+function dispTempV(c) {
+  if (S.tempUnit === 'F') return Math.round(c * 1.8 + 32) + '°F';
+  return c + '°C';
+}
 function toggleNotes() {
   S.notes = !S.notes;
   document.getElementById('notesBtn').classList.toggle('on', S.notes);
