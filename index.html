@@ -308,6 +308,9 @@
   .svc-row .st { margin-left:auto; font-size:11.5px; color:var(--tx2); white-space:nowrap; }
   .svc-row .st.okk { color:var(--green); }
   .svc-row .arr { color:var(--tx3); width:15px; height:15px; }
+  .mini-seg { margin-left:auto; display:flex; background:var(--card2); border-radius:10px; padding:2.5px; }
+  .mini-seg b { padding:6px 14px; border-radius:8px; font-size:11.5px; font-weight:700; color:var(--tx2); cursor:pointer; }
+  .mini-seg b.on { background:var(--brand); color:#fff; }
   .dev-info { margin-top:auto; margin-bottom:14px; font-size:11.5px; color:var(--tx3); line-height:1.9; text-align:center; }
 
   /* ============ 弹窗 / 抽屉 ============ */
@@ -420,7 +423,6 @@
     <option value="tab:support">Tab 4 · Support 服务</option>
   </select>
   <button class="tbtn on" id="langBtn" onclick="toggleLang()">🌐 界面语言：中文</button>
-  <button class="tbtn" id="themeBtn" onclick="toggleTheme()">🌙 深色主题</button>
   <button class="tbtn on" id="notesBtn" onclick="toggleNotes()">📋 中文标注</button>
   <button class="tbtn" id="alarmBtn" onclick="toggleAlarm()">⚠️ 模拟告警：关</button>
   <button class="tbtn" onclick="restartFlow()">↺ 重走连接流程</button>
@@ -523,7 +525,7 @@ const TXT = {
   dailyDs: ['Daily recommended','每日推荐'],
   tripDs: ['Full range today','今日满程'],
   storageDs: ['Long-term parking','长期存放'],
-  tripHint: ['⚠ Charges to 100% for today\'s trip only — automatically reverts to Daily (85%) after this charge.','⚠ 仅本次充电充至 100% — 本次充电结束后自动恢复日常模式（85%）。'],
+  tripHint: ['⚠ Keeps charging to 100% until you change modes — staying at full charge accelerates battery aging. Switch back to Daily (85%) when full range isn\'t needed.','⚠ 将持续充至 100%，直到你手动切换模式 — 长期满电会加速电池老化，不需要满程时建议切回日常模式（85%）。'],
   storageHint: ['Holds 50% for long-term storage — the healthiest level when parked for weeks.','保持 50% 长期存放 — 停放数周时最健康的电量水平。'],
   schedTitle: ['Scheduled<br>Off-Peak Charging','预约错峰充电'],
   supplyTitle: ['Supply Mode<br>Geek Boost','极客强充<br>Supply Mode'],
@@ -558,6 +560,9 @@ const TXT = {
   contactSupport: ['Contact Support','联系官方售后'],
   liveChat: ['Live chat','在线客服'],
   fw: ['Firmware','固件版本'],
+  appearance: ['Appearance','外观主题'],
+  darkOpt: ['Dark','深色'],
+  lightOpt: ['Light','浅色'],
   /* Drawers / modals */
   schedHead: ['Scheduled Off-Peak Charging','预约错峰充电'],
   schedNote: ['Charge during off-peak utility hours to save on electricity. The battery starts charging automatically inside this window.','在电价低谷时段充电，节省电费。电池将在该时间窗口内自动开始充电。'],
@@ -954,6 +959,12 @@ function tabSupport() {
       <div class="svc-row" onclick="openOv('ota')"><span class="sic">${I.up}</span><span class="t">${t('ota')}</span><span class="st okk">${t('upToDate')}</span><span class="arr ic">${I.chev}</span></div>
       <div class="svc-row" onclick="toast(t('tManual'))"><span class="sic">${I.book}</span><span class="t">${t('manual')}</span><span class="st">${t('viewSt')}</span><span class="arr ic">${I.chev}</span></div>
       <div class="svc-row" onclick="toast(t('tChat'))"><span class="sic">${I.msg}</span><span class="t">${t('contactSupport')}</span><span class="st">${t('liveChat')}</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" style="cursor:default;"><span class="sic">${I.moon}</span><span class="t">${t('appearance')}</span>
+        <span class="mini-seg">
+          <b class="${S.theme==='dark'?'on':''}" onclick="setTheme('dark')">${t('darkOpt')}</b>
+          <b class="${S.theme==='light'?'on':''}" onclick="setTheme('light')">${t('lightOpt')}</b>
+        </span>
+      </div>
     </div>
     <div class="dev-info">SN: VEVOR-BT-2024-A3F2<br>${t('fw')} v2.3.1 · App v1.2.0</div>
   </div>`;
@@ -1148,7 +1159,7 @@ const NOTES = {
     <tr><td>充电记录摘要</td><td>8%</td><td>P2</td></tr></table>
     <ul><li>滑杆式进度条：绿色渐变填充至当前 SOC + 白色滑钮，绿盾图标标注充电上限，上限以右为点状虚线</li>
     <li>三模式：日常 85%（绿叶图标）/ 长途 100%（蓝车）/ 存储 50%（紫箱）；选中态绿色描边</li>
-    <li><b>选中"长途"</b>→ 下方出现橙色提示：仅本次充到 100%，之后自动回到日常模式</li>
+    <li><b>选中"长途"</b>→ 下方出现橙色提示：持续充至 100% 直到手动切换模式，长期满电加速老化，建议不需要时切回日常（<b>不自动回落</b>）</li>
     <li>预约错峰充电 → <b>底部抽屉</b>（时间段选择），开关橙色</li>
     <li>极客强充 Supply Mode → <b>居中 Modal</b>（安全警告 + 二次确认）</li></ul>`,
   iq: `<h3>Tab 3 · Battery IQ™ 电池诊断</h3>
@@ -1176,6 +1187,7 @@ const NOTES = {
     <ul><li>一键诊断：品牌色渐变大卡片 + 磨砂图标底——自动打包数据截图、直连客服（售后成本抓手）</li>
     <li>列表行：橙色圆角图标底 + 白色粗标题 + 右侧状态/箭头</li>
     <li>OTA 固件升级 → 居中 Modal：版本号 + 更新日志 + 立即更新（含进度演示）</li>
+    <li><b>外观主题</b>：深色/浅色二选一分段控件，设置项集成在本 Tab（默认深色）</li>
     <li>底部灰字：SN + 固件版本，方便客服沟通时报号</li></ul>`,
 };
 const OV_NOTES = {
@@ -1272,11 +1284,7 @@ function toggleLang() {
   document.getElementById('langBtn').textContent = S.lang === 'zh' ? '🌐 界面语言：中文' : '🌐 UI Language: English';
   render();
 }
-function toggleTheme() {
-  S.theme = S.theme === 'dark' ? 'light' : 'dark';
-  document.getElementById('themeBtn').textContent = S.theme === 'dark' ? '🌙 深色主题' : '☀️ 浅色主题';
-  render();
-}
+function setTheme(v) { S.theme = v; render(); }
 function toggleNotes() {
   S.notes = !S.notes;
   document.getElementById('notesBtn').classList.toggle('on', S.notes);
