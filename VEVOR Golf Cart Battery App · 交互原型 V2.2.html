@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)https://cqxkm289-dev.github.io/vevor-battery-app-prototype/ -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEVOR Golf Cart Battery App · 交互原型 V2.2</title>
+<style>
+  /* ============ 外层页面（工具栏 + 画布） ============ */
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background:#E9EBEF; color:#1c1e21; overflow:hidden;
+  }
+  #toolbar {
+    height:56px; background:#fff; border-bottom:1px solid #dcdfe5;
+    display:flex; align-items:center; gap:10px; padding:0 16px; flex-wrap:nowrap; overflow-x:auto;
+  }
+  #toolbar .brand { font-weight:700; font-size:14px; white-space:nowrap; }
+  #toolbar .brand span { color:#FF7A00; }
+  #toolbar .sep { width:1px; height:24px; background:#e1e4e9; flex:none; }
+  .tbtn {
+    border:1px solid #d4d8df; background:#fff; border-radius:8px; padding:6px 12px;
+    font-size:12.5px; cursor:pointer; white-space:nowrap; color:#3a3d42; transition:all .15s;
+  }
+  .tbtn:hover { border-color:#FF7A00; color:#FF7A00; }
+  .tbtn.on { background:#FF7A00; border-color:#FF7A00; color:#fff; }
+  select.tbtn { appearance:auto; }
+  #stage { height:calc(100% - 56px); display:flex; align-items:center; justify-content:center; gap:28px; padding:18px; }
+  #phoneWrap { flex:none; }
+
+  /* ============ 标注面板 ============ */
+  #notesPanel {
+    width:360px; max-height:92%; background:#fff; border:1px solid #dcdfe5; border-radius:14px;
+    padding:18px 20px; overflow-y:auto; font-size:13px; line-height:1.75; color:#2c2f34;
+    box-shadow:0 6px 24px rgba(0,0,0,.06);
+  }
+  #notesPanel h3 { font-size:14px; margin-bottom:10px; color:#111; display:flex; align-items:center; gap:6px; }
+  #notesPanel h3::before { content:""; width:4px; height:14px; background:#FF7A00; border-radius:2px; }
+  #notesPanel h4 { font-size:12.5px; margin:12px 0 4px; color:#FF7A00; }
+  #notesPanel ul { padding-left:18px; }
+  #notesPanel li { margin-bottom:3px; }
+  #notesPanel table { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0; }
+  #notesPanel th, #notesPanel td { border:1px solid #e4e7ec; padding:4px 7px; text-align:left; }
+  #notesPanel th { background:#f6f7f9; font-weight:600; }
+  #notesPanel .tag { display:inline-block; background:#FFF1E6; color:#E06000; border-radius:4px; padding:0 6px; font-size:11px; margin-right:4px; }
+
+  /* ============ 手机框 ============ */
+  #phone {
+    width:390px; height:844px; border-radius:54px; background:#000;
+    border:12px solid #17181a; box-shadow:0 24px 60px rgba(0,0,0,.35), inset 0 0 0 2px #2a2b2e;
+    position:relative; overflow:hidden;
+  }
+  #notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:120px; height:32px; background:#17181a; border-radius:18px; z-index:99; }
+  #screen { width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+
+  /* ============ APP 主题变量 ============ */
+  #screen[data-theme="dark"] {
+    --bg:#0A0A0B; --bg2:#111113; --card:#19191C; --card2:#232327; --line:#2A2A2F;
+    --tx:#FFFFFF; --tx2:#98989F; --tx3:#6A6A72;
+    --brand:#FF7A00; --brand2:#FFB340; --brand-soft:rgba(255,122,0,.14);
+    --green:#2FD158; --green-soft:rgba(47,209,88,.13);
+    --red:#FF453A; --red-soft:rgba(255,69,58,.13);
+    --yellow:#FFD60A; --yellow-soft:rgba(255,214,10,.10);
+    --orange-soft:rgba(255,149,0,.13); --blue:#3B9CFF; --purple:#A97CFF;
+    --bn-ok-bg:#15391F; --bn-ok-tx:#FFFFFF; --bn-bad-bg:#3D1410; --bn-bad-tx:#FFFFFF;
+    --mask:rgba(0,0,0,.6); --shadow:0 2px 10px rgba(0,0,0,.35); --knob:#FFFFFF;
+  }
+  #screen[data-theme="light"] {
+    --bg:#F2F3F6; --bg2:#FFFFFF; --card:#FFFFFF; --card2:#F2F3F6; --line:#E6E8EC;
+    --tx:#17181A; --tx2:#6B6E76; --tx3:#9CA0A8;
+    --brand:#F26A00; --brand2:#FF9A3D; --brand-soft:rgba(242,106,0,.10);
+    --green:#1FA84A; --green-soft:rgba(31,168,74,.10);
+    --red:#E5372C; --red-soft:rgba(229,55,44,.08);
+    --yellow:#D9A400; --yellow-soft:rgba(217,164,0,.10);
+    --orange-soft:rgba(242,106,0,.10); --blue:#1677D9; --purple:#7C4DD9;
+    --bn-ok-bg:#DFF5E5; --bn-ok-tx:#136B33; --bn-bad-bg:#FCE2DE; --bn-bad-tx:#9E261C;
+    --mask:rgba(0,0,0,.4); --shadow:0 4px 14px rgba(0,0,0,.07); --knob:#FFFFFF;
+  }
+  #screen { background:var(--bg); color:var(--tx); }
+
+  /* ============ APP 通用 ============ */
+  .ic { display:inline-flex; flex:none; }
+  .ic svg { width:100%; height:100%; }
+  .statusbar { height:54px; flex:none; display:flex; align-items:flex-end; justify-content:space-between; padding:0 28px 4px; font-size:14px; font-weight:600; color:var(--tx); }
+  .sb-icons { display:flex; gap:5px; align-items:center; }
+  .appheader { height:48px; flex:none; display:flex; align-items:center; padding:0 18px; gap:9px; }
+  .appheader .dev { font-size:16px; font-weight:800; letter-spacing:.2px; }
+  .appheader .conn { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--green); }
+  .appheader .conn::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--green); }
+  .appheader .bell { margin-left:auto; position:relative; width:23px; height:23px; cursor:pointer; color:var(--tx); }
+  .appheader .bell::after { content:""; position:absolute; top:0; right:0; width:7px; height:7px; background:var(--red); border-radius:50%; border:1.5px solid var(--bg); }
+  .content { flex:1; display:flex; flex-direction:column; overflow:hidden; padding:0 16px; }
+  .tabbar { flex:none; height:84px; border-top:1px solid var(--line); background:var(--bg2); display:flex; padding-bottom:18px; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:10px; color:var(--tx3); cursor:pointer; }
+  .tab.on { color:var(--brand); }
+  .tab .ic { width:23px; height:23px; }
+  .card { background:var(--card); border-radius:14px; box-shadow:var(--shadow); }
+  .btn-primary {
+    background:var(--brand); color:#fff; border:none; border-radius:13px; height:52px; width:100%;
+    font-size:16px; font-weight:700; cursor:pointer; letter-spacing:.2px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-primary:active { opacity:.85; }
+  .btn-primary .ic { width:18px; height:18px; }
+  .link { color:var(--tx2); font-size:13px; text-align:center; cursor:pointer; }
+  .link b { color:var(--brand); }
+  .sec-title { font-size:15px; font-weight:800; margin:14px 2px 9px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; flex:none; }
+
+  /* ============ 蓝牙流程 ============ */
+  .bt-page { flex:1; display:flex; flex-direction:column; padding:0 24px; }
+  .bt-logo { text-align:center; margin-top:9%; }
+  .bt-logo .mark { width:64px; height:64px; border-radius:18px; background:var(--brand-soft); color:var(--brand); display:inline-flex; align-items:center; justify-content:center; padding:14px; }
+  .bt-logo h1 { font-size:23px; font-weight:800; letter-spacing:1px; margin-top:12px; }
+  .bt-logo h1 span { color:var(--brand); }
+  .perm-card { margin-top:10%; padding:8px 18px; }
+  .perm-row { display:flex; align-items:center; gap:14px; height:64px; }
+  .perm-row + .perm-row { border-top:1px solid var(--line); }
+  .perm-row .pic { width:36px; height:36px; border-radius:10px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:8px; flex:none; }
+  .perm-row .t1 { font-size:15.5px; font-weight:700; }
+  .perm-row .t2 { font-size:12.5px; color:var(--tx2); margin-top:2px; }
+  .bt-foot { margin-top:auto; padding-bottom:36px; }
+  .bt-foot .legal { font-size:11px; color:var(--tx3); text-align:center; margin-top:14px; }
+
+  .pulse-zone { height:36%; flex:none; display:flex; align-items:center; justify-content:center; position:relative; }
+  .pulse-core { width:78px; height:78px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:20px; z-index:2; }
+  .pulse-ring { position:absolute; width:78px; height:78px; border-radius:50%; border:2px solid var(--brand); opacity:0; animation:pulse 2s ease-out infinite; }
+  .pulse-ring:nth-child(2) { animation-delay:.66s; }
+  .pulse-ring:nth-child(3) { animation-delay:1.32s; }
+  @keyframes pulse { 0%{transform:scale(1);opacity:.7;} 100%{transform:scale(3.1);opacity:0;} }
+  .scan-txt { text-align:center; font-size:14px; color:var(--tx2); }
+  .tips-box { margin:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:14px 4px; font-size:13px; color:var(--tx2); line-height:2; }
+  .tips-box .tt { display:flex; align-items:center; gap:7px; color:var(--tx); font-weight:600; }
+  .tips-box .tt .ic { width:16px; height:16px; color:var(--yellow); }
+  .found-label { display:flex; align-items:center; gap:10px; color:var(--tx3); font-size:12px; margin:6px 0 10px; }
+  .found-label::before, .found-label::after { content:""; flex:1; height:1px; background:var(--line); }
+
+  .dev-card { display:flex; align-items:center; gap:13px; padding:14px 16px; margin-bottom:12px; }
+  .dev-card .pic { width:40px; height:40px; border-radius:11px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:9px; flex:none; }
+  .dev-card .nm { font-size:15.5px; font-weight:700; }
+  .dev-card .sig { font-size:12px; color:var(--tx2); margin-top:3px; display:flex; align-items:center; gap:6px; }
+  .sigbars { display:inline-flex; gap:2px; align-items:flex-end; height:12px; }
+  .sigbars i { width:3.5px; background:var(--green); border-radius:1px; }
+  .sigbars i.off { background:var(--line); }
+  .btn-sm { margin-left:auto; background:var(--brand); color:#fff; border:none; border-radius:9px; padding:9px 18px; font-size:13.5px; font-weight:700; cursor:pointer; }
+
+  .connect-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; }
+  .conn-anim { display:flex; align-items:center; gap:12px; color:var(--tx); }
+  .conn-anim .ic { width:36px; height:36px; color:var(--brand); }
+  .conn-line { width:120px; height:3px; border-radius:2px; background:repeating-linear-gradient(90deg, var(--brand) 0 10px, transparent 10px 18px); background-size:36px 3px; animation:flow 1s linear infinite; }
+  @keyframes flow { to { background-position:36px 0; } }
+  .conn-txt { font-size:14px; color:var(--tx2); text-align:center; line-height:1.8; }
+
+  .ok-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+  .ok-badge { width:84px; height:84px; border-radius:50%; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center; padding:20px; animation:pop .45s cubic-bezier(.2,1.6,.4,1); margin-bottom:8px; }
+  @keyframes pop { 0%{transform:scale(.3);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+  .ok-zone h2 { font-size:21px; font-weight:800; }
+  .ok-zone .sub { font-size:14px; color:var(--brand); font-weight:700; }
+  .ok-zone .sn { font-size:12px; color:var(--tx3); }
+
+  .nf-head { text-align:center; margin-top:6%; }
+  .nf-head .nic { width:54px; height:54px; color:var(--tx3); display:inline-flex; padding:4px; }
+  .nf-head h2 { font-size:19px; color:var(--tx2); font-weight:700; margin-top:10px; }
+  .steps-card { margin-top:20px; padding:6px 18px; }
+  .step-row { display:flex; gap:12px; padding:13px 0; }
+  .step-row + .step-row { border-top:1px solid var(--line); }
+  .step-row .no { width:22px; height:22px; border-radius:50%; background:var(--brand-soft); color:var(--brand); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px; }
+  .step-row .t1 { font-size:14px; font-weight:700; }
+  .step-row .t2 { font-size:12px; color:var(--tx2); margin-top:2px; }
+
+  /* ============ Tab1 Dashboard ============ */
+  .soc-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 0; }
+  .ring-box { position:relative; width:248px; height:248px; }
+  .ring-box > svg { transform:rotate(120deg); }
+  .ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-center .lbl { font-size:13px; color:var(--tx2); letter-spacing:3px; font-weight:700; }
+  .ring-center .val { font-size:58px; font-weight:800; line-height:1.08; letter-spacing:-2px; }
+  .ring-center .val small { font-size:28px; font-weight:700; letter-spacing:0; }
+  .ring-center .amp { font-size:16px; color:var(--green); font-weight:700; margin-top:2px; display:flex; align-items:center; gap:3px; }
+  .ring-center .chg { font-size:13.5px; color:var(--tx2); margin-top:2px; }
+  .health-line { display:flex; align-items:center; gap:8px; font-size:15px; color:var(--tx2); margin-top:12px; }
+  .health-line .ic { width:19px; height:19px; color:var(--green); }
+  .health-line b { color:var(--tx); font-size:16px; }
+  .quad { display:flex; gap:8px; margin-top:6px; }
+  .quad .q { flex:1; background:var(--card); border-radius:14px; padding:15px 4px 13px; text-align:center; box-shadow:var(--shadow); }
+  .quad .q .v { font-size:19px; font-weight:800; letter-spacing:-.3px; }
+  .quad .q .v small { font-size:11px; font-weight:700; color:var(--tx2); margin-left:1px; }
+  .quad .q .k { font-size:10.5px; color:var(--tx3); margin-top:4px; }
+  .alert-banner { margin:14px 0 16px; border-radius:15px; padding:17px 16px; display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; cursor:pointer; }
+  .alert-banner .ic { width:21px; height:21px; }
+  .alert-banner.ok { background:var(--bn-ok-bg); color:var(--bn-ok-tx); }
+  .alert-banner.ok .ic { color:var(--green); }
+  .alert-banner.bad { background:var(--bn-bad-bg); color:var(--bn-bad-tx); }
+  .alert-banner.bad .ic { color:var(--red); }
+  .alert-banner .arr { margin-left:auto; font-weight:400; opacity:.7; }
+
+  /* ============ Tab2 Lifetime Guard ============ */
+  .lg-title { display:flex; align-items:center; gap:7px; padding:12px 2px 12px; }
+  .lg-title .ic { width:19px; height:19px; color:var(--brand); }
+  .lg-title h2 { font-size:18px; font-weight:800; background:linear-gradient(90deg, var(--brand2), var(--brand)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .lg-title .act { margin-left:auto; display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:var(--green); background:var(--green-soft); border-radius:11px; padding:3px 10px; }
+  .lg-title .act::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--green); }
+  .guard-card { padding:18px 16px 14px; }
+  .gbar-labels { display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:var(--tx2); margin-bottom:14px; }
+  .gbar-labels b { color:var(--tx); font-size:13.5px; }
+  .gbar-labels .lim { display:flex; align-items:center; gap:5px; color:var(--green); font-weight:800; font-size:13.5px; }
+  .gbar-labels .lim .ic { width:16px; height:16px; }
+  .gbar { position:relative; height:10px; border-radius:5px; background:var(--card2); margin:4px 2px 0; }
+  .gbar .restzone { position:absolute; right:0; top:3.5px; height:3px; background-image:radial-gradient(circle, var(--tx3) 1.2px, transparent 1.3px); background-size:8px 3px; background-repeat:repeat-x; }
+  .gbar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:5px; background:linear-gradient(90deg, #1FA84A, var(--green)); transition:width .4s; }
+  .gbar .knob { position:absolute; top:50%; transform:translate(-50%,-50%); width:21px; height:21px; border-radius:50%; background:var(--knob); box-shadow:0 1px 6px rgba(0,0,0,.45); transition:left .4s; }
+  .gbar .limmark { position:absolute; top:-24px; transform:translateX(-50%); width:17px; height:17px; color:var(--green); transition:left .4s; }
+  .gbar-scale { display:flex; justify-content:space-between; font-size:11px; color:var(--tx3); margin:9px 2px 0; }
+  .guard-sub { font-size:12.5px; color:var(--tx2); margin-top:13px; text-align:center; }
+  .guard-gain { font-size:14px; color:var(--green); font-weight:700; margin-top:7px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .guard-gain .ic { width:16px; height:16px; }
+  .modes { display:flex; gap:10px; }
+  .mode-card { flex:1; border:1.5px solid var(--line); background:var(--card); border-radius:15px; padding:14px 6px 12px; text-align:center; cursor:pointer; transition:all .15s; }
+  .mode-card.on { border-color:var(--green); background:var(--green-soft); }
+  .mode-card .mic { width:24px; height:24px; display:inline-flex; }
+  .mode-card .mic.g { color:var(--green); } .mode-card .mic.b { color:var(--blue); } .mode-card .mic.p { color:var(--purple); }
+  .mode-card .nm { font-size:13px; font-weight:800; margin-top:6px; }
+  .mode-card .pct { font-size:22px; font-weight:800; margin-top:3px; letter-spacing:-.5px; }
+  .mode-card .ds { font-size:9.5px; color:var(--tx3); margin-top:3px; }
+  .mode-hint { font-size:12px; margin-top:10px; line-height:1.6; border-radius:10px; padding:8px 12px; }
+  .mode-hint.warn { color:#FF9500; background:var(--orange-soft); }
+  .mode-hint.info { color:var(--tx2); background:var(--card2); }
+  .duo { display:flex; gap:10px; margin-top:14px; }
+  .duo .fn { flex:1; padding:13px 14px; cursor:pointer; }
+  .duo .fn .t { font-size:13.5px; font-weight:700; display:flex; align-items:flex-start; gap:7px; line-height:1.35; }
+  .duo .fn .t .ic { width:17px; height:17px; margin-top:1px; }
+  .duo .fn .s { font-size:11.5px; color:var(--tx2); margin-top:9px; display:flex; align-items:center; justify-content:space-between; }
+  .switch { width:42px; height:24px; border-radius:13px; background:var(--card2); border:1px solid var(--line); position:relative; transition:background .2s; flex:none; }
+  .switch::after { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:left .2s; }
+  .switch.on { background:var(--brand); border-color:var(--brand); }
+  .switch.on::after { left:20px; }
+  .lastchg { margin:auto 0 12px; background:var(--card); border-radius:13px; padding:12px 14px; font-size:12.5px; color:var(--tx2); display:flex; align-items:center; gap:6px; flex-wrap:wrap; box-shadow:var(--shadow); }
+  .lastchg .ic { width:15px; height:15px; color:var(--tx2); margin-right:2px; }
+  .lastchg b.gain { color:var(--green); }
+  .lastchg b.save { color:var(--green); }
+  .lastchg .w { color:var(--tx); font-weight:600; }
+
+  /* ============ Tab3 Battery IQ ============ */
+  .segment { display:flex; background:var(--card); border-radius:22px; padding:4px; margin:10px 0; box-shadow:var(--shadow); }
+  .segment .sg { flex:1; text-align:center; font-size:13.5px; font-weight:700; padding:9px 0; border-radius:18px; color:var(--tx2); cursor:pointer; }
+  .segment .sg.on { background:var(--brand); color:#fff; }
+  .iq-stats { display:flex; align-items:stretch; background:var(--card); border-radius:13px; box-shadow:var(--shadow); }
+  .iq-stats .st { flex:1; padding:11px 4px 10px; text-align:center; }
+  .iq-stats .st + .st { border-left:1px solid var(--line); }
+  .iq-stats .st .k { font-size:10.5px; color:var(--tx3); }
+  .iq-stats .st .v { font-size:14px; font-weight:800; margin-top:4px; }
+  .iq-stats .st .v .id { color:var(--tx2); font-weight:600; font-size:11px; margin-right:3px; }
+  .iq-stats .st.hi .v em { font-style:normal; color:var(--brand); }
+  .iq-stats .st.lo .v em { font-style:normal; color:var(--blue); }
+  .iq-stats .st.delta .v { color:var(--green); display:flex; align-items:center; justify-content:center; gap:4px; }
+  .iq-stats .st.delta .v .ic { width:14px; height:14px; }
+  .iq-stats .st.delta.warn .v { color:var(--red); }
+  .iq-stats .st .k2 { font-size:10px; color:var(--tx3); margin-top:2px; }
+  .cellgrid { display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:1fr; gap:7px; margin-top:10px; flex:1; }
+  .cell { background:var(--card); border-radius:12px; padding:9px 6px 9px; text-align:center; cursor:pointer; border:1.5px solid transparent; box-shadow:var(--shadow); display:flex; flex-direction:column; justify-content:center; }
+  .cell .no { font-size:10.5px; color:var(--tx3); font-weight:700; }
+  .cell .mv { font-size:14.5px; font-weight:800; margin-top:3px; letter-spacing:-.3px; }
+  .cell .bar { height:4.5px; border-radius:3px; background:var(--card2); margin-top:8px; overflow:hidden; }
+  .cell .bar i { display:block; height:100%; border-radius:3px; background:var(--green); }
+  .cell.hi { border-color:var(--brand); }
+  .cell.hi .bar i { background:var(--brand); }
+  .cell.lo { border-color:var(--blue); }
+  .cell.lo .bar i { background:var(--blue); }
+  .cell.warn { background:var(--yellow-soft); }
+  .cell.warn .mv { color:var(--yellow); }
+  .cell.warn .bar i { background:var(--yellow); }
+  .cell.bad { background:var(--red-soft); border-color:var(--red); }
+  .cell.bad .mv { color:var(--red); }
+  .cell.bad .bar i { background:var(--red); width:18% !important; }
+  .iq-foot { display:flex; gap:8px; margin:10px 0 12px; }
+  .iq-foot .f { flex:1; background:var(--card); border-radius:13px; padding:12px 13px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+  .iq-foot .f .fic { width:21px; height:21px; flex:none; }
+  .iq-foot .f .k { font-size:10.5px; color:var(--tx3); }
+  .iq-foot .f .v { font-size:15px; font-weight:800; margin-top:1px; }
+
+  .fault-ok { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+  .fault-ok .shield { width:100px; height:100px; border-radius:50%; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center; padding:26px; margin-bottom:10px; }
+  .fault-ok h2 { font-size:20px; font-weight:800; }
+  .fault-ok .s1 { font-size:13.5px; color:var(--tx2); }
+  .fault-ok .s2 { font-size:12.5px; color:var(--tx3); }
+  .fault-sum { background:var(--bn-bad-bg); color:var(--bn-bad-tx); border-radius:12px; padding:13px 14px; font-size:14.5px; font-weight:800; display:flex; align-items:center; gap:9px; margin-bottom:11px; }
+  .fault-sum .ic { width:19px; height:19px; color:var(--red); }
+  .fault-card { border-left:4px solid var(--red); padding:13px 15px; margin-bottom:10px; }
+  .fault-card .t1 { font-size:15px; font-weight:800; color:var(--red); display:flex; align-items:center; gap:8px; }
+  .fault-card .t3 { font-size:12.5px; color:var(--tx2); margin-top:6px; }
+  .fold-link { text-align:center; font-size:13px; color:var(--tx2); padding:13px 0; cursor:pointer; }
+  .btn-report { margin-top:auto; margin-bottom:12px; }
+
+  /* ============ Tab4 Support ============ */
+  .diag-hero {
+    margin-top:12px; border-radius:17px; padding:24px 20px; cursor:pointer; color:#fff;
+    background:linear-gradient(135deg, #FF9A2E, #F25C05 72%); box-shadow:0 8px 24px rgba(242,92,5,.32);
+  }
+  .diag-hero .hic { width:46px; height:46px; border-radius:13px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; padding:11px; }
+  .diag-hero h2 { font-size:18.5px; font-weight:800; margin-top:13px; }
+  .diag-hero p { font-size:12.5px; opacity:.92; margin-top:5px; }
+  .svc-list { margin-top:14px; padding:2px 16px; }
+  .svc-row { display:flex; align-items:center; gap:13px; height:64px; cursor:pointer; }
+  .svc-row + .svc-row { border-top:1px solid var(--line); }
+  .svc-row .sic { width:36px; height:36px; border-radius:10px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:8px; flex:none; }
+  .svc-row .t { font-size:14px; font-weight:700; white-space:nowrap; }
+  .svc-row .st { margin-left:auto; font-size:11.5px; color:var(--tx2); white-space:nowrap; }
+  .svc-row .st.okk { color:var(--green); }
+  .svc-row .arr { color:var(--tx3); width:15px; height:15px; }
+  .mini-seg { margin-left:auto; display:flex; background:var(--card2); border-radius:10px; padding:2.5px; }
+  .mini-seg b { padding:6px 14px; border-radius:8px; font-size:11.5px; font-weight:700; color:var(--tx2); cursor:pointer; }
+  .mini-seg b.on { background:var(--brand); color:#fff; }
+  .dev-info { margin-top:auto; margin-bottom:14px; font-size:11.5px; color:var(--tx3); line-height:1.9; text-align:center; }
+
+  /* ============ 弹窗 / 抽屉 ============ */
+  .mask { position:absolute; inset:0; background:var(--mask); z-index:50; animation:fadein .25s; }
+  @keyframes fadein { from{opacity:0;} }
+  .drawer {
+    position:absolute; left:0; right:0; bottom:0; z-index:51; background:var(--bg2);
+    border-radius:22px 22px 0 0; max-height:60%; display:flex; flex-direction:column;
+    animation:slideup .3s ease-out; padding-bottom:24px;
+  }
+  @keyframes slideup { from{transform:translateY(100%);} }
+  .drawer .grip { width:40px; height:4.5px; border-radius:3px; background:var(--line); margin:10px auto 2px; }
+  .drawer .dhead { display:flex; align-items:center; gap:9px; padding:10px 20px 12px; border-bottom:1px solid var(--line); }
+  .drawer .dhead h3 { font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  .drawer .dhead h3 .ic { width:18px; height:18px; color:var(--brand); }
+  .drawer .dhead .x { margin-left:auto; font-size:17px; color:var(--tx2); cursor:pointer; padding:4px 6px; }
+  .drawer .dbody { overflow-y:auto; padding:14px 20px; }
+  .modal {
+    position:absolute; left:7.5%; right:7.5%; top:50%; transform:translateY(-50%); z-index:51;
+    background:var(--bg2); border-radius:17px; padding:24px 20px; animation:pop .3s cubic-bezier(.2,1.4,.4,1);
+  }
+  .modal h3 { font-size:17px; font-weight:800; text-align:center; }
+  .modal .mic2 { width:52px; height:52px; margin:0 auto 12px; color:var(--brand); display:flex; padding:4px; }
+  .modal p { font-size:13px; color:var(--tx2); line-height:1.8; margin-top:10px; }
+  .modal .mbtns { display:flex; gap:10px; margin-top:20px; }
+  .modal .mbtns button { flex:1; height:46px; border-radius:12px; font-size:14.5px; font-weight:700; cursor:pointer; border:none; }
+  .modal .mbtns .ghost { background:var(--card2); color:var(--tx2); }
+  .modal .mbtns .solid { background:var(--brand); color:#fff; }
+  .modal .mbtns .danger { background:var(--red); color:#fff; }
+
+  .time-row { display:flex; gap:12px; margin:6px 0 16px; }
+  .time-col { flex:1; }
+  .time-col label { font-size:12px; color:var(--tx2); display:block; margin-bottom:6px; }
+  .time-col select { width:100%; height:44px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--tx); font-size:16px; font-weight:700; text-align:center; padding:0 8px; }
+  .offpeak-note { font-size:12px; color:var(--tx2); background:var(--card2); border-radius:10px; padding:9px 12px; line-height:1.6; margin-bottom:14px; }
+
+  .chk-row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .chk-row .cic { width:16px; height:16px; color:var(--green); flex:none; }
+  .chk-row.bad { color:var(--red); font-weight:700; }
+
+  .chart-box { background:var(--card2); border-radius:12px; padding:12px 8px 6px; margin-top:8px; }
+  .chart-meta { display:flex; gap:14px; font-size:12px; color:var(--tx2); margin-bottom:8px; padding:0 6px; }
+  .chart-meta b { color:var(--tx); }
+
+  .ota-ver { display:flex; align-items:center; justify-content:center; gap:14px; font-size:15px; font-weight:800; margin-top:12px; }
+  .ota-ver .new { color:var(--brand); }
+  .ota-log { background:var(--card2); border-radius:10px; padding:11px 14px; font-size:12.5px; color:var(--tx2); line-height:1.9; margin-top:12px; }
+  .ota-bar { height:8px; border-radius:4px; background:var(--card2); margin-top:18px; overflow:hidden; }
+  .ota-bar i { display:block; height:100%; width:0; border-radius:4px; background:var(--brand); transition:width 2.4s ease; }
+  .ota-done { width:52px; height:52px; border-radius:50%; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center; padding:13px; margin:14px auto 4px; }
+
+  /* 诊断报告 */
+  .drawer.tall { max-height:88%; height:88%; }
+  .rep-banner { border-radius:15px; padding:22px 16px; text-align:center; }
+  .rep-banner.ok { background:var(--bn-ok-bg); }
+  .rep-banner.bad { background:var(--bn-bad-bg); }
+  .rep-banner .bic { width:46px; height:46px; margin:0 auto; display:flex; padding:2px; }
+  .rep-banner.ok .bic { color:var(--green); }
+  .rep-banner.bad .bic { color:var(--red); }
+  .rep-banner h2 { font-size:20px; font-weight:800; margin-top:9px; }
+  .rep-banner.ok h2 { color:var(--green); }
+  .rep-banner.bad h2 { color:var(--red); }
+  .rep-banner .bs { font-size:12.5px; margin-top:5px; }
+  .rep-banner.ok .bs { color:var(--bn-ok-tx); opacity:.75; }
+  .rep-banner.bad .bs { color:var(--bn-bad-tx); opacity:.8; }
+  .rep-fault { display:flex; gap:10px; background:var(--red-soft); border-left:4px solid var(--red); border-radius:10px; padding:11px 13px; margin-top:9px; align-items:flex-start; }
+  .rep-fault .dot { margin-top:4px; background:var(--red); }
+  .rep-fault .ft { font-size:13.5px; font-weight:800; color:var(--red); }
+  .rep-fault .fd { font-size:11.5px; color:var(--tx2); margin-top:2px; }
+  .rep-sec { font-size:11px; font-weight:800; color:var(--tx3); letter-spacing:1.2px; text-transform:uppercase; margin:18px 2px 6px; }
+  .rep-card { background:var(--card); border-radius:13px; padding:2px 15px; box-shadow:var(--shadow); }
+  .rep-row { display:flex; align-items:center; min-height:42px; font-size:13.5px; }
+  .rep-row + .rep-row { border-top:1px solid var(--line); }
+  .rep-row .k { color:var(--tx2); }
+  .rep-row .v { margin-left:auto; font-weight:700; }
+  .rep-row .v.good { color:var(--green); }
+  .rep-row .v.warn { color:var(--red); }
+  .rep-meta { text-align:center; font-size:11px; color:var(--tx3); margin-top:14px; line-height:1.8; }
+  .rep-actions { flex:none; display:flex; gap:10px; padding:12px 20px 4px; border-top:1px solid var(--line); }
+  .rep-actions button { flex:1; height:48px; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; border:none; }
+  .rep-actions .ghost { background:var(--card2); color:var(--tx2); }
+  .rep-actions .solid { background:var(--brand); color:#fff; flex:1.6; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .rep-actions .solid .ic { width:16px; height:16px; }
+
+  .toast {
+    position:absolute; left:50%; bottom:110px; transform:translateX(-50%); z-index:60;
+    background:rgba(24,25,28,.94); color:#fff; font-size:13px; padding:11px 18px; border-radius:12px;
+    white-space:nowrap; animation:fadein .25s; box-shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+
+  @media (max-width: 980px) { #notesPanel { display:none; } }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V2.2</div>
+  <div class="sep"></div>
+  <select id="jumpSel" class="tbtn" onchange="jumpTo(this.value)">
+    <option value="">⤵ 跳转到页面…</option>
+    <option value="bt01">BT-01 权限请求</option>
+    <option value="bt02">BT-02 扫描中</option>
+    <option value="bt03">BT-03 发现设备</option>
+    <option value="bt04">BT-04 连接中</option>
+    <option value="bt05">BT-05 连接成功</option>
+    <option value="bt06">BT-06 未发现设备</option>
+    <option value="tab:dash">Tab 1 · Dashboard 总览</option>
+    <option value="tab:guard">Tab 2 · Lifetime Guard™ 充电</option>
+    <option value="tab:iq">Tab 3 · Battery IQ™ 诊断</option>
+    <option value="tab:support">Tab 4 · Support 服务</option>
+  </select>
+  <button class="tbtn on" id="langBtn" onclick="toggleLang()">🌐 界面语言：中文</button>
+  <button class="tbtn on" id="notesBtn" onclick="toggleNotes()">📋 中文标注</button>
+  <button class="tbtn" id="alarmBtn" onclick="toggleAlarm()">⚠️ 模拟告警：关</button>
+  <button class="tbtn" onclick="restartFlow()">↺ 重走连接流程</button>
+</div>
+
+<div id="stage">
+  <div id="phoneWrap" style="transform: scale(0.993088); width: 411.138px; height: 862px; transform-origin: center center; display: flex; align-items: center; justify-content: center;">
+    <div id="phone" style="transform-origin: left top;">
+      <div id="notch"></div>
+      <div id="screen" data-theme="dark"><div class="statusbar"><span>9:41</span>
+    <span class="sb-icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"></rect><rect x="4.5" y="5" width="3" height="6" rx="0.8"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"></rect><rect x="13.5" y="0" width="3" height="11" rx="0.8"></rect></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 110 1.4 1.4 1.4 0 010-1.4zM8 9.6l2.2-2.4a3.2 3.2 0 00-4.4 0L8 9.6z"></path><path d="M3.4 4.8a6.6 6.6 0 019.2 0l-1.5 1.6a4.4 4.4 0 00-6.2 0L3.4 4.8z" opacity=".85"></path><path d="M.8 2.2a10.3 10.3 0 0114.4 0l-1.5 1.6a8.1 8.1 0 00-11.4 0L.8 2.2z" opacity=".7"></path></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"></rect><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"></rect><path d="M23 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".5"></path></svg>
+    </span></div><div class="bt-page">
+    <div class="bt-logo">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="16" height="9" rx="2"></rect><path d="M21.5 11v3"></path><path d="M6.5 11v3M10.5 11v3M14.5 11v3"></path></svg></span>
+      <h1><span>VEVOR</span> Battery</h1>
+    </div>
+    <div class="card perm-card">
+      <div class="perm-row"><span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7.5l10 9L12 21V3l5 4.5-10 9"></path></svg></span><div><div class="t1">蓝牙权限</div><div class="t2">搜索并连接附近设备</div></div></div>
+      <div class="perm-row"><span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.7-6.5-10a6.5 6.5 0 1113 0c0 4.3-6.5 10-6.5 10z"></path><circle cx="12" cy="10.8" r="2.2"></circle></svg></span><div><div class="t1">位置权限</div><div class="t2">蓝牙扫描系统必需</div></div></div>
+    </div>
+    <div class="bt-foot">
+      <button class="btn-primary" onclick="go(&#39;bt02&#39;)">允许并继续</button>
+      <div class="legal">我们不收集任何位置数据</div>
+    </div>
+  </div></div>
+    </div>
+  </div>
+  <div id="notesPanel"><h3>BT-01 · 权限请求页</h3>
+    <ul><li><b>触发时机：</b>首次安装启动</li>
+    <li>Logo 居中 60dp；权限列表每行 56dp（图标24 + 主标题16sp + 副标题13sp灰）</li>
+    <li>主按钮高 52dp、圆角 12dp、品牌色</li>
+    <li>底部声明 11sp 灰色——明确告知不收集位置数据，降低美国用户隐私顾虑</li></ul><div style="margin-top:16px; font-size:11px; color:#9ca0a8; border-top:1px solid #eceef1; padding-top:10px;">
+    内容基准：UI 线框图规格说明 V2.0 · 视觉基准：高保真参考图 · 英文版为最终交付文案，中文版供团队评审 · 数据为模拟值</div></div>
+</div>
+
+<script>
+/* ================= 状态 ================= */
+const S = {
+  lang: 'zh',
+  theme: 'dark',
+  notes: true,
+  screen: 'bt01',
+  tab: 'dash',
+  iqSeg: 'cells',
+  alarm: false,
+  mode: 'daily',
+  soc: 72,
+  schedOn: false, schedStart: '22:00', schedEnd: '06:00',
+  supplyOn: false,
+  overlay: null,
+  cellIdx: 0,
+  otaState: 'idle',
+  tempUnit: 'F',
+};
+const LIMITS = { daily: 85, trip: 100, storage: 50 };
+let timer = null, toastTimer = null;
+
+/* ================= 多语言文案（[英文, 中文]，一一对应） ================= */
+const TXT = {
+  connected: ['Connected','已连接'],
+  /* Tabs */
+  tabDash: ['Dashboard','总览'],
+  tabGuard: ['Lifetime Guard™','充电管家'],
+  tabIQ: ['Battery IQ™','电池诊断'],
+  tabSupport: ['Support','服务支持'],
+  /* BT-01 */
+  btAccess: ['Bluetooth Access','蓝牙权限'],
+  btAccessSub: ['Find and connect to nearby batteries','搜索并连接附近设备'],
+  locAccess: ['Location Access','位置权限'],
+  locAccessSub: ['Required by the system for Bluetooth scanning','蓝牙扫描系统必需'],
+  allowBtn: ['Allow & Continue','允许并继续'],
+  legal: ['We never collect or store your location data','我们不收集任何位置数据'],
+  /* BT-02 */
+  searching: ['Searching for nearby batteries…','正在搜索附近的电池…'],
+  makeSure: ['Please make sure:','请确认:'],
+  tip1: ['Battery is powered on (dashboard switch)','电池已按仪表盘开关开机'],
+  tip2: ['Phone is within 3 m / 10 ft of the battery','手机与电池距离小于 3 米'],
+  devicesFound: ['Devices found','发现的设备'],
+  noDevices: ['No devices yet — they will appear here','暂无设备 — 发现后将实时显示在这里'],
+  /* BT-03 */
+  oneFound: ['1 device found','发现 1 个设备'],
+  signalGood: ['Signal: Good','信号：良好'],
+  connect: ['Connect','连接'],
+  cantFind: ['Can\'t find my device','找不到我的设备'],
+  /* BT-04 / 05 */
+  connectingTo: ['Connecting to','正在连接'],
+  connectedOk: ['Connected!','连接成功！'],
+  guardActivated: ['Lifetime Guard™ Activated','Lifetime Guard™ 已激活'],
+  /* BT-06 */
+  notFound: ['No VEVOR battery found','未发现 VEVOR 电池'],
+  s1t: ['Power on the battery','确认电池已开机'],
+  s1s: ['Press the switch on the battery dashboard','按仪表盘开关开机'],
+  s2t: ['Move closer — within 3 m / 10 ft','靠近电池，距离小于 3 米'],
+  s2s: ['Bluetooth range is limited','蓝牙有效范围有限'],
+  s3t: ['Check phone Bluetooth is ON','确认手机蓝牙已开启'],
+  s3s: ['Settings → Bluetooth','设置 → 蓝牙'],
+  s4t: ['Remove old pairing, then rescan','删除历史配对后重新搜索'],
+  s4s: ['Forget the device in system settings','在系统设置中忽略此设备'],
+  searchAgain: ['Search Again','重新搜索'],
+  stillCant: ['Still can\'t connect?','仍然无法连接？'],
+  contactCs: ['Contact Support ›','联系售后 ›'],
+  /* Dashboard */
+  charging: ['Charging','充电中'],
+  health: ['Health','健康分'],
+  totalVoltage: ['Total Voltage','总电压'],
+  current: ['Current','电流'],
+  maxTemp: ['Max Temp','最高温'],
+  minTemp: ['Min Temp','最低温'],
+  allNormal: ['All Systems Normal','所有系统正常'],
+  bannerBad: ['2 faults — Cell Under-voltage','2 项故障 — 单体欠压'],
+  view: ['View','查看'],
+  /* Guard */
+  active: ['Active','已启用'],
+  currentLbl: ['Current:','当前:'],
+  stopAt: ['Charging will stop automatically at {x}%','充电将在 {x}% 自动停止'],
+  lifeExt: ['Estimated battery life extension {x}','预计延长电池寿命 {x}'],
+  chargeLimitMode: ['Charge Limit Mode','充电上限模式'],
+  daily: ['Daily','日常'],
+  longTrip: ['Long Trip','长途'],
+  storage: ['Storage','存储'],
+  dailyDs: ['Daily recommended','每日推荐'],
+  tripDs: ['Full range today','今日满程'],
+  storageDs: ['Long-term parking','长期存放'],
+  tripHint: ['⚠ Keeps charging to 100% until you change modes — staying at full charge accelerates battery aging. Switch back to Daily (85%) when full range isn\'t needed.','⚠ 将持续充至 100%，直到你手动切换模式 — 长期满电会加速电池老化，不需要满程时建议切回日常模式（85%）。'],
+  storageHint: ['Holds 50% for long-term storage — the healthiest level when parked for weeks.','保持 50% 长期存放 — 停放数周时最健康的电量水平。'],
+  schedTitle: ['Scheduled<br>Off-Peak Charging','预约错峰充电'],
+  supplyTitle: ['Supply Mode<br>Geek Boost','极客强充<br>Supply Mode'],
+  off: ['Off','关'],
+  offUpper: ['OFF','关'],
+  activeDot: ['● Active','● 已开启'],
+  lastCharge: ['Last charge','上次充电'],
+  saved: ['Saved','省'],
+  /* IQ */
+  cellStatus: ['Cell Status','电芯状态'],
+  faultDetect: ['Fault Detection','故障检测'],
+  highestCell: ['Highest Cell','最高电芯'],
+  delta: ['Delta','压差'],
+  lowestCell: ['Lowest Cell','最低电芯'],
+  normal: ['Normal','正常'],
+  abnormal: ['Abnormal','异常'],
+  batteryHealth: ['Battery Health','电池健康'],
+  cyclesTemp: ['Cycles · Avg Temp','循环 · 平均温度'],
+  everyPassed: ['Every protection check passed','所有检测项目正常'],
+  allPassed: ['22 / 22 items passed','22 项全部通过'],
+  viewAll22: ['▸ View all 22 check items','▸ 查看全部 22 项检测项目'],
+  genReport: ['Generate Report · Send to Support','生成诊断报告 · 发送客服'],
+  faultsDetected: ['2 faults detected','发现 2 项异常'],
+  others20: ['▸ 20 other items normal — view all','▸ 其余 20 项正常，点击查看'],
+  /* Support */
+  oneTap: ['One-Tap Diagnostic Report','一键故障诊断报告'],
+  oneTapSub: ['Auto-bundles data & screenshots · Straight to our support team','自动打包数据与截图 · 直连官方客服'],
+  ota: ['OTA Firmware Update','OTA 固件升级'],
+  upToDate: ['Up to date ✓','已是最新 ✓'],
+  manual: ['Digital Product Manual','产品数字手册'],
+  viewSt: ['View','查看'],
+  contactSupport: ['Contact Support','联系官方售后'],
+  liveChat: ['Live chat','在线客服'],
+  fw: ['Firmware','固件版本'],
+  appearance: ['Appearance','外观主题'],
+  darkOpt: ['Dark','深色'],
+  lightOpt: ['Light','浅色'],
+  tempUnitLabel: ['Temperature Unit','温度单位'],
+  fahrenheit: ['°F','°F'],
+  celsius: ['°C','°C'],
+  /* Drawers / modals */
+  schedHead: ['Scheduled Off-Peak Charging','预约错峰充电'],
+  schedNote: ['Charge during off-peak utility hours to save on electricity. The battery starts charging automatically inside this window.','在电价低谷时段充电，节省电费。电池将在该时间窗口内自动开始充电。'],
+  start: ['Start','开始'],
+  end: ['End','结束'],
+  confirm: ['Confirm','确认'],
+  supplyHead: ['Enable Supply Mode?','开启极客强充？'],
+  supplyBody: ['Geek Boost charges at maximum supported current and bypasses the Lifetime Guard™ limit for this session. Battery temperature will be monitored continuously. Long-term use may reduce battery lifespan.','极客强充将以最大支持电流充电，并在本次充电中绕过 Lifetime Guard™ 上限。电池温度将被持续监控。长期使用可能缩短电池寿命。'],
+  cancel: ['Cancel','取消'],
+  enableBtn: ['I Understand, Enable','我已了解，开启'],
+  disableBtn: ['Disable','关闭'],
+  cellHist: ['Cell {x} · Voltage History','电芯 {x} · 历史电压'],
+  now: ['Now','当前'],
+  min24: ['24h Min','24h 最低'],
+  max24: ['24h Max','24h 最高'],
+  sampleNote: ['Last 24 hours · sampled every 30 min','最近 24 小时 · 每 30 分钟采样'],
+  nowLbl: ['Now','现在'],
+  allChecks: ['All Check Items (22)','全部检测项目（22 项）'],
+  otaHead: ['OTA Firmware Update','OTA 固件升级'],
+  whatsNew: ['What\'s new:','更新内容:'],
+  log1: ['Improved SOC accuracy at low temperature','提升低温环境下 SOC 精度'],
+  log2: ['Faster Bluetooth reconnection','加快蓝牙重连速度'],
+  log3: ['Cell balancing optimization','优化电芯均衡策略'],
+  later: ['Later','稍后'],
+  updateNow: ['Update Now','立即更新'],
+  updating: ['Updating firmware… keep the app open<br>and stay near the battery.','固件升级中… 请保持 APP 开启<br>并停留在电池附近。'],
+  updatedTo: ['Firmware updated to','固件已更新至'],
+  done: ['Done','完成'],
+  /* Report */
+  repHead: ['Diagnostic Report','诊断报告'],
+  repPassedAll: ['22 diagnostic checks passed','22 项诊断检测全部通过'],
+  issuesDetected: ['{x} Issues Detected','发现 {x} 项异常'],
+  repPassedPart: ['{x} of 22 diagnostic checks passed','22 项检测通过 {x} 项'],
+  snapshot: ['Battery Snapshot','电池快照'],
+  socRow: ['State of Charge (SOC)','电量 (SOC)'],
+  chargingRow: ['+12.5 A · Charging','+12.5 A · 充电中'],
+  cellDelta: ['Cell Delta','电芯压差'],
+  sohRow: ['Battery Health (SOH)','电池健康 (SOH)'],
+  cycleCount: ['Cycle Count','循环次数'],
+  temperature: ['Temperature','温度'],
+  device: ['Device','设备信息'],
+  devName: ['Device Name','设备名称'],
+  sn: ['Serial Number','序列号'],
+  appVer: ['App Version','APP 版本'],
+  repMeta: ['Report ID VB-260612-0941 · Generated Jun 12, 2026 · 9:41 AM','报告编号 VB-260612-0941 · 生成时间 2026-06-12 09:41'],
+  repPrivacy: ['Sending shares this report and app screenshots with VEVOR Support','发送将向 VEVOR 客服共享此报告及应用截图'],
+  sendBtn: ['Send to Support','发送给客服'],
+  /* Toasts */
+  tManual: ['Opens the digital product manual','打开产品数字手册'],
+  tChat: ['Opens live chat with VEVOR support','打开 VEVOR 在线客服对话'],
+  tSchedSet: ['Off-peak charging set: {x}','错峰充电已设置: {x}'],
+  tSchedOff: ['Off-peak charging turned off','错峰充电已关闭'],
+  tSupplyOn: ['Supply Mode enabled','极客强充已开启'],
+  tSupplyOff: ['Supply Mode disabled','极客强充已关闭'],
+  tSent: ['Report VB-260612-0941 sent to support ✓','报告 VB-260612-0941 已发送给客服 ✓'],
+};
+const t = k => TXT[k][S.lang === 'en' ? 0 : 1];
+const tf = (k, x) => t(k).replace('{x}', x);
+
+const CELLS_OK  = [3296,3297,3302,3299,3294,3295,3293,3292,3291,3290,3289,3292,3290,3290,3291,3293];
+const CELLS_BAD = [3296,3297,3302,3299,3262,3295,3293,3292,3291,3290,2890,3292,3290,3290,3291,3293];
+function cells() { return S.alarm ? CELLS_BAD : CELLS_OK; }
+
+const CHECK_ITEMS = [
+  ['Cell Over-voltage','单体过压'], ['Cell Under-voltage','单体欠压'], ['Pack Over-voltage','总压过高'],
+  ['Pack Under-voltage','总压过低'], ['Charge Over-current','充电过流'], ['Discharge Over-current','放电过流'],
+  ['Short Circuit','短路保护'], ['Charge High Temp','充电高温'], ['Charge Low Temp','充电低温'],
+  ['Discharge High Temp','放电高温'], ['Discharge Low Temp','放电低温'], ['MOS High Temp','MOS高温'],
+  ['Ambient High Temp','环境高温'], ['Ambient Low Temp','环境低温'], ['Cell Voltage Diff','压差过大'],
+  ['Temp Sensor Fault','温感故障'], ['MOS Fault','MOS故障'], ['AFE Fault','AFE故障'],
+  ['Coulomb Counter','库伦计'], ['Heating Function','加热功能'], ['Balancing Circuit','均衡电路'],
+  ['Communication','通信检测'],
+];
+const FAULTS = [
+  { en:'Cell Under-voltage', zh:'单体欠压',
+    descEn:'Cell #11 voltage below protection threshold (2.90V)', descZh:'电芯 #11 电压低于保护阈值（2.90V）' },
+  { en:'Discharge Over-current', zh:'放电过流',
+    descEn:'Discharge current exceeded safe range', descZh:'放电电流超出安全范围' },
+];
+const fName = f => S.lang === 'en' ? f.en : f.zh;
+const fDesc = f => S.lang === 'en' ? f.descEn : f.descZh;
+
+/* ================= SVG 图标库 ================= */
+const sv = (p, fill) => `<svg viewBox="0 0 24 24" fill="${fill||'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const I = {
+  home: sv('<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'),
+  guard: sv('<path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M12.6 7.5l-3.1 5h2.4l-.9 4 3.5-5.2h-2.4l.5-3.8z" fill="currentColor" stroke="none"/>'),
+  chart: sv('<path d="M5 20v-6"/><path d="M10 20V8"/><path d="M15 20v-9"/><path d="M20 20V4"/>'),
+  smile: sv('<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1 2.1 1.6 3.5 1.6s2.6-.6 3.5-1.6"/><circle cx="9" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".7" fill="currentColor" stroke="none"/>'),
+  bell: sv('<path d="M18 9a6 6 0 10-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 004 0"/>'),
+  shieldCheck: sv('<path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M8.5 11.5l2.5 2.5 4.5-4.5"/>'),
+  check: sv('<path d="M4 12.5l5.5 5.5L20 6.5"/>'),
+  checkC: sv('<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>'),
+  bolt: sv('<path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5L13 2z" fill="currentColor" stroke="none"/>'),
+  leaf: sv('<path d="M6 21C6 12 12 5 21 4c-.5 9-6 16-15 17z"/><path d="M6 21c3-6 7-10 12-13"/>'),
+  car: sv('<path d="M5.5 11L7 6.5h10L18.5 11"/><rect x="3" y="11" width="18" height="6" rx="2"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/>'),
+  box: sv('<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/><path d="M12 11v10"/>'),
+  moon: sv('<path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>'),
+  trend: sv('<path d="M3 17l6-6 4 4 7-8"/><path d="M14 7h6v6"/>'),
+  clip: sv('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4a3 3 0 016 0"/><path d="M9 11h6M9 15h4"/>'),
+  camera: sv('<path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.2"/>'),
+  book: sv('<path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/><path d="M12 6v14"/>'),
+  msg: sv('<path d="M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.5 0-3-.4-4.2-1L3 20l1-4.3A8.5 8.5 0 1121 11.5z"/>'),
+  warn: sv('<path d="M12 3.5L21.5 20h-19L12 3.5z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r=".7" fill="currentColor" stroke="none"/>'),
+  send: sv('<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>'),
+  thermo: sv('<path d="M10 4a2 2 0 014 0v9a4.5 4.5 0 11-4 0V4z"/><circle cx="12" cy="17" r="1.6" fill="currentColor" stroke="none"/>'),
+  battery: sv('<rect x="2.5" y="8" width="16" height="9" rx="2"/><path d="M21.5 11v3"/><path d="M6.5 11v3M10.5 11v3M14.5 11v3"/>'),
+  phone: sv('<rect x="7.5" y="3" width="9" height="18" rx="2"/><circle cx="12" cy="18" r=".8" fill="currentColor" stroke="none"/>'),
+  bt: sv('<path d="M7 7.5l10 9L12 21V3l5 4.5-10 9"/>'),
+  pin: sv('<path d="M12 21s-6.5-5.7-6.5-10a6.5 6.5 0 1113 0c0 4.3-6.5 10-6.5 10z"/><circle cx="12" cy="10.8" r="2.2"/>'),
+  bulb: sv('<path d="M9.5 18h5"/><path d="M10.5 21h3"/><path d="M12 3a6 6 0 013.4 10.9c-.8.6-1.4 1.1-1.4 2.1h-4c0-1-.6-1.5-1.4-2.1A6 6 0 0112 3z"/>'),
+  radar: sv('<path d="M12 12L19 5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 10 1.7 4.2"/><path d="M19.5 5.5A10 10 0 1022 12"/>'),
+  up: sv('<path d="M12 17V6"/><path d="M7 11l5-5 5 5"/><path d="M5 20h14"/>'),
+  chev: sv('<path d="M9 5l7 7-7 7"/>'),
+  arrowUp: sv('<path d="M12 19V6"/><path d="M6.5 11.5L12 6l5.5 5.5"/>'),
+};
+const ic = (name, size, cls) => `<span class="ic ${cls||''}" style="width:${size}px;height:${size}px;">${I[name]}</span>`;
+
+/* ================= 状态栏 / 头部 / Tab栏 ================= */
+function statusbar() {
+  return `<div class="statusbar"><span>9:41</span>
+    <span class="sb-icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="13.5" y="0" width="3" height="11" rx="0.8"/></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 110 1.4 1.4 1.4 0 010-1.4zM8 9.6l2.2-2.4a3.2 3.2 0 00-4.4 0L8 9.6z"/><path d="M3.4 4.8a6.6 6.6 0 019.2 0l-1.5 1.6a4.4 4.4 0 00-6.2 0L3.4 4.8z" opacity=".85"/><path d="M.8 2.2a10.3 10.3 0 0114.4 0l-1.5 1.6a8.1 8.1 0 00-11.4 0L.8 2.2z" opacity=".7"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+    </span></div>`;
+}
+function appheader() {
+  return `<div class="appheader">
+    <span class="dev">VEVOR-BT-A3F2</span>
+    <span class="conn">${t('connected')}</span>
+    <span class="bell">${I.bell}</span>
+  </div>`;
+}
+function tabbar() {
+  const tb = (id, icn, name) => `<div class="tab ${S.tab===id?'on':''}" onclick="goTab('${id}')">${ic(icn,23)}<span>${name}</span></div>`;
+  return `<div class="tabbar">
+    ${tb('dash', 'home', t('tabDash'))}
+    ${tb('guard', 'guard', t('tabGuard'))}
+    ${tb('iq', 'chart', t('tabIQ'))}
+    ${tb('support', 'smile', t('tabSupport'))}
+  </div>`;
+}
+
+/* ================= 蓝牙流程页 ================= */
+function pageBT01() {
+  return statusbar() + `<div class="bt-page">
+    <div class="bt-logo">
+      <span class="mark">${I.battery}</span>
+      <h1><span>VEVOR</span> Battery</h1>
+    </div>
+    <div class="card perm-card">
+      <div class="perm-row"><span class="pic">${I.bt}</span><div><div class="t1">${t('btAccess')}</div><div class="t2">${t('btAccessSub')}</div></div></div>
+      <div class="perm-row"><span class="pic">${I.pin}</span><div><div class="t1">${t('locAccess')}</div><div class="t2">${t('locAccessSub')}</div></div></div>
+    </div>
+    <div class="bt-foot">
+      <button class="btn-primary" onclick="go('bt02')">${t('allowBtn')}</button>
+      <div class="legal">${t('legal')}</div>
+    </div>
+  </div>`;
+}
+function pageBT02() {
+  return statusbar() + `<div class="bt-page">
+    <div class="pulse-zone">
+      <div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div>
+      <div class="pulse-core">${I.battery}</div>
+    </div>
+    <div class="scan-txt">${t('searching')}</div>
+    <div class="tips-box">
+      <div class="tt">${ic('bulb',16)} ${t('makeSure')}</div>
+      &nbsp;&nbsp;· ${t('tip1')}<br>&nbsp;&nbsp;· ${t('tip2')}
+    </div>
+    <div class="found-label">${t('devicesFound')}</div>
+    <div class="scan-txt" style="font-size:12.5px; opacity:.6;">${t('noDevices')}</div>
+  </div>`;
+}
+function pageBT03() {
+  return statusbar() + `<div class="bt-page">
+    <h2 style="font-size:19px; font-weight:800; padding:14px 2px 16px;">${t('oneFound')}</h2>
+    <div class="card dev-card">
+      <span class="pic">${I.battery}</span>
+      <div>
+        <div class="nm">VEVOR-BT-2024-A3F2</div>
+        <div class="sig"><span class="sigbars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:8px"></i><i style="height:10px"></i><i class="off" style="height:12px"></i></span> ${t('signalGood')}</div>
+      </div>
+      <button class="btn-sm" onclick="go('bt04')">${t('connect')}</button>
+    </div>
+    <div class="bt-foot" style="margin-top:auto; padding-bottom:30px;">
+      <div class="link" onclick="go('bt06')">${t('cantFind')} <b>›</b></div>
+    </div>
+  </div>`;
+}
+function pageBT04() {
+  return statusbar() + `<div class="bt-page">
+    <div class="connect-zone">
+      <div class="conn-anim">${ic('battery',36)}<div class="conn-line"></div>${ic('phone',36)}</div>
+      <div class="conn-txt">${t('connectingTo')}<br><b style="color:var(--tx)">VEVOR-BT-2024-A3F2</b> …</div>
+    </div>
+  </div>`;
+}
+function pageBT05() {
+  return statusbar() + `<div class="bt-page">
+    <div class="ok-zone">
+      <div class="ok-badge">${I.check}</div>
+      <h2>${t('connectedOk')}</h2>
+      <div class="sub">${t('guardActivated')}</div>
+      <div class="sn">VEVOR-BT-2024-A3F2</div>
+    </div>
+  </div>`;
+}
+function pageBT06() {
+  return statusbar() + `<div class="bt-page">
+    <div class="nf-head"><span class="nic">${I.radar}</span><h2>${t('notFound')}</h2></div>
+    <div class="card steps-card">
+      <div class="step-row"><span class="no">1</span><div><div class="t1">${t('s1t')}</div><div class="t2">${t('s1s')}</div></div></div>
+      <div class="step-row"><span class="no">2</span><div><div class="t1">${t('s2t')}</div><div class="t2">${t('s2s')}</div></div></div>
+      <div class="step-row"><span class="no">3</span><div><div class="t1">${t('s3t')}</div><div class="t2">${t('s3s')}</div></div></div>
+      <div class="step-row"><span class="no">4</span><div><div class="t1">${t('s4t')}</div><div class="t2">${t('s4s')}</div></div></div>
+    </div>
+    <div class="bt-foot">
+      <button class="btn-primary" onclick="go('bt02')">${t('searchAgain')}</button>
+      <div class="legal" style="font-size:13px; margin-top:16px; color:var(--tx2); cursor:pointer;">${t('stillCant')} <b style="color:var(--brand)">${t('contactCs')}</b></div>
+    </div>
+  </div>`;
+}
+
+/* ================= Tab 1 · Dashboard ================= */
+function ringStops() {
+  if (S.soc < 20) return ['#FF6B5E','#FF453A','#D92A20'];
+  if (S.soc <= 50) return ['#FFD60A','#FFB340','#FF9500'];
+  return ['#2FD158','#BCE34A','#FF8A00'];
+}
+function tabDash() {
+  const R = 98, C = 2 * Math.PI * R;
+  const dash = C * S.soc / 100;
+  const [s1,s2,s3] = ringStops();
+  const banner = S.alarm
+    ? `<div class="alert-banner bad" onclick="goFaults()">${ic('warn',21)}<span>${t('bannerBad')}</span><span class="arr">${t('view')} ›</span></div>`
+    : `<div class="alert-banner ok">${ic('shieldCheck',21)}<span>${t('allNormal')}</span><span class="arr">›</span></div>`;
+  return `<div class="content">
+    <div class="soc-zone">
+      <div class="ring-box">
+        <svg width="248" height="248" viewBox="0 0 248 248">
+          <defs>
+            <linearGradient id="rg" x1="0.75" y1="0.933" x2="0.25" y2="0.067">
+              <stop offset="0%" stop-color="${s1}"/><stop offset="55%" stop-color="${s2}"/><stop offset="100%" stop-color="${s3}"/>
+            </linearGradient>
+            <filter id="rglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+          </defs>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="var(--card2)" stroke-width="17"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}" filter="url(#rglow)" opacity=".5"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}"/>
+        </svg>
+        <div class="ring-center">
+          <div class="lbl">SOC</div>
+          <div class="val">${S.soc}<small>%</small></div>
+          <div class="amp">${ic('arrowUp',14)} 12.5A</div>
+          <div class="chg">${t('charging')}</div>
+        </div>
+      </div>
+      <div class="health-line">${ic('shieldCheck',19)} ${t('health')}&nbsp; <b>94</b>&nbsp;/ 100</div>
+    </div>
+    <div class="quad">
+      <div class="q"><div class="v">48.2<small>V</small></div><div class="k">${t('totalVoltage')}</div></div>
+      <div class="q"><div class="v">12.5<small>A</small></div><div class="k">${t('current')}</div></div>
+      <div class="q"><div class="v">${dispTemp(32)}</div><div class="k">${t('maxTemp')}</div></div>
+      <div class="q"><div class="v">${dispTemp(28)}</div><div class="k">${t('minTemp')}</div></div>
+    </div>
+    ${banner}
+  </div>`;
+}
+
+/* ================= Tab 2 · Lifetime Guard ================= */
+function tabGuard() {
+  const lim = LIMITS[S.mode];
+  const hints = {
+    daily: '',
+    trip: `<div class="mode-hint warn">${t('tripHint')}</div>`,
+    storage: `<div class="mode-hint info">${t('storageHint')}</div>`,
+  };
+  const gain = { daily:'+30%', trip:'—', storage:'+35%' }[S.mode];
+  return `<div class="content" style="overflow-y:hidden;">
+    <div class="lg-title">${ic('bolt',19)}<h2>Lifetime Guard™</h2><span class="act">${t('active')}</span></div>
+    <div class="card guard-card">
+      <div class="gbar-labels"><span>${t('currentLbl')} <b>${S.soc}%</b></span><span class="lim">${ic('shieldCheck',16)} ${lim}%</span></div>
+      <div class="gbar">
+        <div class="restzone" style="width:${100-lim}%"></div>
+        <div class="fill" style="width:${S.soc}%"></div>
+        <div class="limmark ic" style="left:${lim}%">${I.shieldCheck}</div>
+        <div class="knob" style="left:${S.soc}%"></div>
+      </div>
+      <div class="gbar-scale"><span>0%</span><span>100%</span></div>
+      <div class="guard-sub">${tf('stopAt', lim)}</div>
+      ${gain !== '—' ? `<div class="guard-gain">${ic('trend',16)} ${tf('lifeExt', gain)}</div>` : ''}
+    </div>
+    <div class="sec-title">${t('chargeLimitMode')}</div>
+    <div class="modes">
+      ${modeCard('daily','leaf','g',t('daily'),t('dailyDs'))}
+      ${modeCard('trip','car','b',t('longTrip'),t('tripDs'))}
+      ${modeCard('storage','box','p',t('storage'),t('storageDs'))}
+    </div>
+    ${hints[S.mode]}
+    <div class="duo">
+      <div class="fn card" onclick="toggleSchedQuick(event)">
+        <div class="t">${ic('moon',17)}<span>${t('schedTitle')}</span></div>
+        <div class="s"><span class="switch ${S.schedOn?'on':''}" onclick="event.stopPropagation(); openOv('sched')"></span><span onclick="event.stopPropagation(); openOv('sched')" style="cursor:pointer">${S.schedOn ? S.schedStart+'–'+S.schedEnd : t('offUpper')} ›</span></div>
+      </div>
+      <div class="fn card" onclick="openOv('supply')">
+        <div class="t">${ic('bolt',17)}<span>${t('supplyTitle')}</span></div>
+        <div class="s"><span style="color:${S.supplyOn?'var(--brand)':'var(--tx3)'}; font-weight:600;">${S.supplyOn?t('activeDot'):t('off')}</span><span>›</span></div>
+      </div>
+    </div>
+    <div class="lastchg">${ic('clip',15)}<span class="w">${t('lastCharge')}</span>&nbsp; <b class="gain">+23Ah</b> · 1h 20min · ${t('saved')} <b class="save">$0.8</b></div>
+  </div>`;
+}
+function modeCard(id, icn, colorCls, nm, ds) {
+  return `<div class="mode-card ${S.mode===id?'on':''}" onclick="selMode('${id}')">
+    <span class="mic ic ${colorCls}">${I[icn]}</span><div class="nm">${nm}</div><div class="pct">${LIMITS[id]}%</div><div class="ds">${ds}</div>
+  </div>`;
+}
+
+/* ================= Tab 3 · Battery IQ ================= */
+function tabIQ() {
+  const seg = `<div class="segment">
+    <div class="sg ${S.iqSeg==='cells'?'on':''}" onclick="setSeg('cells')">${t('cellStatus')}</div>
+    <div class="sg ${S.iqSeg==='faults'?'on':''}" onclick="setSeg('faults')">${t('faultDetect')}</div>
+  </div>`;
+  return `<div class="content">${seg}${S.iqSeg==='cells' ? iqCells() : iqFaults()}</div>`;
+}
+function iqCells() {
+  const v = cells();
+  const max = Math.max(...v), min = Math.min(...v), delta = max - min;
+  const iMax = v.indexOf(max), iMin = v.indexOf(min);
+  const avg = v.reduce((a,b)=>a+b,0)/16;
+  const fmt = mv => (mv/1000).toFixed(3) + 'V';
+  const id = i => '#' + String(i+1).padStart(2,'0');
+  const grid = v.map((mv,i) => {
+    let cls = '';
+    if (mv <= 2900) cls = 'bad';
+    else if (mv < avg - 20) cls = 'warn';
+    if (i === iMax) cls += ' hi';
+    if (i === iMin && !cls.includes('bad')) cls += ' lo';
+    const w = Math.max(15, Math.min(100, ((mv-3250)/60)*100));
+    return `<div class="cell ${cls}" onclick="openCell(${i})">
+      <div class="no">${id(i)}</div><div class="mv">${fmt(mv)}</div>
+      <div class="bar"><i style="width:${w}%"></i></div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="iq-stats">
+      <div class="st hi"><div class="k">${t('highestCell')}</div><div class="v"><span class="id">${id(iMax)}</span><em>${fmt(max)}</em></div></div>
+      <div class="st delta ${delta>20?'warn':''}"><div class="k">${t('delta')}</div><div class="v">${delta}mV ${delta>20?ic('warn',14):ic('checkC',14)}</div><div class="k2">${delta>20?t('abnormal'):t('normal')}</div></div>
+      <div class="st lo"><div class="k">${t('lowestCell')}</div><div class="v"><span class="id">${id(iMin)}</span><em>${fmt(min)}</em></div></div>
+    </div>
+    <div class="cellgrid">${grid}</div>
+    <div class="iq-foot">
+      <div class="f"><span class="fic ic" style="color:var(--green)">${I.shieldCheck}</span><div><div class="k">${t('batteryHealth')}</div><div class="v">94 / 100</div></div></div>
+      <div class="f"><span class="fic ic" style="color:var(--tx2)">${I.thermo}</span><div><div class="k">${t('cyclesTemp')}</div><div class="v">127 · ${dispTempV(29)}</div></div></div>
+    </div>`;
+}
+function iqFaults() {
+  if (!S.alarm) {
+    return `
+      <div class="fault-ok">
+        <div class="shield">${I.shieldCheck}</div>
+        <h2>${t('allNormal')}</h2>
+        <div class="s1">${t('everyPassed')}</div>
+        <div class="s2">${t('allPassed')}</div>
+      </div>
+      <div class="fold-link" onclick="openOv('checks')">${t('viewAll22')}</div>
+      <button class="btn-primary btn-report" onclick="openOv('report')">${ic('camera',18)} ${t('genReport')}</button>`;
+  }
+  const cards = FAULTS.map(f => `
+    <div class="card fault-card">
+      <div class="t1"><span class="dot" style="background:var(--red)"></span>${fName(f)}</div>
+      <div class="t3">${fDesc(f)}</div>
+    </div>`).join('');
+  return `
+    <div class="fault-sum">${ic('warn',19)} ${t('faultsDetected')}</div>
+    ${cards}
+    <div class="fold-link" onclick="openOv('checks')">${t('others20')}</div>
+    <button class="btn-primary btn-report" onclick="openOv('report')">${ic('camera',18)} ${t('genReport')}</button>`;
+}
+
+/* ================= Tab 4 · Support ================= */
+function tabSupport() {
+  return `<div class="content">
+    <div class="diag-hero" onclick="openOv('report')">
+      <div class="hic">${I.camera}</div>
+      <h2>${t('oneTap')}</h2>
+      <p>${t('oneTapSub')}</p>
+    </div>
+    <div class="card svc-list">
+      <div class="svc-row" onclick="openOv('ota')"><span class="sic">${I.up}</span><span class="t">${t('ota')}</span><span class="st okk">${t('upToDate')}</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" onclick="toast(t('tManual'))"><span class="sic">${I.book}</span><span class="t">${t('manual')}</span><span class="st">${t('viewSt')}</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" onclick="toast(t('tChat'))"><span class="sic">${I.msg}</span><span class="t">${t('contactSupport')}</span><span class="st">${t('liveChat')}</span><span class="arr ic">${I.chev}</span></div>
+      <div class="svc-row" style="cursor:default;"><span class="sic">${I.moon}</span><span class="t">${t('appearance')}</span>
+        <span class="mini-seg">
+          <b class="${S.theme==='dark'?'on':''}" onclick="setTheme('dark')">${t('darkOpt')}</b>
+          <b class="${S.theme==='light'?'on':''}" onclick="setTheme('light')">${t('lightOpt')}</b>
+        </span>
+      </div>
+      <div class="svc-row" style="cursor:default;"><span class="sic">${I.thermo}</span><span class="t">${t('tempUnitLabel')}</span>
+        <span class="mini-seg">
+          <b class="${S.tempUnit==='F'?'on':''}" onclick="setTempUnit('F')">${t('fahrenheit')}</b>
+          <b class="${S.tempUnit==='C'?'on':''}" onclick="setTempUnit('C')">${t('celsius')}</b>
+        </span>
+      </div>
+    </div>
+    <div class="dev-info">SN: VEVOR-BT-2024-A3F2<br>${t('fw')} v2.3.1 · App v1.2.0</div>
+  </div>`;
+}
+
+/* ================= 弹窗 / 抽屉 ================= */
+function overlayHTML() {
+  if (!S.overlay) return '';
+  if (S.overlay === 'sched') {
+    const opts = sel => ['20:00','21:00','22:00','23:00','00:00','05:00','06:00','07:00','08:00']
+      .map(x => `<option ${x===sel?'selected':''}>${x}</option>`).join('');
+    return `<div class="mask" onclick="closeOv()"></div>
+    <div class="drawer"><div class="grip"></div>
+      <div class="dhead"><h3>${ic('moon',18)} ${t('schedHead')}</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dbody">
+        <div class="offpeak-note">${t('schedNote')}</div>
+        <div class="time-row">
+          <div class="time-col"><label>${t('start')}</label><select id="schedS">${opts(S.schedStart)}</select></div>
+          <div class="time-col"><label>${t('end')}</label><select id="schedE">${opts(S.schedEnd)}</select></div>
+        </div>
+        <button class="btn-primary" onclick="confirmSched()">${t('confirm')}</button>
+      </div>
+    </div>`;
+  }
+  if (S.overlay === 'supply') {
+    return `<div class="mask"></div>
+    <div class="modal">
+      <div class="mic2">${I.warn}</div>
+      <h3>${t('supplyHead')}</h3>
+      <p>${t('supplyBody')}</p>
+      <div class="mbtns">
+        <button class="ghost" onclick="closeOv()">${t('cancel')}</button>
+        <button class="${S.supplyOn?'ghost':'danger'}" onclick="confirmSupply()">${S.supplyOn?t('disableBtn'):t('enableBtn')}</button>
+      </div>
+    </div>`;
+  }
+  if (S.overlay === 'cell') {
+    const v = cells()[S.cellIdx];
+    const id = '#' + String(S.cellIdx+1).padStart(2,'0');
+    return `<div class="mask" onclick="closeOv()"></div>
+    <div class="drawer"><div class="grip"></div>
+      <div class="dhead"><h3>${tf('cellHist', id)}</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dbody">
+        <div class="chart-meta"><span>${t('now')} <b>${(v/1000).toFixed(3)}V</b></span><span>${t('min24')} <b>${((v-18)/1000).toFixed(3)}V</b></span><span>${t('max24')} <b>${((v+9)/1000).toFixed(3)}V</b></span></div>
+        <div class="chart-box">${cellChart(v)}</div>
+        <div class="offpeak-note" style="margin-top:12px;">${t('sampleNote')}</div>
+      </div>
+    </div>`;
+  }
+  if (S.overlay === 'checks') {
+    const bad = S.alarm ? ['Cell Under-voltage','Discharge Over-current'] : [];
+    const rows = CHECK_ITEMS
+      .slice().sort((a,b) => (bad.includes(b[0])?1:0) - (bad.includes(a[0])?1:0))
+      .map(([en,zh]) => {
+        const isBad = bad.includes(en);
+        const nm = S.lang === 'en' ? en : zh;
+        return `<div class="chk-row ${isBad?'bad':''}">${isBad?'<span class="dot" style="background:var(--red)"></span>':'<span class="cic ic">'+I.checkC+'</span>'} ${nm}</div>`;
+      }).join('');
+    return `<div class="mask" onclick="closeOv()"></div>
+    <div class="drawer"><div class="grip"></div>
+      <div class="dhead"><h3>${t('allChecks')}</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dbody">${rows}</div>
+    </div>`;
+  }
+  if (S.overlay === 'report') {
+    const v = cells();
+    const max = Math.max(...v), min = Math.min(...v), delta = max - min;
+    const iMax = v.indexOf(max), iMin = v.indexOf(min);
+    const id = i => '#' + String(i+1).padStart(2,'0');
+    const fmt = mv => (mv/1000).toFixed(3) + ' V';
+    const banner = S.alarm
+      ? `<div class="rep-banner bad"><div class="bic">${I.warn}</div><h2>${tf('issuesDetected', FAULTS.length)}</h2><div class="bs">${tf('repPassedPart', 22-FAULTS.length)}</div></div>`
+        + FAULTS.map(f => `<div class="rep-fault"><span class="dot"></span><div><div class="ft">${fName(f)}</div><div class="fd">${fDesc(f)}</div></div></div>`).join('')
+      : `<div class="rep-banner ok"><div class="bic">${I.shieldCheck}</div><h2>${t('allNormal')}</h2><div class="bs">${t('repPassedAll')}</div></div>`;
+    const row = (k, val, cls='') => `<div class="rep-row"><span class="k">${k}</span><span class="v ${cls}">${val}</span></div>`;
+    return `<div class="mask" onclick="closeOv()"></div>
+    <div class="drawer tall"><div class="grip"></div>
+      <div class="dhead"><h3>${ic('clip',18)} ${t('repHead')}</h3><span class="x" onclick="closeOv()">✕</span></div>
+      <div class="dbody" style="flex:1;">
+        ${banner}
+        <div class="rep-sec">${t('snapshot')}</div>
+        <div class="rep-card">
+          ${row(t('socRow'), '72%')}
+          ${row(t('totalVoltage'), '48.2 V')}
+          ${row(t('current'), t('chargingRow'))}
+          ${row(t('cellDelta'), delta + ' mV', delta > 20 ? 'warn' : 'good')}
+          ${row(t('highestCell'), id(iMax) + ' · ' + fmt(max))}
+          ${row(t('lowestCell'), id(iMin) + ' · ' + fmt(min), min <= 2900 ? 'warn' : '')}
+          ${row(t('sohRow'), '94 / 100')}
+          ${row(t('cycleCount'), '127')}
+          ${row(t('temperature'), `${dispTempV(28)}–${dispTempV(32)}`)}
+        </div>
+        <div class="rep-sec">${t('device')}</div>
+        <div class="rep-card">
+          ${row(t('devName'), 'VEVOR-BT-A3F2')}
+          ${row(t('sn'), 'VEVOR-BT-2024-A3F2')}
+          ${row(t('fw'), 'v2.3.1')}
+          ${row(t('appVer'), 'v1.2.0')}
+        </div>
+        <div class="rep-meta">${t('repMeta')}<br>${t('repPrivacy')}</div>
+      </div>
+      <div class="rep-actions">
+        <button class="ghost" onclick="closeOv()">${t('cancel')}</button>
+        <button class="solid" onclick="sendReport()">${ic('send',16)} ${t('sendBtn')}</button>
+      </div>
+    </div>`;
+  }
+  if (S.overlay === 'ota') {
+    const body = S.otaState === 'idle' ? `
+      <div class="ota-ver"><span>v2.3.1</span><span style="color:var(--tx3)">→</span><span class="new">v2.4.0</span></div>
+      <div class="ota-log"><b style="color:var(--tx)">${t('whatsNew')}</b><br>· ${t('log1')}<br>· ${t('log2')}<br>· ${t('log3')}</div>
+      <div class="mbtns"><button class="ghost" onclick="closeOv()">${t('later')}</button><button class="solid" onclick="startOTA()">${t('updateNow')}</button></div>`
+    : S.otaState === 'progress' ? `
+      <p style="text-align:center; margin-top:14px;">${t('updating')}</p>
+      <div class="ota-bar"><i id="otaFill"></i></div>`
+    : `
+      <div class="ota-done">${I.check}</div>
+      <p style="text-align:center;">${t('updatedTo')} <b style="color:var(--tx)">v2.4.0</b></p>
+      <div class="mbtns"><button class="solid" onclick="closeOv()">${t('done')}</button></div>`;
+    return `<div class="mask"></div>
+    <div class="modal"><h3>${t('otaHead')}</h3>${body}</div>`;
+  }
+  return '';
+}
+function cellChart(nowMv) {
+  const pts = [];
+  const seed = [0,-4,-8,-12,-16,-18,-15,-10,-6,-2,1,4,7,9,8,6,4,2,0,-2,-3,-2,-1,0];
+  for (let i = 0; i < 24; i++) {
+    const x = 10 + i * (300/23);
+    const y = 70 - (seed[i] + 18) * (52/36);
+    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return `<svg viewBox="0 0 320 92" width="100%">
+    <line x1="10" y1="18" x2="310" y2="18" stroke="var(--line)" stroke-dasharray="3 3"/>
+    <line x1="10" y1="44" x2="310" y2="44" stroke="var(--line)" stroke-dasharray="3 3"/>
+    <line x1="10" y1="70" x2="310" y2="70" stroke="var(--line)" stroke-dasharray="3 3"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="310" cy="${70-(0+18)*(52/36)}" r="3.5" fill="var(--green)"/>
+    <text x="10" y="88" font-size="9" fill="var(--tx3)">-24h</text>
+    <text x="155" y="88" font-size="9" fill="var(--tx3)">-12h</text>
+    <text x="290" y="88" font-size="9" fill="var(--tx3)">${t('nowLbl')}</text>
+  </svg>`;
+}
+
+/* ================= 中文标注内容 ================= */
+const NOTES = {
+  bt01: `<h3>BT-01 · 权限请求页</h3>
+    <ul><li><b>触发时机：</b>首次安装启动</li>
+    <li>Logo 居中 60dp；权限列表每行 56dp（图标24 + 主标题16sp + 副标题13sp灰）</li>
+    <li>主按钮高 52dp、圆角 12dp、品牌色</li>
+    <li>底部声明 11sp 灰色——明确告知不收集位置数据，降低美国用户隐私顾虑</li></ul>`,
+  bt02: `<h3>BT-02 · 扫描中页</h3>
+    <ul><li>脉冲扩散动画：3 圈向外扩散，周期 2s，循环播放（CSS/Lottie）</li>
+    <li>提示用户：电池开机 + 距离 &lt; 3 米</li>
+    <li>发现设备<b>实时追加</b>到下方列表，无需等待超时</li>
+    <li><b>15 秒超时</b>未发现 → 自动跳转 BT-06</li>
+    <li><span class="tag">演示</span>本原型 2.5 秒后自动"发现"设备并跳 BT-03</li></ul>`,
+  bt03: `<h3>BT-03 · 发现设备页</h3>
+    <ul><li>设备卡片高 72dp、圆角 12dp、阴影 2dp</li>
+    <li>设备名带 <b>SN 后 4 位</b>区分，避免多车场景混淆</li>
+    <li>信号强度 5 格，按 RSSI 阈值显示（详见 PRD）</li>
+    <li>多台设备时纵向列表展示</li>
+    <li>底部"找不到我的设备"文字链 → BT-06 排查页</li></ul>`,
+  bt04: `<h3>BT-04 · 连接中页</h3>
+    <ul><li>连线动画：电池图标 → 手机图标，从左向右流动</li>
+    <li>居中布局，占屏幕 50%</li>
+    <li><span class="tag">演示</span>2.2 秒后自动跳转 BT-05</li></ul>`,
+  bt05: `<h3>BT-05 · 连接成功过渡页</h3>
+    <ul><li>大勾图标动画弹出（64dp），停留 <b>1.5 秒</b>后自动进入 Dashboard</li>
+    <li><b>文案策略：</b>用"Lifetime Guard™ Activated"替代单纯的"连接成功"——首次品牌概念植入</li></ul>`,
+  bt06: `<h3>BT-06 · 未发现设备页</h3>
+    <ul><li><b>触发：</b>扫描 15s 超时 / 连接失败</li>
+    <li>4 步排查：开机 → 靠近 → 蓝牙开关 → 删除历史配对</li>
+    <li>每步：编号 + 加粗标题 + 副文字说明</li>
+    <li>主按钮"重新搜索" → BT-02；底部"联系售后"文字链兜底</li></ul>`,
+  dash: `<h3>Tab 1 · Dashboard 总览</h3>
+    <table><tr><th>区域</th><th>占比</th><th>优先级</th></tr>
+    <tr><td>SOC 圆环区</td><td>44%</td><td>P0</td></tr>
+    <tr><td>4 格数据区</td><td>28%</td><td>P1</td></tr>
+    <tr><td>告警横幅区</td><td>14%</td><td>P1</td></tr></table>
+    <h4>圆环颜色逻辑（渐变发光描边）</h4>
+    <ul><li>SOC &gt; 50% → 绿→黄→橙渐变</li><li>20~50% → 黄→橙渐变</li><li>&lt; 20% → 红色渐变</li></ul>
+    <h4>告警横幅规则</h4>
+    <ul><li>仅显示<b>最高优先级 1 条</b>；点击 → 跳转诊断 Tab 的"故障检测"</li>
+    <li>无告警时显示 All Systems Normal（<b>不隐藏区域</b>，深绿底白字保持布局稳定）</li>
+    <li><span class="tag">演示</span>用顶部"模拟告警"开关查看异常状态</li></ul>`,
+  guard: `<h3>Tab 2 · Lifetime Guard™ 充电管家</h3>
+    <table><tr><th>区域</th><th>占比</th><th>优先级</th></tr>
+    <tr><td>保护状态可视化</td><td>36%</td><td>P0</td></tr>
+    <tr><td>充电模式卡片</td><td>32%</td><td>P0</td></tr>
+    <tr><td>快捷功能</td><td>16%</td><td>P1</td></tr>
+    <tr><td>充电记录摘要</td><td>8%</td><td>P2</td></tr></table>
+    <ul><li>滑杆式进度条：绿色渐变填充至当前 SOC + 白色滑钮，绿盾图标标注充电上限，上限以右为点状虚线</li>
+    <li>三模式：日常 85%（绿叶图标）/ 长途 100%（蓝车）/ 存储 50%（紫箱）；选中态绿色描边</li>
+    <li><b>选中"长途"</b>→ 下方出现橙色提示：持续充至 100% 直到手动切换模式，长期满电加速老化，建议不需要时切回日常（<b>不自动回落</b>）</li>
+    <li>预约错峰充电 → <b>底部抽屉</b>（时间段选择），开关橙色</li>
+    <li>极客强充 Supply Mode → <b>居中 Modal</b>（安全警告 + 二次确认）</li></ul>`,
+  iq: `<h3>Tab 3 · Battery IQ™ 电池诊断</h3>
+    <h4>电芯状态 Segment（橙色胶囊切换）</h4>
+    <table><tr><th>状态</th><th>样式</th><th>触发条件</th></tr>
+    <tr><td>正常</td><td>卡片底色+绿条</td><td>偏差 ≤ 20mV</td></tr>
+    <tr><td>最高</td><td>橙色描边+橙条</td><td>当前最高电芯</td></tr>
+    <tr><td>最低</td><td>蓝色描边+蓝条</td><td>当前最低电芯</td></tr>
+    <tr><td>偏低</td><td>浅黄底</td><td>低于均值 &gt; 20mV</td></tr>
+    <tr><td>异常</td><td>浅红底红字</td><td>触发 BMS 保护阈值</td></tr></table>
+    <ul><li>顶部统计卡（竖线分隔三列）：最高电芯橙色 / 压差绿色✓（≤20mV）/ 最低电芯蓝色</li>
+    <li><b>点击任意电芯格</b> → 底部抽屉：该芯 24h 历史电压折线图</li>
+    <li>底部：电池健康（绿盾）+ 循环次数/平均温度（温度计）</li></ul>
+    <h4>故障检测 Segment</h4>
+    <ul><li>正常态：绿盾牌 + "22 项全部通过"</li>
+    <li>异常态：红色摘要条 + 异常卡片（红色左边框），超过 3 项内部滚动</li>
+    <li>"查看全部检测项目" → 底部抽屉，<b>异常项置顶</b></li>
+    <li>底部固定"生成诊断报告"按钮 → 报告预览</li>
+    <li><span class="tag">演示</span>用顶部"模拟告警"开关切换正常/异常状态</li></ul>`,
+  support: `<h3>Tab 4 · Support 服务支持</h3>
+    <table><tr><th>区域</th><th>占比</th><th>优先级</th></tr>
+    <tr><td>一键诊断大按钮</td><td>36%</td><td>P0</td></tr>
+    <tr><td>功能入口列表</td><td>42%</td><td>P1</td></tr>
+    <tr><td>设备信息</td><td>14%</td><td>P2</td></tr></table>
+    <ul><li>一键诊断：品牌色渐变大卡片 + 磨砂图标底——自动打包数据截图、直连客服（售后成本抓手）</li>
+    <li>列表行：橙色圆角图标底 + 白色粗标题 + 右侧状态/箭头</li>
+    <li>OTA 固件升级 → 居中 Modal：版本号 + 更新日志 + 立即更新（含进度演示）</li>
+    <li><b>外观主题</b>：深色/浅色二选一分段控件，设置项集成在本 Tab（默认深色）</li>
+    <li>底部灰字：SN + 固件版本，方便客服沟通时报号</li></ul>`,
+};
+const OV_NOTES = {
+  sched: `<h4>预约错峰充电（底部抽屉）</h4><ul><li>从底部滑出 300ms ease-out，最大高度 60%</li><li>开始/结束时间选择器 + 确认按钮</li><li>关闭：下滑手势 / 点遮罩 / ✕</li></ul>`,
+  supply: `<h4>极客强充（居中 Modal）</h4><ul><li>宽 85%、圆角 16dp，遮罩 rgba(0,0,0,.5)</li><li>警告图标 + 风险说明 + 取消/确认</li><li><b>仅按钮可关闭</b>（防误操作）</li></ul>`,
+  cell: `<h4>电芯历史曲线（底部抽屉）</h4><ul><li>电芯编号 + 24h 历史电压折线图</li><li>采样间隔 30min（演示数据）</li></ul>`,
+  checks: `<h4>全部检测项目（底部抽屉）</h4><ul><li>22 项完整列表，<b>异常项置顶</b>并红色标识</li><li>仅抽屉内部可滚动</li></ul>`,
+  ota: `<h4>OTA 升级（居中 Modal）</h4><ul><li>版本对比 + 更新日志 + 立即更新</li><li>升级中显示进度条，完成后显示新版本号</li></ul>`,
+  report: `<h4>诊断报告预览（全屏抽屉，高度 88%）</h4>
+    <ul><li><b>流程：</b>点"生成报告" → 先预览内容 → 用户确认后才发送（替代直接发送的黑盒操作）</li>
+    <li><b>顶部状态横幅：</b>正常 = 绿色，大字 All Systems Normal + 小字 22 diagnostic checks passed；告警 = 红色，大字 X Issues Detected，故障项红卡片<b>置顶显眼展示</b></li>
+    <li><b>Battery Snapshot：</b>SOC / 总电压 / 电流 / 压差（&gt;20mV 标红）/ 最高最低电芯 / SOH / 循环次数 / 温度</li>
+    <li><b>Device：</b>设备名 / SN / 固件 / APP 版本</li>
+    <li>底部注明 Report ID + 生成时间 + 隐私提示（发送内容包含截图）</li>
+    <li>双按钮：Cancel（灰）/ Send to Support（品牌色，占比更宽）</li>
+    <li><span class="tag">演示</span>切换顶部"模拟告警"后再打开报告，可看红色版本</li></ul>`,
+};
+
+/* ================= 渲染 ================= */
+function render() {
+  clearTimeout(timer);
+  const scr = document.getElementById('screen');
+  scr.dataset.theme = S.theme;
+  let html = '';
+  if (S.screen === 'main') {
+    const body = { dash: tabDash, guard: tabGuard, iq: tabIQ, support: tabSupport }[S.tab]();
+    html = statusbar() + appheader() + body + tabbar();
+  } else {
+    html = { bt01: pageBT01, bt02: pageBT02, bt03: pageBT03, bt04: pageBT04, bt05: pageBT05, bt06: pageBT06 }[S.screen]();
+  }
+  scr.innerHTML = html + overlayHTML();
+
+  if (S.screen === 'bt02') timer = setTimeout(() => go('bt03'), 2500);
+  if (S.screen === 'bt04') timer = setTimeout(() => go('bt05'), 2200);
+  if (S.screen === 'bt05') timer = setTimeout(() => { S.screen = 'main'; S.tab = 'dash'; render(); }, 1600);
+  if (S.overlay === 'ota' && S.otaState === 'progress') {
+    requestAnimationFrame(() => { const f = document.getElementById('otaFill'); if (f) f.style.width = '100%'; });
+    timer = setTimeout(() => { S.otaState = 'done'; render(); }, 2600);
+  }
+  renderNotes();
+}
+function renderNotes() {
+  const p = document.getElementById('notesPanel');
+  p.style.display = S.notes ? '' : 'none';
+  if (!S.notes) return;
+  const key = S.screen === 'main' ? S.tab : S.screen;
+  let html = NOTES[key] || '';
+  if (S.overlay && OV_NOTES[S.overlay]) {
+    html += `<div style="margin-top:14px; border-top:1px dashed #dcdfe5; padding-top:10px;">${OV_NOTES[S.overlay]}</div>`;
+  }
+  html += `<div style="margin-top:16px; font-size:11px; color:#9ca0a8; border-top:1px solid #eceef1; padding-top:10px;">
+    内容基准：UI 线框图规格说明 V2.0 · 视觉基准：高保真参考图 · 英文版为最终交付文案，中文版供团队评审 · 数据为模拟值</div>`;
+  p.innerHTML = html;
+}
+
+/* ================= 交互 ================= */
+function go(s) { S.screen = s; S.overlay = null; render(); }
+function goTab(tb) { S.tab = tb; S.overlay = null; render(); }
+function goFaults() { S.tab = 'iq'; S.iqSeg = 'faults'; render(); }
+function setSeg(s) { S.iqSeg = s; render(); }
+function selMode(m) { S.mode = m; render(); }
+function openOv(o) { S.overlay = o; if (o === 'ota') S.otaState = 'idle'; render(); }
+function closeOv() { S.overlay = null; render(); }
+function openCell(i) { S.cellIdx = i; S.overlay = 'cell'; render(); }
+function confirmSched() {
+  S.schedStart = document.getElementById('schedS').value;
+  S.schedEnd = document.getElementById('schedE').value;
+  S.schedOn = true; S.overlay = null; render();
+  toast(tf('tSchedSet', S.schedStart + '–' + S.schedEnd));
+}
+function toggleSchedQuick() { S.schedOn ? (S.schedOn = false, render(), toast(t('tSchedOff'))) : openOv('sched'); }
+function confirmSupply() { S.supplyOn = !S.supplyOn; S.overlay = null; render(); toast(S.supplyOn ? t('tSupplyOn') : t('tSupplyOff')); }
+function startOTA() { S.otaState = 'progress'; render(); }
+function sendReport() { S.overlay = null; render(); toast(t('tSent')); }
+function toast(msg) {
+  clearTimeout(toastTimer);
+  document.querySelectorAll('.toast').forEach(e => e.remove());
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.getElementById('screen').appendChild(el);
+  toastTimer = setTimeout(() => el.remove(), 2400);
+}
+
+/* ================= 工具栏 ================= */
+function jumpTo(v) {
+  if (!v) return;
+  if (v.startsWith('tab:')) { S.screen = 'main'; S.tab = v.slice(4); S.overlay = null; }
+  else { S.screen = v; S.overlay = null; }
+  render();
+  document.getElementById('jumpSel').value = '';
+}
+function toggleLang() {
+  S.lang = S.lang === 'zh' ? 'en' : 'zh';
+  document.getElementById('langBtn').textContent = S.lang === 'zh' ? '🌐 界面语言：中文' : '🌐 UI Language: English';
+  render();
+}
+function setTheme(v) { S.theme = v; render(); }
+function setTempUnit(v) { S.tempUnit = v; render(); }
+function dispTemp(c) {
+  if (S.tempUnit === 'F') return `${Math.round(c * 1.8 + 32)}<small>°F</small>`;
+  return `${c}<small>°C</small>`;
+}
+function dispTempV(c) {
+  if (S.tempUnit === 'F') return Math.round(c * 1.8 + 32) + '°F';
+  return c + '°C';
+}
+function toggleNotes() {
+  S.notes = !S.notes;
+  document.getElementById('notesBtn').classList.toggle('on', S.notes);
+  render();
+}
+function toggleAlarm() {
+  S.alarm = !S.alarm;
+  const b = document.getElementById('alarmBtn');
+  b.textContent = S.alarm ? '⚠️ 模拟告警：开' : '⚠️ 模拟告警：关';
+  b.classList.toggle('on', S.alarm);
+  render();
+}
+function restartFlow() { S.screen = 'bt01'; S.overlay = null; render(); }
+
+/* ================= 手机框自适应缩放 ================= */
+function fit() {
+  const wrap = document.getElementById('phoneWrap');
+  const stage = document.getElementById('stage');
+  const availH = stage.clientHeight - 16;
+  const availW = Math.min(stage.clientWidth - 16, window.innerWidth - 16);
+  const scale = Math.min(1, availH / 868, availW / 414);
+  wrap.style.transform = `scale(${scale})`;
+  wrap.style.width = (414 * scale) + 'px';
+  wrap.style.height = (868 * scale) + 'px';
+  document.getElementById('phone').style.transformOrigin = 'top left';
+  wrap.style.transformOrigin = 'center';
+  wrap.style.display = 'flex';
+  wrap.style.alignItems = 'center';
+  wrap.style.justifyContent = 'center';
+}
+window.addEventListener('resize', fit);
+fit();
+render();
+</script>
+
+
+</body></html>
