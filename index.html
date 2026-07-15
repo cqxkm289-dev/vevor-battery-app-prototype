@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VEVOR Golf Cart Battery App · 交互原型 V2.2</title>
+<title>VEVOR Golf Cart Battery App · 交互原型 V3.0</title>
 <style>
   /* ============ 外层页面（工具栏 + 画布） ============ */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -17,14 +17,14 @@
     display:flex; align-items:center; gap:10px; padding:0 16px; flex-wrap:nowrap; overflow-x:auto;
   }
   #toolbar .brand { font-weight:700; font-size:14px; white-space:nowrap; }
-  #toolbar .brand span { color:#FF7A00; }
+  #toolbar .brand span { color:#F95120; }
   #toolbar .sep { width:1px; height:24px; background:#e1e4e9; flex:none; }
   .tbtn {
     border:1px solid #d4d8df; background:#fff; border-radius:8px; padding:6px 12px;
     font-size:12.5px; cursor:pointer; white-space:nowrap; color:#3a3d42; transition:all .15s;
   }
-  .tbtn:hover { border-color:#FF7A00; color:#FF7A00; }
-  .tbtn.on { background:#FF7A00; border-color:#FF7A00; color:#fff; }
+  .tbtn:hover { border-color:#F95120; color:#F95120; }
+  .tbtn.on { background:#F95120; border-color:#F95120; color:#fff; }
   select.tbtn { appearance:auto; }
   #stage { height:calc(100% - 56px); display:flex; align-items:center; justify-content:center; gap:28px; padding:18px; }
   #phoneWrap { flex:none; }
@@ -36,8 +36,8 @@
     box-shadow:0 6px 24px rgba(0,0,0,.06);
   }
   #notesPanel h3 { font-size:14px; margin-bottom:10px; color:#111; display:flex; align-items:center; gap:6px; }
-  #notesPanel h3::before { content:""; width:4px; height:14px; background:#FF7A00; border-radius:2px; }
-  #notesPanel h4 { font-size:12.5px; margin:12px 0 4px; color:#FF7A00; }
+  #notesPanel h3::before { content:""; width:4px; height:14px; background:#F95120; border-radius:2px; }
+  #notesPanel h4 { font-size:12.5px; margin:12px 0 4px; color:#F95120; }
   #notesPanel ul { padding-left:18px; }
   #notesPanel li { margin-bottom:3px; }
   #notesPanel table { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0; }
@@ -56,20 +56,22 @@
 
   /* ============ APP 主题变量 ============ */
   #screen[data-theme="dark"] {
-    --bg:#0A0A0B; --bg2:#111113; --card:#19191C; --card2:#232327; --line:#2A2A2F;
-    --tx:#FFFFFF; --tx2:#98989F; --tx3:#6A6A72;
-    --brand:#FF7A00; --brand2:#FFB340; --brand-soft:rgba(255,122,0,.14);
-    --green:#2FD158; --green-soft:rgba(47,209,88,.13);
+    --bg:#081020; --bg2:#0A1424; --card:rgba(255,255,255,.045); --card2:rgba(255,255,255,.08); --line:rgba(255,255,255,.10);
+    --cline:rgba(255,255,255,.09);
+    --tx:#EAF2FB; --tx2:#8B99B0; --tx3:#5C6A82;
+    --brand:#FF6A35; --brand2:#FF9A55; --brand-deep:#F95120; --brand-soft:rgba(249,81,32,.14);
+    --green:#3DD670; --green-soft:rgba(61,214,112,.13);
     --red:#FF453A; --red-soft:rgba(255,69,58,.13);
     --yellow:#FFD60A; --yellow-soft:rgba(255,214,10,.10);
     --orange-soft:rgba(255,149,0,.13); --blue:#3B9CFF; --purple:#A97CFF;
-    --bn-ok-bg:#15391F; --bn-ok-tx:#FFFFFF; --bn-bad-bg:#3D1410; --bn-bad-tx:#FFFFFF;
-    --mask:rgba(0,0,0,.6); --shadow:0 2px 10px rgba(0,0,0,.35); --knob:#FFFFFF;
+    --bn-ok-bg:rgba(61,214,112,.10); --bn-ok-tx:#EAF2FB; --bn-bad-bg:rgba(255,69,58,.12); --bn-bad-tx:#FFEDEB;
+    --mask:rgba(2,6,14,.65); --shadow:0 2px 12px rgba(0,0,0,.28); --knob:#FFFFFF;
   }
   #screen[data-theme="light"] {
     --bg:#F2F3F6; --bg2:#FFFFFF; --card:#FFFFFF; --card2:#F2F3F6; --line:#E6E8EC;
+    --cline:#ECEEF2;
     --tx:#17181A; --tx2:#6B6E76; --tx3:#9CA0A8;
-    --brand:#F26A00; --brand2:#FF9A3D; --brand-soft:rgba(242,106,0,.10);
+    --brand:#E8430D; --brand2:#FF8A3D; --brand-deep:#D93C0A; --brand-soft:rgba(232,67,13,.10);
     --green:#1FA84A; --green-soft:rgba(31,168,74,.10);
     --red:#E5372C; --red-soft:rgba(229,55,44,.08);
     --yellow:#D9A400; --yellow-soft:rgba(217,164,0,.10);
@@ -78,6 +80,12 @@
     --mask:rgba(0,0,0,.4); --shadow:0 4px 14px rgba(0,0,0,.07); --knob:#FFFFFF;
   }
   #screen { background:var(--bg); color:var(--tx); }
+  #screen[data-theme="dark"] {
+    background:radial-gradient(120% 90% at 50% -10%, #12263F 0%, #0B1626 46%, #081020 100%);
+  }
+  /* 玻璃卡片描边（B 风格） */
+  .card, .quad .q, .iq-stats, .iq-foot .f, .lastchg, .segment, .rep-card { border:1px solid var(--cline); }
+  .appheader .dev .bw { color:var(--brand); }
 
   /* ============ APP 通用 ============ */
   .ic { display:inline-flex; flex:none; }
@@ -97,7 +105,8 @@
   .tab .ic { width:23px; height:23px; }
   .card { background:var(--card); border-radius:14px; box-shadow:var(--shadow); }
   .btn-primary {
-    background:var(--brand); color:#fff; border:none; border-radius:13px; height:52px; width:100%;
+    background:linear-gradient(135deg, var(--brand2), var(--brand-deep)); color:#fff; border:none; border-radius:13px; height:52px; width:100%;
+    box-shadow:0 8px 22px rgba(249,81,32,.30);
     font-size:16px; font-weight:700; cursor:pointer; letter-spacing:.2px;
     display:flex; align-items:center; justify-content:center; gap:8px;
   }
@@ -177,7 +186,10 @@
   .ring-center .lbl { font-size:13px; color:var(--tx2); letter-spacing:3px; font-weight:700; }
   .ring-center .val { font-size:58px; font-weight:800; line-height:1.08; letter-spacing:-2px; }
   .ring-center .val small { font-size:28px; font-weight:700; letter-spacing:0; }
-  .ring-center .amp { font-size:16px; color:var(--green); font-weight:700; margin-top:2px; display:flex; align-items:center; gap:3px; }
+  .ring-center .amp { font-size:16px; color:var(--brand); font-weight:700; margin-top:2px; display:flex; align-items:center; gap:3px; }
+  .ring-box .orbit-svg { position:absolute; inset:0; animation:orbitSpin 5s linear infinite; }
+  @keyframes orbitSpin { from { transform:rotate(120deg); } to { transform:rotate(480deg); } }
+  @media (prefers-reduced-motion: reduce) { .ring-box .orbit-svg { display:none; } }
   .ring-center .chg { font-size:13.5px; color:var(--tx2); margin-top:2px; }
   .health-line { display:flex; align-items:center; gap:8px; font-size:15px; color:var(--tx2); margin-top:12px; }
   .health-line .ic { width:19px; height:19px; color:var(--green); }
@@ -193,6 +205,8 @@
   .alert-banner.ok .ic { color:var(--green); }
   .alert-banner.bad { background:var(--bn-bad-bg); color:var(--bn-bad-tx); }
   .alert-banner.bad .ic { color:var(--red); }
+  #screen[data-theme="dark"] .alert-banner.ok { border:1px solid rgba(61,214,112,.22); }
+  #screen[data-theme="dark"] .alert-banner.bad { border:1px solid rgba(255,69,58,.28); }
   .alert-banner .arr { margin-left:auto; font-weight:400; opacity:.7; }
 
   /* ============ Tab2 Lifetime Guard ============ */
@@ -295,7 +309,7 @@
   /* ============ Tab4 Support ============ */
   .diag-hero {
     margin-top:12px; border-radius:17px; padding:24px 20px; cursor:pointer; color:#fff;
-    background:linear-gradient(135deg, #FF9A2E, #F25C05 72%); box-shadow:0 8px 24px rgba(242,92,5,.32);
+    background:linear-gradient(135deg, #FF8A3D, #F95120 72%); box-shadow:0 8px 24px rgba(249,81,32,.32);
   }
   .diag-hero .hic { width:46px; height:46px; border-radius:13px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; padding:11px; }
   .diag-hero h2 { font-size:18.5px; font-weight:800; margin-top:13px; }
@@ -407,7 +421,7 @@
 <body>
 
 <div id="toolbar">
-  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V2.2</div>
+  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V3.0</div>
   <div class="sep"></div>
   <select id="jumpSel" class="tbtn" onchange="jumpTo(this.value)">
     <option value="">⤵ 跳转到页面…</option>
@@ -696,7 +710,7 @@ function statusbar() {
 }
 function appheader() {
   return `<div class="appheader">
-    <span class="dev">VEVOR-BT-A3F2</span>
+    <span class="dev"><span class="bw">VEVOR</span>-BT-A3F2</span>
     <span class="conn">${t('connected')}</span>
     <span class="bell">${I.bell}</span>
   </div>`;
@@ -797,7 +811,7 @@ function pageBT06() {
 function ringStops() {
   if (S.soc < 20) return ['#FF6B5E','#FF453A','#D92A20'];
   if (S.soc <= 50) return ['#FFD60A','#FFB340','#FF9500'];
-  return ['#2FD158','#BCE34A','#FF8A00'];
+  return ['#F95120','#FF7A3A','#FFA04D'];
 }
 function tabDash() {
   const R = 98, C = 2 * Math.PI * R;
@@ -814,11 +828,14 @@ function tabDash() {
             <linearGradient id="rg" x1="0.75" y1="0.933" x2="0.25" y2="0.067">
               <stop offset="0%" stop-color="${s1}"/><stop offset="55%" stop-color="${s2}"/><stop offset="100%" stop-color="${s3}"/>
             </linearGradient>
-            <filter id="rglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+            <filter id="rglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
           </defs>
           <circle cx="124" cy="124" r="${R}" fill="none" stroke="var(--card2)" stroke-width="17"/>
-          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}" filter="url(#rglow)" opacity=".5"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}" filter="url(#rglow)" opacity=".65"/>
           <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}"/>
+        </svg>
+        <svg class="orbit-svg" width="248" height="248" viewBox="0 0 248 248">
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="17" stroke-linecap="round" stroke-dasharray="2.5 ${(C-2.5).toFixed(1)}"/>
         </svg>
         <div class="ring-center">
           <div class="lbl">SOC</div>
@@ -1155,8 +1172,9 @@ const NOTES = {
     <tr><td>SOC 圆环区</td><td>44%</td><td>P0</td></tr>
     <tr><td>4 格数据区</td><td>28%</td><td>P1</td></tr>
     <tr><td>告警横幅区</td><td>14%</td><td>P1</td></tr></table>
-    <h4>圆环颜色逻辑（渐变发光描边）</h4>
-    <ul><li>SOC &gt; 50% → 绿→黄→橙渐变</li><li>20~50% → 黄→橙渐变</li><li>&lt; 20% → 红色渐变</li></ul>
+    <h4>圆环颜色逻辑（渐变发光描边 + 白色光点绕行动画）</h4>
+    <ul><li>SOC &gt; 50% → <b>VEVOR 橙品牌渐变</b>（V3.0 主视觉，强化光晕）</li><li>20~50% → 黄→橙渐变</li><li>&lt; 20% → 红色渐变</li>
+    <li>健康/正常状态保持<b>绿色语义</b>（健康分、已连接、系统正常），确保用户凭颜色一眼判断正常/异常</li></ul>
     <h4>告警横幅规则</h4>
     <ul><li>仅显示<b>最高优先级 1 条</b>；点击 → 跳转诊断 Tab 的"故障检测"</li>
     <li>无告警时显示 All Systems Normal（<b>不隐藏区域</b>，深绿底白字保持布局稳定）</li>
