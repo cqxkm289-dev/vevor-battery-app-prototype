@@ -93,9 +93,10 @@
   .statusbar { height:54px; flex:none; display:flex; align-items:flex-end; justify-content:space-between; padding:0 28px 4px; font-size:14px; font-weight:600; color:var(--tx); }
   .sb-icons { display:flex; gap:5px; align-items:center; }
   .appheader { height:48px; flex:none; display:flex; align-items:center; padding:0 18px; gap:9px; }
-  .appheader .dev { font-size:16px; font-weight:800; letter-spacing:.2px; }
-  .appheader .conn { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--green); }
-  .appheader .conn::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--green); }
+  .appheader .dev { font-size:16px; font-weight:700; letter-spacing:.2px; }
+  .appheader .conn { display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:var(--green);
+    background:var(--green-soft); border:1px solid rgba(61,214,112,.25); border-radius:999px; padding:3px 10px; }
+  .appheader .conn::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--green); }
   .appheader .bell { margin-left:auto; position:relative; width:23px; height:23px; cursor:pointer; color:var(--tx); }
   .appheader .bell::after { content:""; position:absolute; top:0; right:0; width:7px; height:7px; background:var(--red); border-radius:50%; border:1.5px solid var(--bg); }
   .content { flex:1; display:flex; flex-direction:column; overflow:hidden; padding:0 16px; }
@@ -181,28 +182,35 @@
   /* ============ Tab1 Dashboard ============ */
   .soc-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 0; }
   .ring-box { position:relative; width:248px; height:248px; }
-  .ring-box > svg { transform:rotate(120deg); }
+  .ring-box > svg { transform:rotate(-90deg); }
   .ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .ring-center .lbl { font-size:13px; color:var(--tx2); letter-spacing:3px; font-weight:700; }
-  .ring-center .val { font-size:58px; font-weight:800; line-height:1.08; letter-spacing:-2px; }
-  .ring-center .val small { font-size:28px; font-weight:700; letter-spacing:0; }
-  .ring-center .amp { font-size:16px; color:var(--brand); font-weight:700; margin-top:2px; display:flex; align-items:center; gap:3px; }
+  .ring-center .val { font-size:64px; font-weight:200; line-height:1.05; letter-spacing:-1.5px; font-variant-numeric:tabular-nums; }
+  .ring-center .val small { font-size:24px; font-weight:300; letter-spacing:0; color:var(--tx2); }
+  .ring-center .amp { font-size:14px; color:var(--brand); font-weight:600; margin-top:8px; display:flex; align-items:center; gap:4px; letter-spacing:.02em; }
   .ring-box .orbit-svg { position:absolute; inset:0; animation:orbitSpin 5s linear infinite; }
-  @keyframes orbitSpin { from { transform:rotate(120deg); } to { transform:rotate(480deg); } }
+  @keyframes orbitSpin { from { transform:rotate(-90deg); } to { transform:rotate(270deg); } }
   @media (prefers-reduced-motion: reduce) { .ring-box .orbit-svg { display:none; } }
-  .ring-center .chg { font-size:13.5px; color:var(--tx2); margin-top:2px; }
-  .health-line { display:flex; align-items:center; gap:8px; font-size:15px; color:var(--tx2); margin-top:12px; }
-  .health-line .ic { width:19px; height:19px; color:var(--green); }
-  .health-line b { color:var(--tx); font-size:16px; }
-  .quad { display:flex; gap:8px; margin-top:6px; }
-  .quad .q { flex:1; background:var(--card); border-radius:14px; padding:15px 4px 13px; text-align:center; box-shadow:var(--shadow); }
-  .quad .q .v { font-size:19px; font-weight:800; letter-spacing:-.3px; }
-  .quad .q .v small { font-size:11px; font-weight:700; color:var(--tx2); margin-left:1px; }
-  .quad .q .k { font-size:10.5px; color:var(--tx3); margin-top:4px; }
+  .flow-line { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; font-size:13px; color:var(--tx2); font-weight:500; }
+  .flow-line .node { display:flex; align-items:center; gap:6px; color:var(--tx); }
+  .flow-line .node .ic { width:16px; height:16px; color:var(--brand); }
+  .flow-line .fdots { display:inline-flex; gap:5px; }
+  .flow-line .fdots i { width:4px; height:4px; border-radius:50%; background:var(--brand); opacity:.2; animation:fdot 1.2s infinite; }
+  .flow-line .fdots i:nth-child(2) { animation-delay:.2s; }
+  .flow-line .fdots i:nth-child(3) { animation-delay:.4s; }
+  @keyframes fdot { 0%,100%{opacity:.15;} 40%{opacity:1;} }
+  .flow-line .hl { margin-left:14px; }
+  .flow-line .hl b { color:var(--green); font-size:14px; }
+  .quad { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .quad .q { background:var(--card); border-radius:16px; padding:13px 16px; text-align:left; box-shadow:var(--shadow); }
+  .quad .q .k { font-size:11.5px; color:var(--tx2); letter-spacing:.02em; }
+  .quad .q .v { font-size:21px; font-weight:600; letter-spacing:-.3px; margin-top:5px; font-variant-numeric:tabular-nums; }
+  .quad .q .v small { font-size:12px; font-weight:500; color:var(--tx2); margin-left:1px; }
   .alert-banner { margin:14px 0 16px; border-radius:15px; padding:17px 16px; display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; cursor:pointer; }
   .alert-banner .ic { width:21px; height:21px; }
-  .alert-banner.ok { background:var(--bn-ok-bg); color:var(--bn-ok-tx); }
+  .alert-banner.ok { background:var(--bn-ok-bg); color:var(--green); }
   .alert-banner.ok .ic { color:var(--green); }
+  .alert-banner .okdot { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); flex:none; }
+  .alert-banner.ok .arr { color:var(--tx3); }
   .alert-banner.bad { background:var(--bn-bad-bg); color:var(--bn-bad-tx); }
   .alert-banner.bad .ic { color:var(--red); }
   #screen[data-theme="dark"] .alert-banner.ok { border:1px solid rgba(61,214,112,.22); }
@@ -477,6 +485,8 @@ let timer = null, toastTimer = null;
 /* ================= 多语言文案（[英文, 中文]，一一对应） ================= */
 const TXT = {
   connected: ['Connected','已连接'],
+  chargerWord: ['Charger','充电器'],
+  batteryWord: ['Battery','电池'],
   /* Tabs */
   tabDash: ['Dashboard','总览'],
   tabGuard: ['Lifetime Guard™','充电管家'],
@@ -695,6 +705,7 @@ const I = {
   radar: sv('<path d="M12 12L19 5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 10 1.7 4.2"/><path d="M19.5 5.5A10 10 0 1022 12"/>'),
   up: sv('<path d="M12 17V6"/><path d="M7 11l5-5 5 5"/><path d="M5 20h14"/>'),
   chev: sv('<path d="M9 5l7 7-7 7"/>'),
+  plug: sv('<path d="M9 3.5v5M15 3.5v5"/><path d="M7 8.5h10v3a5 5 0 01-10 0v-3z"/><path d="M12 16.5v4"/>'),
   arrowUp: sv('<path d="M12 19V6"/><path d="M6.5 11.5L12 6l5.5 5.5"/>'),
 };
 const ic = (name, size, cls) => `<span class="ic ${cls||''}" style="width:${size}px;height:${size}px;">${I[name]}</span>`;
@@ -819,7 +830,7 @@ function tabDash() {
   const [s1,s2,s3] = ringStops();
   const banner = S.alarm
     ? `<div class="alert-banner bad" onclick="goFaults()">${ic('warn',21)}<span>${t('bannerBad')}</span><span class="arr">${t('view')} ›</span></div>`
-    : `<div class="alert-banner ok">${ic('shieldCheck',21)}<span>${t('allNormal')}</span><span class="arr">›</span></div>`;
+    : `<div class="alert-banner ok"><span class="okdot"></span><span>${t('allNormal')}</span><span class="arr">${t('view')} ›</span></div>`;
   return `<div class="content">
     <div class="soc-zone">
       <div class="ring-box">
@@ -830,27 +841,30 @@ function tabDash() {
             </linearGradient>
             <filter id="rglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
           </defs>
-          <circle cx="124" cy="124" r="${R}" fill="none" stroke="var(--card2)" stroke-width="17"/>
-          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}" filter="url(#rglow)" opacity=".65"/>
-          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="17" stroke-linecap="round" stroke-dasharray="${dash} ${C}"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="var(--card2)" stroke-width="11"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${dash} ${C}" filter="url(#rglow)" opacity=".65"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="url(#rg)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${dash} ${C}"/>
         </svg>
         <svg class="orbit-svg" width="248" height="248" viewBox="0 0 248 248">
-          <circle cx="124" cy="124" r="${R}" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="17" stroke-linecap="round" stroke-dasharray="2.5 ${(C-2.5).toFixed(1)}"/>
+          <circle cx="124" cy="124" r="${R}" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="11" stroke-linecap="round" stroke-dasharray="2.5 ${(C-2.5).toFixed(1)}"/>
         </svg>
         <div class="ring-center">
-          <div class="lbl">SOC</div>
           <div class="val">${S.soc}<small>%</small></div>
-          <div class="amp">${ic('arrowUp',14)} 12.5A</div>
-          <div class="chg">${t('charging')}</div>
+          <div class="amp">↑ 12.5 A · ${t('charging')}</div>
         </div>
       </div>
-      <div class="health-line">${ic('shieldCheck',19)} ${t('health')}&nbsp; <b>94</b>&nbsp;/ 100</div>
+      <div class="flow-line">
+        <span class="node">${ic('plug',16)} ${t('chargerWord')}</span>
+        <span class="fdots"><i></i><i></i><i></i></span>
+        <span class="node" style="color:var(--tx2)">${t('batteryWord')}</span>
+        <span class="hl">${t('health')} <b>94</b><small>/100</small></span>
+      </div>
     </div>
     <div class="quad">
-      <div class="q"><div class="v">48.2<small>V</small></div><div class="k">${t('totalVoltage')}</div></div>
-      <div class="q"><div class="v">12.5<small>A</small></div><div class="k">${t('current')}</div></div>
-      <div class="q"><div class="v">${dispTemp(32)}</div><div class="k">${t('maxTemp')}</div></div>
-      <div class="q"><div class="v">${dispTemp(28)}</div><div class="k">${t('minTemp')}</div></div>
+      <div class="q"><div class="k">${t('totalVoltage')}</div><div class="v">48.2<small>V</small></div></div>
+      <div class="q"><div class="k">${t('current')}</div><div class="v">12.5<small>A</small></div></div>
+      <div class="q"><div class="k">${t('maxTemp')}</div><div class="v">${dispTemp(32)}</div></div>
+      <div class="q"><div class="k">${t('minTemp')}</div><div class="v">${dispTemp(28)}</div></div>
     </div>
     ${banner}
   </div>`;
