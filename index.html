@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VEVOR Golf Cart Battery App · 交互原型 V3.0</title>
+<title>VEVOR Golf Cart Battery App · 交互原型 V3.1</title>
 <style>
   /* ============ 外层页面（工具栏 + 画布） ============ */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -47,7 +47,7 @@
 
   /* ============ 手机框 ============ */
   #phone {
-    width:390px; height:844px; border-radius:54px; background:#000;
+    width:390px; height:844px; flex:none; border-radius:54px; background:#000;
     border:12px solid #17181a; box-shadow:0 24px 60px rgba(0,0,0,.35), inset 0 0 0 2px #2a2b2e;
     position:relative; overflow:hidden;
   }
@@ -104,7 +104,7 @@
   .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:10px; color:var(--tx3); cursor:pointer; }
   .tab.on { color:var(--brand); }
   .tab .ic { width:23px; height:23px; }
-  .card { background:var(--card); border-radius:14px; box-shadow:var(--shadow); }
+  .card { background:var(--card); border-radius:16px; box-shadow:var(--shadow); }
   .btn-primary {
     background:linear-gradient(135deg, var(--brand2), var(--brand-deep)); color:#fff; border:none; border-radius:13px; height:52px; width:100%;
     box-shadow:0 8px 22px rgba(249,81,32,.30);
@@ -205,7 +205,7 @@
   .quad .q .k { font-size:11.5px; color:var(--tx2); letter-spacing:.02em; }
   .quad .q .v { font-size:21px; font-weight:600; letter-spacing:-.3px; margin-top:5px; font-variant-numeric:tabular-nums; }
   .quad .q .v small { font-size:12px; font-weight:500; color:var(--tx2); margin-left:1px; }
-  .alert-banner { margin:14px 0 16px; border-radius:15px; padding:17px 16px; display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; cursor:pointer; }
+  .alert-banner { margin:14px 0 16px; border-radius:16px; padding:17px 16px; display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; cursor:pointer; }
   .alert-banner .ic { width:21px; height:21px; }
   .alert-banner.ok { background:var(--bn-ok-bg); color:var(--green); }
   .alert-banner.ok .ic { color:var(--green); }
@@ -232,32 +232,35 @@
   .gbar .restzone { position:absolute; right:0; top:3.5px; height:3px; background-image:radial-gradient(circle, var(--tx3) 1.2px, transparent 1.3px); background-size:8px 3px; background-repeat:repeat-x; }
   .gbar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:5px; background:linear-gradient(90deg, #1FA84A, var(--green)); transition:width .4s; }
   .gbar .knob { position:absolute; top:50%; transform:translate(-50%,-50%); width:21px; height:21px; border-radius:50%; background:var(--knob); box-shadow:0 1px 6px rgba(0,0,0,.45); transition:left .4s; }
-  .gbar .limmark { position:absolute; top:-24px; transform:translateX(-50%); width:17px; height:17px; color:var(--green); transition:left .4s; }
   .gbar-scale { display:flex; justify-content:space-between; font-size:11px; color:var(--tx3); margin:9px 2px 0; }
   .guard-sub { font-size:12.5px; color:var(--tx2); margin-top:13px; text-align:center; }
-  .guard-gain { font-size:14px; color:var(--green); font-weight:600; margin-top:7px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .guard-gain { font-size:14px; color:var(--green); font-weight:600; margin-top:7px; min-height:20px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; }
   .guard-gain .ic { width:16px; height:16px; }
+  .guard-gain.plain { color:var(--tx2); font-weight:500; }
   .modes { display:flex; gap:10px; }
-  .mode-card { flex:1; border:1.5px solid var(--line); background:var(--card); border-radius:15px; padding:14px 6px 12px; text-align:center; cursor:pointer; transition:all .15s; }
-  .mode-card.on { border-color:var(--green); background:var(--green-soft); }
-  .mode-card .mic { width:24px; height:24px; display:inline-flex; }
-  .mode-card .mic.g { color:var(--green); } .mode-card .mic.b { color:var(--blue); } .mode-card .mic.p { color:var(--purple); }
+  .mode-card { flex:1; border:1.5px solid var(--cline); background:var(--card); border-radius:16px; padding:14px 6px 12px; text-align:center; cursor:pointer; transition:all .15s; }
+  .mode-card.on { border-color:var(--brand); background:var(--brand-soft); }
+  .mode-card .mic { width:24px; height:24px; display:inline-flex; color:var(--brand); }
   .mode-card .nm { font-size:13px; font-weight:600; margin-top:6px; }
   .mode-card .pct { font-size:21px; font-weight:600; margin-top:3px; letter-spacing:-.3px; font-variant-numeric:tabular-nums; }
   .mode-card .ds { font-size:9.5px; color:var(--tx3); margin-top:3px; }
   .mode-hint { font-size:12px; margin-top:10px; line-height:1.6; border-radius:10px; padding:8px 12px; }
-  .mode-hint.warn { color:#FF9500; background:var(--orange-soft); }
-  .mode-hint.info { color:var(--tx2); background:var(--card2); }
+  .mode-hint.info { color:var(--tx2); background:var(--card2); min-height:54px; display:flex; align-items:center; }
   .duo { display:flex; gap:10px; margin-top:14px; }
   .duo .fn { flex:1; padding:13px 14px; cursor:pointer; }
   .duo .fn .t { font-size:13.5px; font-weight:600; display:flex; align-items:flex-start; gap:7px; line-height:1.35; }
   .duo .fn .t .ic { width:17px; height:17px; margin-top:1px; }
   .duo .fn .s { font-size:11.5px; color:var(--tx2); margin-top:9px; display:flex; align-items:center; justify-content:space-between; }
+  .duo .fn.wide { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .duo .fn.wide .t { align-items:center; }
+  .duo .fn.wide .t .ic { margin-top:0; color:var(--brand); }
+  .duo .fn.wide .s { margin-top:0; gap:8px; }
+  .duo .fn.wide .chev2 { color:var(--tx3); }
   .switch { width:42px; height:24px; border-radius:13px; background:var(--card2); border:1px solid var(--line); position:relative; transition:background .2s; flex:none; }
   .switch::after { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:left .2s; }
   .switch.on { background:var(--brand); border-color:var(--brand); }
   .switch.on::after { left:20px; }
-  .lastchg { margin:auto 0 12px; background:var(--card); border-radius:13px; padding:12px 14px; font-size:12.5px; color:var(--tx2); display:flex; align-items:center; gap:6px; flex-wrap:wrap; box-shadow:var(--shadow); }
+  .lastchg { margin:auto 0 12px; background:var(--card); border-radius:16px; padding:12px 14px; font-size:12.5px; color:var(--tx2); display:flex; align-items:center; gap:6px; flex-wrap:wrap; box-shadow:var(--shadow); }
   .lastchg .ic { width:15px; height:15px; color:var(--tx2); margin-right:2px; }
   .lastchg b.gain { color:var(--green); }
   .lastchg b.save { color:var(--green); }
@@ -267,7 +270,7 @@
   .segment { display:flex; background:var(--card); border-radius:22px; padding:4px; margin:10px 0; box-shadow:var(--shadow); }
   .segment .sg { flex:1; text-align:center; font-size:13.5px; font-weight:600; padding:9px 0; border-radius:18px; color:var(--tx2); cursor:pointer; }
   .segment .sg.on { background:var(--brand); color:#fff; }
-  .iq-stats { display:flex; align-items:stretch; background:var(--card); border-radius:13px; box-shadow:var(--shadow); }
+  .iq-stats { display:flex; align-items:stretch; background:var(--card); border-radius:16px; box-shadow:var(--shadow); }
   .iq-stats .st { flex:1; padding:11px 4px 10px; text-align:center; }
   .iq-stats .st + .st { border-left:1px solid var(--line); }
   .iq-stats .st .k { font-size:10.5px; color:var(--tx3); }
@@ -296,7 +299,7 @@
   .cell.bad .mv { color:var(--red); }
   .cell.bad .bar i { background:var(--red); width:18% !important; }
   .iq-foot { display:flex; gap:8px; margin:10px 0 12px; }
-  .iq-foot .f { flex:1; background:var(--card); border-radius:13px; padding:12px 13px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+  .iq-foot .f { flex:1; background:var(--card); border-radius:16px; padding:12px 13px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
   .iq-foot .f .fic { width:21px; height:21px; flex:none; }
   .iq-foot .f .k { font-size:10.5px; color:var(--tx3); }
   .iq-foot .f .v { font-size:15px; font-weight:600; margin-top:1px; }
@@ -316,7 +319,7 @@
 
   /* ============ Tab4 Support ============ */
   .diag-hero {
-    margin-top:12px; border-radius:17px; padding:24px 20px; cursor:pointer; color:#fff;
+    margin-top:12px; border-radius:16px; padding:24px 20px; cursor:pointer; color:#fff;
     background:linear-gradient(135deg, #FF8A3D, #F95120 72%); box-shadow:0 8px 24px rgba(249,81,32,.32);
   }
   .diag-hero .hic { width:46px; height:46px; border-radius:13px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; padding:11px; }
@@ -363,10 +366,6 @@
   .modal .mbtns .solid { background:var(--brand); color:#fff; }
   .modal .mbtns .danger { background:var(--red); color:#fff; }
 
-  .time-row { display:flex; gap:12px; margin:6px 0 16px; }
-  .time-col { flex:1; }
-  .time-col label { font-size:12px; color:var(--tx2); display:block; margin-bottom:6px; }
-  .time-col select { width:100%; height:44px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--tx); font-size:16px; font-weight:600; text-align:center; padding:0 8px; }
   .offpeak-note { font-size:12px; color:var(--tx2); background:var(--card2); border-radius:10px; padding:9px 12px; line-height:1.6; margin-bottom:14px; }
 
   .chk-row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
@@ -403,7 +402,7 @@
   .rep-fault .ft { font-size:13.5px; font-weight:600; color:var(--red); }
   .rep-fault .fd { font-size:11.5px; color:var(--tx2); margin-top:2px; }
   .rep-sec { font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:1.2px; text-transform:uppercase; margin:18px 2px 6px; }
-  .rep-card { background:var(--card); border-radius:13px; padding:2px 15px; box-shadow:var(--shadow); }
+  .rep-card { background:var(--card); border-radius:16px; padding:2px 15px; box-shadow:var(--shadow); }
   .rep-row { display:flex; align-items:center; min-height:42px; font-size:13.5px; }
   .rep-row + .rep-row { border-top:1px solid var(--line); }
   .rep-row .k { color:var(--tx2); }
@@ -429,7 +428,7 @@
 <body>
 
 <div id="toolbar">
-  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V3.0</div>
+  <div class="brand"><span>VEVOR</span> Golf Cart Battery App · 交互原型 V3.1</div>
   <div class="sep"></div>
   <select id="jumpSel" class="tbtn" onchange="jumpTo(this.value)">
     <option value="">⤵ 跳转到页面…</option>
@@ -472,7 +471,6 @@ const S = {
   alarm: false,
   mode: 'daily',
   soc: 72,
-  schedOn: false, schedStart: '22:00', schedEnd: '06:00',
   supplyOn: false,
   overlay: null,
   cellIdx: 0,
@@ -541,8 +539,8 @@ const TXT = {
   /* Guard */
   active: ['Active','已启用'],
   currentLbl: ['Current:','当前:'],
-  stopAt: ['Charging will stop automatically at {x}%','充电将在 {x}% 自动停止'],
-  lifeExt: ['Estimated battery life extension {x}','预计延长电池寿命 {x}'],
+  stopAt: ['Charging stops automatically at {x}%','充电将在 {x}% 自动停止'],
+  lifeExt: ['Est. battery life extension {x}','预计延长电池寿命 {x}'],
   chargeLimitMode: ['Charge Limit Mode','充电上限模式'],
   daily: ['Daily','日常'],
   longTrip: ['Long Trip','长途'],
@@ -550,12 +548,12 @@ const TXT = {
   dailyDs: ['Daily recommended','每日推荐'],
   tripDs: ['Full range today','今日满程'],
   storageDs: ['Long-term parking','长期存放'],
-  tripHint: ['⚠ Keeps charging to 100% until you change modes — staying at full charge accelerates battery aging. Switch back to Daily (85%) when full range isn\'t needed.','⚠ 将持续充至 100%，直到你手动切换模式 — 长期满电会加速电池老化，不需要满程时建议切回日常模式（85%）。'],
+  dailyHint: ['Charges to 85% daily — the sweet spot between range and lifespan.','每日充至 85% —— 续航与寿命的最佳平衡点。'],
+  tripHint: ['Charges to 100% and stays there until you switch modes.','持续充至 100%，直到你手动切换模式。'],
   storageHint: ['Holds 50% for long-term storage — the healthiest level when parked for weeks.','保持 50% 长期存放 — 停放数周时最健康的电量水平。'],
-  schedTitle: ['Scheduled<br>Off-Peak Charging','预约错峰充电'],
-  supplyTitle: ['Supply Mode<br>Geek Boost','极客强充<br>Supply Mode'],
+  standardFull: ['Standard full charge','标准满充'],
+  supplyTitle: ['Supply Mode · Geek Boost','极客强充 Supply Mode'],
   off: ['Off','关'],
-  offUpper: ['OFF','关'],
   activeDot: ['● Active','● 已开启'],
   lastCharge: ['Last charge','上次充电'],
   saved: ['Saved','省'],
@@ -592,11 +590,6 @@ const TXT = {
   fahrenheit: ['°F','°F'],
   celsius: ['°C','°C'],
   /* Drawers / modals */
-  schedHead: ['Scheduled Off-Peak Charging','预约错峰充电'],
-  schedNote: ['Charge during off-peak utility hours to save on electricity. The battery starts charging automatically inside this window.','在电价低谷时段充电，节省电费。电池将在该时间窗口内自动开始充电。'],
-  start: ['Start','开始'],
-  end: ['End','结束'],
-  confirm: ['Confirm','确认'],
   supplyHead: ['Enable Supply Mode?','开启极客强充？'],
   supplyBody: ['Geek Boost charges at maximum supported current and bypasses the Lifetime Guard™ limit for this session. Battery temperature will be monitored continuously. Long-term use may reduce battery lifespan.','极客强充将以最大支持电流充电，并在本次充电中绕过 Lifetime Guard™ 上限。电池温度将被持续监控。长期使用可能缩短电池寿命。'],
   cancel: ['Cancel','取消'],
@@ -641,8 +634,6 @@ const TXT = {
   /* Toasts */
   tManual: ['Opens the digital product manual','打开产品数字手册'],
   tChat: ['Opens live chat with VEVOR support','打开 VEVOR 在线客服对话'],
-  tSchedSet: ['Off-peak charging set: {x}','错峰充电已设置: {x}'],
-  tSchedOff: ['Off-peak charging turned off','错峰充电已关闭'],
   tSupplyOn: ['Supply Mode enabled','极客强充已开启'],
   tSupplyOff: ['Supply Mode disabled','极客强充已关闭'],
   tSent: ['Report VB-260612-0941 sent to support ✓','报告 VB-260612-0941 已发送给客服 ✓'],
@@ -873,12 +864,11 @@ function tabDash() {
 /* ================= Tab 2 · Lifetime Guard ================= */
 function tabGuard() {
   const lim = LIMITS[S.mode];
-  const hints = {
-    daily: '',
-    trip: `<div class="mode-hint warn">${t('tripHint')}</div>`,
-    storage: `<div class="mode-hint info">${t('storageHint')}</div>`,
-  };
-  const gain = { daily:'+30%', trip:'—', storage:'+35%' }[S.mode];
+  const hint = { daily: t('dailyHint'), trip: t('tripHint'), storage: t('storageHint') }[S.mode];
+  const gain = { daily:'+30%', trip:null, storage:'+35%' }[S.mode];
+  const gainLine = gain
+    ? `<div class="guard-gain">${ic('trend',16)} ${tf('lifeExt', gain)}</div>`
+    : `<div class="guard-gain plain">${t('standardFull')}</div>`;
   return `<div class="content" style="overflow-y:hidden;">
     <div class="lg-title">${ic('bolt',19)}<h2>Lifetime Guard™</h2><span class="act">${t('active')}</span></div>
     <div class="card guard-card">
@@ -886,36 +876,31 @@ function tabGuard() {
       <div class="gbar">
         <div class="restzone" style="width:${100-lim}%"></div>
         <div class="fill" style="width:${S.soc}%"></div>
-        <div class="limmark ic" style="left:${lim}%">${I.shieldCheck}</div>
         <div class="knob" style="left:${S.soc}%"></div>
       </div>
       <div class="gbar-scale"><span>0%</span><span>100%</span></div>
       <div class="guard-sub">${tf('stopAt', lim)}</div>
-      ${gain !== '—' ? `<div class="guard-gain">${ic('trend',16)} ${tf('lifeExt', gain)}</div>` : ''}
+      ${gainLine}
     </div>
     <div class="sec-title">${t('chargeLimitMode')}</div>
     <div class="modes">
-      ${modeCard('daily','leaf','g',t('daily'),t('dailyDs'))}
-      ${modeCard('trip','car','b',t('longTrip'),t('tripDs'))}
-      ${modeCard('storage','box','p',t('storage'),t('storageDs'))}
+      ${modeCard('daily','leaf',t('daily'),t('dailyDs'))}
+      ${modeCard('trip','car',t('longTrip'),t('tripDs'))}
+      ${modeCard('storage','box',t('storage'),t('storageDs'))}
     </div>
-    ${hints[S.mode]}
+    <div class="mode-hint info">${hint}</div>
     <div class="duo">
-      <div class="fn card" onclick="toggleSchedQuick(event)">
-        <div class="t">${ic('moon',17)}<span>${t('schedTitle')}</span></div>
-        <div class="s"><span class="switch ${S.schedOn?'on':''}" onclick="event.stopPropagation(); openOv('sched')"></span><span onclick="event.stopPropagation(); openOv('sched')" style="cursor:pointer">${S.schedOn ? S.schedStart+'–'+S.schedEnd : t('offUpper')} ›</span></div>
-      </div>
-      <div class="fn card" onclick="openOv('supply')">
+      <div class="fn card wide" onclick="openOv('supply')">
         <div class="t">${ic('bolt',17)}<span>${t('supplyTitle')}</span></div>
-        <div class="s"><span style="color:${S.supplyOn?'var(--brand)':'var(--tx3)'}; font-weight:600;">${S.supplyOn?t('activeDot'):t('off')}</span><span>›</span></div>
+        <div class="s"><span style="color:${S.supplyOn?'var(--brand)':'var(--tx3)'}; font-weight:600;">${S.supplyOn?t('activeDot'):t('off')}</span><span class="chev2">›</span></div>
       </div>
     </div>
     <div class="lastchg">${ic('clip',15)}<span class="w">${t('lastCharge')}</span>&nbsp; <b class="gain">+23Ah</b> · 1h 20min · ${t('saved')} <b class="save">$0.8</b></div>
   </div>`;
 }
-function modeCard(id, icn, colorCls, nm, ds) {
+function modeCard(id, icn, nm, ds) {
   return `<div class="mode-card ${S.mode===id?'on':''}" onclick="selMode('${id}')">
-    <span class="mic ic ${colorCls}">${I[icn]}</span><div class="nm">${nm}</div><div class="pct">${LIMITS[id]}%</div><div class="ds">${ds}</div>
+    <span class="mic ic">${I[icn]}</span><div class="nm">${nm}</div><div class="pct">${LIMITS[id]}%</div><div class="ds">${ds}</div>
   </div>`;
 }
 
@@ -1014,22 +999,6 @@ function tabSupport() {
 /* ================= 弹窗 / 抽屉 ================= */
 function overlayHTML() {
   if (!S.overlay) return '';
-  if (S.overlay === 'sched') {
-    const opts = sel => ['20:00','21:00','22:00','23:00','00:00','05:00','06:00','07:00','08:00']
-      .map(x => `<option ${x===sel?'selected':''}>${x}</option>`).join('');
-    return `<div class="mask" onclick="closeOv()"></div>
-    <div class="drawer"><div class="grip"></div>
-      <div class="dhead"><h3>${ic('moon',18)} ${t('schedHead')}</h3><span class="x" onclick="closeOv()">✕</span></div>
-      <div class="dbody">
-        <div class="offpeak-note">${t('schedNote')}</div>
-        <div class="time-row">
-          <div class="time-col"><label>${t('start')}</label><select id="schedS">${opts(S.schedStart)}</select></div>
-          <div class="time-col"><label>${t('end')}</label><select id="schedE">${opts(S.schedEnd)}</select></div>
-        </div>
-        <button class="btn-primary" onclick="confirmSched()">${t('confirm')}</button>
-      </div>
-    </div>`;
-  }
   if (S.overlay === 'supply') {
     return `<div class="mask"></div>
     <div class="modal">
@@ -1195,15 +1164,15 @@ const NOTES = {
     <li><span class="tag">演示</span>用顶部"模拟告警"开关查看异常状态</li></ul>`,
   guard: `<h3>Tab 2 · Lifetime Guard™ 充电管家</h3>
     <table><tr><th>区域</th><th>占比</th><th>优先级</th></tr>
-    <tr><td>保护状态可视化</td><td>36%</td><td>P0</td></tr>
-    <tr><td>充电模式卡片</td><td>32%</td><td>P0</td></tr>
-    <tr><td>快捷功能</td><td>16%</td><td>P1</td></tr>
+    <tr><td>保护状态可视化</td><td>38%</td><td>P0</td></tr>
+    <tr><td>充电模式卡片+说明</td><td>36%</td><td>P0</td></tr>
+    <tr><td>极客强充入口</td><td>10%</td><td>P1</td></tr>
     <tr><td>充电记录摘要</td><td>8%</td><td>P2</td></tr></table>
-    <ul><li>滑杆式进度条：绿色渐变填充至当前 SOC + 白色滑钮，绿盾图标标注充电上限，上限以右为点状虚线</li>
-    <li>三模式：日常 85%（绿叶图标）/ 长途 100%（蓝车）/ 存储 50%（紫箱）；选中态绿色描边</li>
-    <li><b>选中"长途"</b>→ 下方出现橙色提示：持续充至 100% 直到手动切换模式，长期满电加速老化，建议不需要时切回日常（<b>不自动回落</b>）</li>
-    <li>预约错峰充电 → <b>底部抽屉</b>（时间段选择），开关橙色</li>
-    <li>极客强充 Supply Mode → <b>居中 Modal</b>（安全警告 + 二次确认）</li></ul>`,
+    <ul><li>滑杆式进度条：绿色渐变填充至当前 SOC + 白色滑钮；<b>充电上限仅右上角「绿盾+数字」标签</b>，上限以右为点状虚线区（V3.1 起滑杆上不再放盾牌标记，避免与右上角重复/重叠）</li>
+    <li>三模式图标统一 <b>VEVOR 橙</b>；选中态<b>橙色描边+橙色浅底</b>（与全站"选中=橙"语义一致）</li>
+    <li>模式说明框<b>常驻两行高度</b>、统一灰色样式，内容随选中切换（无警示色）——切换模式时<b>所有板块位置尺寸零位移</b></li>
+    <li>进度条下固定两行：第1行"将在 X% 自动停止"；第2行 日常/存储=绿色"预计延长寿命 +30%/+35%"，长途=灰色"Standard full charge"</li>
+    <li><b>预约错峰充电已取消</b>（V3.1 产品决策），极客强充 Supply Mode 改整行入口 → <b>居中 Modal</b>（安全警告 + 二次确认）</li></ul>`,
   iq: `<h3>Tab 3 · Battery IQ™ 电池诊断</h3>
     <h4>电芯状态 Segment（橙色胶囊切换）</h4>
     <table><tr><th>状态</th><th>样式</th><th>触发条件</th></tr>
@@ -1233,7 +1202,6 @@ const NOTES = {
     <li>底部灰字：SN + 固件版本，方便客服沟通时报号</li></ul>`,
 };
 const OV_NOTES = {
-  sched: `<h4>预约错峰充电（底部抽屉）</h4><ul><li>从底部滑出 300ms ease-out，最大高度 60%</li><li>开始/结束时间选择器 + 确认按钮</li><li>关闭：下滑手势 / 点遮罩 / ✕</li></ul>`,
   supply: `<h4>极客强充（居中 Modal）</h4><ul><li>宽 85%、圆角 16dp，遮罩 rgba(0,0,0,.5)</li><li>警告图标 + 风险说明 + 取消/确认</li><li><b>仅按钮可关闭</b>（防误操作）</li></ul>`,
   cell: `<h4>电芯历史曲线（底部抽屉）</h4><ul><li>电芯编号 + 24h 历史电压折线图</li><li>采样间隔 30min（演示数据）</li></ul>`,
   checks: `<h4>全部检测项目（底部抽屉）</h4><ul><li>22 项完整列表，<b>异常项置顶</b>并红色标识</li><li>仅抽屉内部可滚动</li></ul>`,
@@ -1294,13 +1262,6 @@ function selMode(m) { S.mode = m; render(); }
 function openOv(o) { S.overlay = o; if (o === 'ota') S.otaState = 'idle'; render(); }
 function closeOv() { S.overlay = null; render(); }
 function openCell(i) { S.cellIdx = i; S.overlay = 'cell'; render(); }
-function confirmSched() {
-  S.schedStart = document.getElementById('schedS').value;
-  S.schedEnd = document.getElementById('schedE').value;
-  S.schedOn = true; S.overlay = null; render();
-  toast(tf('tSchedSet', S.schedStart + '–' + S.schedEnd));
-}
-function toggleSchedQuick() { S.schedOn ? (S.schedOn = false, render(), toast(t('tSchedOff'))) : openOv('sched'); }
 function confirmSupply() { S.supplyOn = !S.supplyOn; S.overlay = null; render(); toast(S.supplyOn ? t('tSupplyOn') : t('tSupplyOff')); }
 function startOTA() { S.otaState = 'progress'; render(); }
 function sendReport() { S.overlay = null; render(); toast(t('tSent')); }
