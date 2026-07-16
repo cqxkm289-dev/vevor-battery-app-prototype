@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>球车电池4.0 App · V3.1 验收标准</title>
+<style>
+  :root{
+    --wall:#eceef0; --wall-deep:#e2e5e8; --ink:#1b1d20; --muted:#70747b;
+    --card:#ffffff; --line:rgba(20,22,26,.09); --brand:#f95120; --chip:#f2f3f5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --wall:#141518; --wall-deep:#0f1012; --ink:#eceded; --muted:#9a9ea6;
+      --card:#1d1f23; --line:rgba(255,255,255,.1); --chip:#26282d; }
+  }
+  :root[data-theme="dark"]{ --wall:#141518; --wall-deep:#0f1012; --ink:#eceded; --muted:#9a9ea6;
+    --card:#1d1f23; --line:rgba(255,255,255,.1); --chip:#26282d; }
+  :root[data-theme="light"]{ --wall:#eceef0; --wall-deep:#e2e5e8; --ink:#1b1d20; --muted:#70747b;
+    --card:#ffffff; --line:rgba(20,22,26,.09); --chip:#f2f3f5; }
+  html{background:var(--wall);}
+  body{margin:0;color:var(--ink);
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:linear-gradient(180deg,var(--wall),var(--wall-deep));-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:980px;margin:0 auto;padding:52px 24px 80px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin:0 0 12px;}
+  .eyebrow b{color:var(--brand);}
+  h1{font-size:clamp(26px,4vw,36px);margin:0 0 14px;font-weight:700;letter-spacing:-.01em;}
+  .lede{max-width:44em;font-size:15px;line-height:1.9;color:var(--muted);margin:0 0 26px;}
+  .lede strong{color:var(--ink);}
+  .principle{background:linear-gradient(135deg,rgba(249,81,32,.09),rgba(249,81,32,.02));
+    border:1.5px solid rgba(249,81,32,.35);border-radius:16px;padding:20px 24px;font-size:14.5px;line-height:2.1;}
+  .principle b{color:var(--brand);}
+  .principle ol{margin:6px 0 0;padding-left:22px;}
+  .env{background:var(--chip);border-radius:14px;padding:14px 18px;font-size:13px;line-height:2;color:var(--muted);margin:16px 0 0;}
+  .env b{color:var(--ink);}
+  .env a{color:var(--brand);}
+  h2{font-size:17px;margin:40px 0 10px;font-weight:700;display:flex;align-items:center;gap:10px;}
+  h2 .tag{font-size:11.5px;font-weight:800;color:#fff;background:var(--ink);border-radius:6px;padding:3px 9px;letter-spacing:.08em;}
+  :root[data-theme="dark"] h2 .tag{color:#141518;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) h2 .tag{color:#141518;} }
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;overflow:hidden;font-size:13.5px;line-height:1.75;}
+  .tablewrap{overflow-x:auto;border-radius:14px;}
+  th,td{border-bottom:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top;}
+  th{background:var(--chip);font-weight:700;font-size:12.5px;}
+  tr:last-child td{border-bottom:none;}
+  td.id{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;width:44px;}
+  td.chk{width:34px;text-align:center;}
+  input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);}
+  code{background:var(--chip);border-radius:5px;padding:1px 6px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  footer{margin-top:52px;font-size:12px;color:var(--muted);line-height:2;border-top:1px solid var(--line);padding-top:16px;}
+  footer a{color:var(--brand);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow"><b>VEVOR</b> 球车电池 4.0 · App · V3.1 验收标准 · 2026-07-16</p>
+  <h1>V3.1 验收标准（Acceptance Criteria）</h1>
+  <p class="lede">
+    覆盖<strong>连接流程 6 屏 + 4 个 Tab + 全部弹窗/抽屉 + 全局规则</strong>，共 43 条。
+    验收方式：开发版与在线原型<strong>并排逐屏对照</strong>，逐条勾选；任何一条不通过记录屏号与截图。
+  </p>
+
+  <div class="principle">
+    <b>验收总原则 —— 原型即规格（Prototype = Spec）</b>
+    <ol>
+      <li><b>完全按原型执行</b>：在线原型是唯一的视觉与交互基准，布局、颜色、字重、间距、动效、文案逐项对照，不接受"大致相同"。</li>
+      <li><b>冲突以原型为准</b>：本清单或其他文档与原型不一致时，一律以原型为准。</li>
+      <li><b>偏离必须走变更</b>：技术上无法或不宜按原型实现的点，开发不得自行调整——先提出，产品确认并更新原型后再实施。</li>
+    </ol>
+  </div>
+  <div class="env">
+    <b>验收环境</b>：原型 <a href="https://cqxkm289-dev.github.io/vevor-battery-app-prototype/" target="_blank" rel="noopener">cqxkm289-dev.github.io/vevor-battery-app-prototype</a>
+    · 以<b>英文界面</b>为验收语言（工具栏可切换）· 异常态用工具栏「模拟告警」开关复现
+    · 深/浅主题均须验收（App 内 Support → Appearance 切换）
+  </div>
+
+  <h2><span class="tag">A</span>连接流程 BT-01 ~ BT-06（8 条）</h2>
+  <div class="tablewrap"><table>
+    <tr><th>✓</th><th>编号</th><th>验收项</th><th>通过标准</th></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A1</td><td>BT-01 权限请求页</td><td>Logo + 蓝牙/位置两行权限卡 + 橙色渐变主按钮 + 底部"不收集位置数据"声明</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A2</td><td>BT-02 扫描中</td><td>3 圈脉冲扩散动画（2s 循环）；开机/距离两条提示；发现的设备实时追加到下方列表</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A3</td><td>扫描超时</td><td>15 秒未发现设备自动跳 BT-06（原型演示压缩为 2.5s 跳 BT-03，时长以本条为准）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A4</td><td>BT-03 发现设备</td><td>设备卡：图标 + 名称含 SN 后 4 位（单行不换行）+ 信号 5 格 + Connect 按钮；底部"找不到设备"文字链 → BT-06</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A5</td><td>BT-04 连接中</td><td>电池 → 手机图标间橙色虚线流动动画，居中布局</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A6</td><td>BT-05 连接成功</td><td>大勾弹出动画 + "Lifetime Guard™ Activated" 副标题，约 1.5s 后自动进入 Home</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A7</td><td>BT-06 未发现设备</td><td>4 步排查（编号+标题+副文字）+ Search Again 主按钮 + 底部联系售后文字链</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">A8</td><td>流程主题适配</td><td>6 屏在深/浅主题下均正常显示</td></tr>
+  </table></div>
+
+  <h2><span class="tag">B</span>Tab 1 · Home（7 条）</h2>
+  <div class="tablewrap"><table>
+    <tr><th>✓</th><th>编号</th><th>验收项</th><th>通过标准</th></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B1</td><td>SOC 圆环</td><td>描边 11px、12 点方向起点顺时针；SOC&gt;50% VEVOR 橙渐变、20~50% 黄橙渐变、&lt;20% 红色渐变，均带发光</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B2</td><td>光点绕行</td><td>白色光点沿环匀速绕行 5s/圈；系统开启减弱动态效果时停用</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B3</td><td>环心信息</td><td>72%（64px / 字重 200）+ 橙色单行「↑ 12.5 A · Charging」</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B4</td><td>能量流行</td><td>Charger ⋯ Battery 橙色流动点（1.2s 节奏）+ Health <b>94</b>/100（分数绿色）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B5</td><td>数据卡</td><td>2×2 左对齐：Pack Voltage / Current / Cell Temp · Max / Cell Temp · Min，标签上、数值下（21px/600）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B6</td><td>正常横幅</td><td>绿色发光圆点 + All Systems Normal + View ›；点击 → Battery IQ 的 Fault Detection 页</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">B7</td><td>告警横幅</td><td>模拟告警开启后变红色玻璃样式：⚠ + "2 faults — Cell Under-voltage" + View ›；仅显示最高优先级 1 条；无告警时区域不隐藏</td></tr>
+  </table></div>
+
+  <h2><span class="tag">C</span>Tab 2 · Charge（8 条）</h2>
+  <div class="tablewrap"><table>
+    <tr><th>✓</th><th>编号</th><th>验收项</th><th>通过标准</th></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C1</td><td>标题行</td><td>橙色闪电 + Lifetime Guard™（纯白 600）+ 右侧绿色 Active 胶囊</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C2</td><td>上限展示</td><td>仅右上角「绿盾 + 数值」一处；滑杆上<b>没有</b>第二个上限图标（85% 时无任何重叠）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C3</td><td>滑杆</td><td>绿色渐变填充至当前 SOC + 白色滑钮；上限以右为点状虚线（不充区）；0% / 100% 刻度</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C4</td><td>滑杆下两行</td><td>任何模式下恒为两行：第一行 stop at X%；第二行 Daily/Storage = 绿色寿命增益（+30% / +35%），Long Trip = 灰色 Standard full charge</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C5</td><td>模式卡</td><td>三卡等宽等高；图标统一橙色；选中态橙描边 + 橙色浅底；未选中灰描边</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C6</td><td>模式说明框</td><td>常驻、两行等高、统一灰色样式；内容随选中模式切换（三段文案见交付说明/原型）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C7</td><td>零位移</td><td>在 Daily / Long Trip / Storage 间任意切换，页面所有元素位置与尺寸完全不变</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">C8</td><td>快捷功能区</td><td><b>无预约错峰充电（功能已取消，勿开发）</b>；Supply Mode 整行入口，点击弹二次确认 Modal（仅按钮可关），确认后状态 ● Active，再次进入可关闭</td></tr>
+  </table></div>
+
+  <h2><span class="tag">D</span>Tab 3 · Battery IQ（7 条）</h2>
+  <div class="tablewrap"><table>
+    <tr><th>✓</th><th>编号</th><th>验收项</th><th>通过标准</th></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D1</td><td>Segment</td><td>Cell Status / Fault Detection 橙色胶囊切换</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D2</td><td>统计卡</td><td>三列竖线分隔：Highest（橙）/ Delta（≤20mV 绿✓正常，&gt;20mV 红⚠异常）/ Lowest（蓝）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D3</td><td>16 格电芯</td><td>正常=绿条；最高=橙描边橙条；最低=蓝描边蓝条；低于均值 20mV=浅黄底；触发保护阈值=浅红底红字（模拟告警验证 #05 黄、#11 红）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D4</td><td>电芯详情</td><td>点击任意格 → 底部抽屉：Now/24h Min/24h Max + 24h 折线图（30min 采样标注）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D5</td><td>故障检测·正常</td><td>绿盾 + All Systems Normal + 22/22 items passed + 查看全部入口</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D6</td><td>故障检测·异常</td><td>红色摘要条「2 faults detected」+ 故障卡（红左边框、红标题+灰描述）+ 其余 20 项入口；22 项抽屉中<b>异常项置顶</b>红色标识</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">D7</td><td>生成报告</td><td>底部固定按钮 → 报告预览抽屉（高 88%）；先预览、点 Send to Support 才发送，发送后 toast 确认</td></tr>
+  </table></div>
+
+  <h2><span class="tag">E</span>Tab 4 · Support（6 条）</h2>
+  <div class="tablewrap"><table>
+    <tr><th>✓</th><th>编号</th><th>验收项</th><th>通过标准</th></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">E1</td><td>一键诊断</td><td>橙色渐变大卡（相机图标+标题+副文案）→ 直接打开报告预览抽屉</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">E2</td><td>OTA 升级</td><td>Modal 三态：版本对比+更新日志 → 进度条（升级中提示保持连接）→ 完成态显示新版本号</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">E3</td><td>手册 / 客服</td><td>Digital Product Manual、Contact Support 两行入口（原型为 toast 占位，实际接对应页面/在线客服）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">E4</td><td>外观主题</td><td>Dark / Light 分段控件，切换即时全局生效且两主题均符合原型</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">E5</td><td>温度单位</td><td>°F 默认；切 °C 后全站温度换算显示（如 90°F ↔ 32°C），含 Home 数据卡与诊断页</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">E6</td><td>设备信息</td><td>底部灰字：SN + 固件版本 + App 版本</td></tr>
+  </table></div>
+
+  <h2><span class="tag">F</span>弹窗 / 抽屉 / 全局规则（7 条）</h2>
+  <div class="tablewrap"><table>
+    <tr><th>✓</th><th>编号</th><th>验收项</th><th>通过标准</th></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F1</td><td>抽屉规范</td><td>底部滑出 300ms、圆角顶、拖把手；点遮罩/✕ 关闭；Supply 与 OTA Modal <b>仅按钮可关</b>（防误触）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F2</td><td>诊断报告内容</td><td>状态横幅（正常绿/异常红+故障置顶）+ Battery Snapshot 9 行 + Device 4 行 + Report ID/时间/隐私说明 + Cancel/Send 双按钮（Send 更宽）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F3</td><td>Toast</td><td>屏幕底部居中深色胶囊，约 2.4s 自动消失</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F4</td><td>双语</td><td>中/英切换后全部文案生效、无缺漏、布局不破（交付以英文为准）</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F5</td><td>动效降级</td><td>系统 reduced-motion 开启时：光点绕行/脉冲/能量流等装饰动画停用，功能不受影响</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F6</td><td>语义色</td><td>全局一致：绿=正常/健康、红=告警、橙=品牌/交互选中、蓝仅最低电芯标识；不得混用</td></tr>
+    <tr><td class="chk"><input type="checkbox"></td><td class="id">F7</td><td>字体与圆角</td><td>字重仅 200/600/700 三档；卡片级圆角统一 16px；数字使用等宽数字（tabular-nums）</td></tr>
+  </table></div>
+
+  <footer>
+    V3.1 验收标准 · 生成于 2026-07-16 · 配套文档：<a href="./handoff.html">《UI 改版交付说明》</a> ·
+    原型：<a href="https://cqxkm289-dev.github.io/vevor-battery-app-prototype/" target="_blank" rel="noopener">在线交互原型</a> ·
+    不通过项请记录「编号 + 屏号 + 截图」反馈产品
+  </footer>
+</div>
+</body>
+</html>

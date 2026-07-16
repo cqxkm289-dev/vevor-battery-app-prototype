@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>球车电池4.0 App · UI 改版交付说明 V3.1</title>
+<style>
+  :root{
+    --wall:#eceef0; --wall-deep:#e2e5e8; --ink:#1b1d20; --muted:#70747b;
+    --card:#ffffff; --line:rgba(20,22,26,.09); --brand:#f95120; --chip:#f2f3f5;
+    --ok:#1fa84a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --wall:#141518; --wall-deep:#0f1012; --ink:#eceded; --muted:#9a9ea6;
+      --card:#1d1f23; --line:rgba(255,255,255,.1); --chip:#26282d; --ok:#3dd670; }
+  }
+  :root[data-theme="dark"]{ --wall:#141518; --wall-deep:#0f1012; --ink:#eceded; --muted:#9a9ea6;
+    --card:#1d1f23; --line:rgba(255,255,255,.1); --chip:#26282d; --ok:#3dd670; }
+  :root[data-theme="light"]{ --wall:#eceef0; --wall-deep:#e2e5e8; --ink:#1b1d20; --muted:#70747b;
+    --card:#ffffff; --line:rgba(20,22,26,.09); --chip:#f2f3f5; --ok:#1fa84a; }
+  html{background:var(--wall);}
+  body{margin:0;color:var(--ink);
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:linear-gradient(180deg,var(--wall),var(--wall-deep));-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px;margin:0 auto;padding:52px 24px 80px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin:0 0 12px;}
+  .eyebrow b{color:var(--brand);}
+  h1{font-size:clamp(26px,4vw,38px);margin:0 0 14px;font-weight:700;letter-spacing:-.01em;text-wrap:balance;}
+  .lede{max-width:44em;font-size:15px;line-height:1.9;color:var(--muted);margin:0;}
+  .lede strong{color:var(--ink);}
+  h2{font-size:20px;margin:52px 0 6px;font-weight:700;display:flex;align-items:baseline;gap:10px;}
+  h2 .no{font-size:12px;font-weight:800;color:#fff;background:var(--ink);border-radius:7px;padding:4px 9px;letter-spacing:.06em;}
+  :root[data-theme="dark"] h2 .no{color:#141518;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) h2 .no{color:#141518;} }
+  .subnote{font-size:13px;color:var(--muted);margin:0 0 18px;line-height:1.8;}
+  .links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:34px;}
+  @media(max-width:720px){.links{grid-template-columns:1fr;}}
+  .linkcard{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:20px 22px;text-decoration:none;color:var(--ink);}
+  .linkcard .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+  .linkcard .u{font-size:14.5px;font-weight:600;color:var(--brand);word-break:break-all;line-height:1.6;}
+  .linkcard .d{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.7;}
+  .toolbar-tip{background:var(--chip);border-radius:14px;padding:14px 18px;font-size:13px;line-height:2;color:var(--muted);margin-top:14px;}
+  .toolbar-tip b{color:var(--ink);}
+
+  .shots{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;
+    background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 18px 20px;}
+  .shot{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .shotbox{width:233px;height:488px;overflow:hidden;border-radius:26px;
+    box-shadow:0 14px 34px rgba(0,0,0,.22);}
+  .vsnap{transform:scale(.5622);transform-origin:top left;width:414px;height:868px;pointer-events:none;}
+  .shot figcaption{text-align:center;font-size:13px;line-height:1.6;}
+  .shot figcaption b{display:block;color:var(--ink);}
+  .shot figcaption span{color:var(--muted);font-size:12px;}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;font-size:13.5px;line-height:1.8;}
+  .tablewrap{overflow-x:auto;border-radius:16px;}
+  th,td{border-bottom:1px solid var(--line);padding:11px 14px;text-align:left;vertical-align:top;}
+  th{background:var(--chip);font-weight:700;font-size:12.5px;white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  td.cat{white-space:nowrap;font-weight:700;}
+  td.cat small{display:block;font-weight:500;color:var(--muted);}
+  code{background:var(--chip);border-radius:5px;padding:1px 6px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .warnrow{color:#c2410c;font-weight:600;}
+  ul.clean{margin:0;padding-left:20px;line-height:2;font-size:13.5px;}
+  ul.clean li b{color:var(--ink);}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:760px){.twocol{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;}
+  .panel h3{margin:0 0 10px;font-size:14.5px;}
+  .panel p,.panel li{font-size:13px;color:var(--muted);line-height:1.9;}
+  .principle{background:linear-gradient(135deg,rgba(249,81,32,.08),rgba(249,81,32,.02));
+    border:1px solid rgba(249,81,32,.3);border-radius:16px;padding:18px 22px;margin-top:14px;
+    font-size:14px;line-height:2;}
+  .principle b{color:var(--brand);}
+  footer{margin-top:56px;font-size:12px;color:var(--muted);line-height:2;border-top:1px solid var(--line);padding-top:16px;}
+  
+  /* ============ 外层页面（工具栏 + 画布） ============ */
+  .vsnap * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  .vsnap html, .vsnap body { height:100%; }
+
+  .vsnap body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background:#E9EBEF; color:#1c1e21; overflow:hidden;
+  }
+
+  .vsnap #toolbar {
+    height:56px; background:#fff; border-bottom:1px solid #dcdfe5;
+    display:flex; align-items:center; gap:10px; padding:0 16px; flex-wrap:nowrap; overflow-x:auto;
+  }
+
+  .vsnap #toolbar .brand { font-weight:700; font-size:14px; white-space:nowrap; }
+
+  .vsnap #toolbar .brand span { color:#F95120; }
+
+  .vsnap #toolbar .sep { width:1px; height:24px; background:#e1e4e9; flex:none; }
+
+  .vsnap .tbtn {
+    border:1px solid #d4d8df; background:#fff; border-radius:8px; padding:6px 12px;
+    font-size:12.5px; cursor:pointer; white-space:nowrap; color:#3a3d42; transition:all .15s;
+  }
+
+  .vsnap .tbtn:hover { border-color:#F95120; color:#F95120; }
+
+  .vsnap .tbtn.on { background:#F95120; border-color:#F95120; color:#fff; }
+
+  .vsnap select.tbtn { appearance:auto; }
+
+  .vsnap #stage { height:calc(100% - 56px); display:flex; align-items:center; justify-content:center; gap:28px; padding:18px; }
+
+  .vsnap .phoneWrap { flex:none; }
+
+
+  /* ============ 标注面板 ============ */
+  .vsnap #notesPanel {
+    width:360px; max-height:92%; background:#fff; border:1px solid #dcdfe5; border-radius:14px;
+    padding:18px 20px; overflow-y:auto; font-size:13px; line-height:1.75; color:#2c2f34;
+    box-shadow:0 6px 24px rgba(0,0,0,.06);
+  }
+
+  .vsnap #notesPanel h3 { font-size:14px; margin-bottom:10px; color:#111; display:flex; align-items:center; gap:6px; }
+
+  .vsnap #notesPanel h3::before { content:""; width:4px; height:14px; background:#F95120; border-radius:2px; }
+
+  .vsnap #notesPanel h4 { font-size:12.5px; margin:12px 0 4px; color:#F95120; }
+
+  .vsnap #notesPanel ul { padding-left:18px; }
+
+  .vsnap #notesPanel li { margin-bottom:3px; }
+
+  .vsnap #notesPanel table { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0; }
+
+  .vsnap #notesPanel th, .vsnap #notesPanel td { border:1px solid #e4e7ec; padding:4px 7px; text-align:left; }
+
+  .vsnap #notesPanel th { background:#f6f7f9; font-weight:600; }
+
+  .vsnap #notesPanel .tag { display:inline-block; background:#FFF1E6; color:#E06000; border-radius:4px; padding:0 6px; font-size:11px; margin-right:4px; }
+
+
+  /* ============ 手机框 ============ */
+  .vsnap .phone {
+    width:390px; height:844px; flex:none; border-radius:54px; background:#000;
+    border:12px solid #17181a; box-shadow:0 24px 60px rgba(0,0,0,.35), inset 0 0 0 2px #2a2b2e;
+    position:relative; overflow:hidden;
+  }
+
+  .vsnap .notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:120px; height:32px; background:#17181a; border-radius:18px; z-index:99; }
+
+  .vsnap .screen { width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+
+
+  /* ============ APP 主题变量 ============ */
+  .vsnap .screen[data-theme="dark"] {
+    --bg:#081020; --bg2:#0A1424; --card:rgba(255,255,255,.045); --card2:rgba(255,255,255,.08); --line:rgba(255,255,255,.10);
+    --cline:rgba(255,255,255,.09);
+    --tx:#EAF2FB; --tx2:#8B99B0; --tx3:#5C6A82;
+    --brand:#FF6A35; --brand2:#FF9A55; --brand-deep:#F95120; --brand-soft:rgba(249,81,32,.14);
+    --green:#3DD670; --green-soft:rgba(61,214,112,.13);
+    --red:#FF453A; --red-soft:rgba(255,69,58,.13);
+    --yellow:#FFD60A; --yellow-soft:rgba(255,214,10,.10);
+    --orange-soft:rgba(255,149,0,.13); --blue:#3B9CFF; --purple:#A97CFF;
+    --bn-ok-bg:rgba(61,214,112,.10); --bn-ok-tx:#EAF2FB; --bn-bad-bg:rgba(255,69,58,.12); --bn-bad-tx:#FFEDEB;
+    --mask:rgba(2,6,14,.65); --shadow:0 2px 12px rgba(0,0,0,.28); --knob:#FFFFFF;
+  }
+
+  .vsnap .screen[data-theme="light"] {
+    --bg:#F2F3F6; --bg2:#FFFFFF; --card:#FFFFFF; --card2:#F2F3F6; --line:#E6E8EC;
+    --cline:#ECEEF2;
+    --tx:#17181A; --tx2:#6B6E76; --tx3:#9CA0A8;
+    --brand:#E8430D; --brand2:#FF8A3D; --brand-deep:#D93C0A; --brand-soft:rgba(232,67,13,.10);
+    --green:#1FA84A; --green-soft:rgba(31,168,74,.10);
+    --red:#E5372C; --red-soft:rgba(229,55,44,.08);
+    --yellow:#D9A400; --yellow-soft:rgba(217,164,0,.10);
+    --orange-soft:rgba(242,106,0,.10); --blue:#1677D9; --purple:#7C4DD9;
+    --bn-ok-bg:#DFF5E5; --bn-ok-tx:#136B33; --bn-bad-bg:#FCE2DE; --bn-bad-tx:#9E261C;
+    --mask:rgba(0,0,0,.4); --shadow:0 4px 14px rgba(0,0,0,.07); --knob:#FFFFFF;
+  }
+
+  .vsnap .screen { background:var(--bg); color:var(--tx); }
+
+  .vsnap .screen[data-theme="dark"] {
+    background:radial-gradient(120% 90% at 50% -10%, #12263F 0%, #0B1626 46%, #081020 100%);
+  }
+
+  /* 玻璃卡片描边（B 风格） */
+  .vsnap .card, .vsnap .quad .q, .vsnap .iq-stats, .vsnap .iq-foot .f, .vsnap .lastchg, .vsnap .segment, .vsnap .rep-card { border:1px solid var(--cline); }
+
+  .vsnap .appheader .dev .bw { color:var(--brand); }
+
+
+  /* ============ APP 通用 ============ */
+  .vsnap .ic { display:inline-flex; flex:none; }
+
+  .vsnap .ic svg { width:100%; height:100%; }
+
+  .vsnap .statusbar { height:54px; flex:none; display:flex; align-items:flex-end; justify-content:space-between; padding:0 28px 4px; font-size:14px; font-weight:600; color:var(--tx); }
+
+  .vsnap .sb-icons { display:flex; gap:5px; align-items:center; }
+
+  .vsnap .appheader { height:48px; flex:none; display:flex; align-items:center; padding:0 18px; gap:9px; }
+
+  .vsnap .appheader .dev { font-size:16px; font-weight:700; letter-spacing:.2px; }
+
+  .vsnap .appheader .conn { display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:var(--green);
+    background:var(--green-soft); border:1px solid rgba(61,214,112,.25); border-radius:999px; padding:3px 10px; }
+
+  .vsnap .appheader .conn::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--green); }
+
+  .vsnap .appheader .bell { margin-left:auto; position:relative; width:23px; height:23px; cursor:pointer; color:var(--tx); }
+
+  .vsnap .appheader .bell::after { content:""; position:absolute; top:0; right:0; width:7px; height:7px; background:var(--red); border-radius:50%; border:1.5px solid var(--bg); }
+
+  .vsnap .content { flex:1; display:flex; flex-direction:column; overflow:hidden; padding:0 16px; }
+
+  .vsnap .tabbar { flex:none; height:84px; border-top:1px solid var(--line); background:var(--bg2); display:flex; padding-bottom:18px; }
+
+  .vsnap .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:10px; color:var(--tx3); cursor:pointer; }
+
+  .vsnap .tab.on { color:var(--brand); }
+
+  .vsnap .tab .ic { width:23px; height:23px; }
+
+  .vsnap .card { background:var(--card); border-radius:16px; box-shadow:var(--shadow); }
+
+  .vsnap .btn-primary {
+    background:linear-gradient(135deg, var(--brand2), var(--brand-deep)); color:#fff; border:none; border-radius:13px; height:52px; width:100%;
+    box-shadow:0 8px 22px rgba(249,81,32,.30);
+    font-size:16px; font-weight:600; cursor:pointer; letter-spacing:.2px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+
+  .vsnap .btn-primary:active { opacity:.85; }
+
+  .vsnap .btn-primary .ic { width:18px; height:18px; }
+
+  .vsnap .link { color:var(--tx2); font-size:13px; text-align:center; cursor:pointer; }
+
+  .vsnap .link b { color:var(--brand); }
+
+  .vsnap .sec-title { font-size:14px; font-weight:700; margin:14px 2px 9px; }
+
+  .vsnap .dot { display:inline-block; width:9px; height:9px; border-radius:50%; flex:none; }
+
+
+  /* ============ 蓝牙流程 ============ */
+  .vsnap .bt-page { flex:1; display:flex; flex-direction:column; padding:0 24px; }
+
+  .vsnap .bt-logo { text-align:center; margin-top:9%; }
+
+  .vsnap .bt-logo .mark { width:64px; height:64px; border-radius:18px; background:var(--brand-soft); color:var(--brand); display:inline-flex; align-items:center; justify-content:center; padding:14px; }
+
+  .vsnap .bt-logo h1 { font-size:22px; font-weight:700; letter-spacing:1px; margin-top:12px; }
+
+  .vsnap .bt-logo h1 span { color:var(--brand); }
+
+  .vsnap .perm-card { margin-top:10%; padding:8px 18px; }
+
+  .vsnap .perm-row { display:flex; align-items:center; gap:14px; height:64px; }
+
+  .vsnap .perm-row + .perm-row { border-top:1px solid var(--line); }
+
+  .vsnap .perm-row .pic { width:36px; height:36px; border-radius:10px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:8px; flex:none; }
+
+  .vsnap .perm-row .t1 { font-size:15.5px; font-weight:600; }
+
+  .vsnap .perm-row .t2 { font-size:12.5px; color:var(--tx2); margin-top:2px; }
+
+  .vsnap .bt-foot { margin-top:auto; padding-bottom:36px; }
+
+  .vsnap .bt-foot .legal { font-size:11px; color:var(--tx3); text-align:center; margin-top:14px; }
+
+
+  .vsnap .pulse-zone { height:36%; flex:none; display:flex; align-items:center; justify-content:center; position:relative; }
+
+  .vsnap .pulse-core { width:78px; height:78px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:20px; z-index:2; }
+
+  .vsnap .pulse-ring { position:absolute; width:78px; height:78px; border-radius:50%; border:2px solid var(--brand); opacity:0; animation:pulse 2s ease-out infinite; }
+
+  .vsnap .pulse-ring:nth-child(2) { animation-delay:.66s; }
+
+  .vsnap .pulse-ring:nth-child(3) { animation-delay:1.32s; }
+
+  @keyframes pulse { 0%{transform:scale(1);opacity:.7;} 100%{transform:scale(3.1);opacity:0;} }
+
+  .vsnap .scan-txt { text-align:center; font-size:14px; color:var(--tx2); }
+
+  .vsnap .tips-box { margin:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:14px 4px; font-size:13px; color:var(--tx2); line-height:2; }
+
+  .vsnap .tips-box .tt { display:flex; align-items:center; gap:7px; color:var(--tx); font-weight:600; }
+
+  .vsnap .tips-box .tt .ic { width:16px; height:16px; color:var(--yellow); }
+
+  .vsnap .found-label { display:flex; align-items:center; gap:10px; color:var(--tx3); font-size:12px; margin:6px 0 10px; }
+
+  .vsnap .found-label::before, .vsnap .found-label::after { content:""; flex:1; height:1px; background:var(--line); }
+
+
+  .vsnap .dev-card { display:flex; align-items:center; gap:13px; padding:14px 16px; margin-bottom:12px; }
+
+  .vsnap .dev-card .pic { width:40px; height:40px; border-radius:11px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:9px; flex:none; }
+
+  .vsnap .dev-card .nm { font-size:14.5px; font-weight:600; white-space:nowrap; }
+
+  .vsnap .dev-card .sig { font-size:12px; color:var(--tx2); margin-top:3px; display:flex; align-items:center; gap:6px; }
+
+  .vsnap .sigbars { display:inline-flex; gap:2px; align-items:flex-end; height:12px; }
+
+  .vsnap .sigbars i { width:3.5px; background:var(--green); border-radius:1px; }
+
+  .vsnap .sigbars i.off { background:var(--line); }
+
+  .vsnap .btn-sm { margin-left:auto; background:var(--brand); color:#fff; border:none; border-radius:9px; padding:9px 18px; font-size:13.5px; font-weight:600; cursor:pointer; }
+
+
+  .vsnap .connect-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; }
+
+  .vsnap .conn-anim { display:flex; align-items:center; gap:12px; color:var(--tx); }
+
+  .vsnap .conn-anim .ic { width:36px; height:36px; color:var(--brand); }
+
+  .vsnap .conn-line { width:120px; height:3px; border-radius:2px; background:repeating-linear-gradient(90deg, var(--brand) 0 10px, transparent 10px 18px); background-size:36px 3px; animation:flow 1s linear infinite; }
+
+  @keyframes flow { to { background-position:36px 0; } }
+
+  .vsnap .conn-txt { font-size:14px; color:var(--tx2); text-align:center; line-height:1.8; }
+
+
+  .vsnap .ok-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+
+  .vsnap .ok-badge { width:84px; height:84px; border-radius:50%; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center; padding:20px; animation:pop .45s cubic-bezier(.2,1.6,.4,1); margin-bottom:8px; }
+
+  @keyframes pop { 0%{transform:scale(.3);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+
+  .vsnap .ok-zone h2 { font-size:21px; font-weight:600; }
+
+  .vsnap .ok-zone .sub { font-size:14px; color:var(--brand); font-weight:600; }
+
+  .vsnap .ok-zone .sn { font-size:12px; color:var(--tx3); }
+
+
+  .vsnap .nf-head { text-align:center; margin-top:6%; }
+
+  .vsnap .nf-head .nic { width:54px; height:54px; color:var(--tx3); display:inline-flex; padding:4px; }
+
+  .vsnap .nf-head h2 { font-size:19px; color:var(--tx2); font-weight:600; margin-top:10px; }
+
+  .vsnap .steps-card { margin-top:20px; padding:6px 18px; }
+
+  .vsnap .step-row { display:flex; gap:12px; padding:13px 0; }
+
+  .vsnap .step-row + .step-row { border-top:1px solid var(--line); }
+
+  .vsnap .step-row .no { width:22px; height:22px; border-radius:50%; background:var(--brand-soft); color:var(--brand); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px; }
+
+  .vsnap .step-row .t1 { font-size:14px; font-weight:600; }
+
+  .vsnap .step-row .t2 { font-size:12px; color:var(--tx2); margin-top:2px; }
+
+
+  /* ============ Tab1 Dashboard ============ */
+  .vsnap .soc-zone { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 0; }
+
+  .vsnap .ring-box { position:relative; width:248px; height:248px; }
+
+  .vsnap .ring-box > svg { transform:rotate(-90deg); }
+
+  .vsnap .ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+  .vsnap .ring-center .val { font-size:64px; font-weight:200; line-height:1.05; letter-spacing:-1.5px; font-variant-numeric:tabular-nums; }
+
+  .vsnap .ring-center .val small { font-size:24px; font-weight:300; letter-spacing:0; color:var(--tx2); }
+
+  .vsnap .ring-center .amp { font-size:14px; color:var(--brand); font-weight:600; margin-top:8px; display:flex; align-items:center; gap:4px; letter-spacing:.02em; }
+
+  .vsnap .ring-box .orbit-svg { position:absolute; inset:0; animation:orbitSpin 5s linear infinite; }
+
+  @keyframes orbitSpin { from { transform:rotate(-90deg); } to { transform:rotate(270deg); } }
+
+  @media (prefers-reduced-motion: reduce) { .vsnap .ring-box .orbit-svg { display:none; }
+ }
+
+  .vsnap .flow-line { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; font-size:13px; color:var(--tx2); font-weight:500; }
+
+  .vsnap .flow-line .node { display:flex; align-items:center; gap:6px; color:var(--tx); }
+
+  .vsnap .flow-line .node .ic { width:16px; height:16px; color:var(--brand); }
+
+  .vsnap .flow-line .fdots { display:inline-flex; gap:5px; }
+
+  .vsnap .flow-line .fdots i { width:4px; height:4px; border-radius:50%; background:var(--brand); opacity:.2; animation:fdot 1.2s infinite; }
+
+  .vsnap .flow-line .fdots i:nth-child(2) { animation-delay:.2s; }
+
+  .vsnap .flow-line .fdots i:nth-child(3) { animation-delay:.4s; }
+
+  @keyframes fdot { 0%,100%{opacity:.15;} 40%{opacity:1;} }
+
+  .vsnap .flow-line .hl { margin-left:14px; }
+
+  .vsnap .flow-line .hl b { color:var(--green); font-size:14px; }
+
+  .vsnap .quad { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+
+  .vsnap .quad .q { background:var(--card); border-radius:16px; padding:13px 16px; text-align:left; box-shadow:var(--shadow); }
+
+  .vsnap .quad .q .k { font-size:11.5px; color:var(--tx2); letter-spacing:.02em; }
+
+  .vsnap .quad .q .v { font-size:21px; font-weight:600; letter-spacing:-.3px; margin-top:5px; font-variant-numeric:tabular-nums; }
+
+  .vsnap .quad .q .v small { font-size:12px; font-weight:500; color:var(--tx2); margin-left:1px; }
+
+  .vsnap .alert-banner { margin:14px 0 16px; border-radius:16px; padding:17px 16px; display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; cursor:pointer; }
+
+  .vsnap .alert-banner .ic { width:21px; height:21px; }
+
+  .vsnap .alert-banner.ok { background:var(--bn-ok-bg); color:var(--green); }
+
+  .vsnap .alert-banner.ok .ic { color:var(--green); }
+
+  .vsnap .alert-banner .okdot { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); flex:none; }
+
+  .vsnap .alert-banner.ok .arr { color:var(--tx3); }
+
+  .vsnap .alert-banner.bad { background:var(--bn-bad-bg); color:var(--bn-bad-tx); }
+
+  .vsnap .alert-banner.bad .ic { color:var(--red); }
+
+  .vsnap .screen[data-theme="dark"] .alert-banner.ok { border:1px solid rgba(61,214,112,.22); }
+
+  .vsnap .screen[data-theme="dark"] .alert-banner.bad { border:1px solid rgba(255,69,58,.28); }
+
+  .vsnap .alert-banner .arr { margin-left:auto; font-weight:400; opacity:.7; }
+
+
+  /* ============ Tab2 Lifetime Guard ============ */
+  .vsnap .lg-title { display:flex; align-items:center; gap:7px; padding:12px 2px 12px; }
+
+  .vsnap .lg-title .ic { width:19px; height:19px; color:var(--brand); }
+
+  .vsnap .lg-title h2 { font-size:17px; font-weight:600; color:var(--tx); letter-spacing:.1px; }
+
+  .vsnap .lg-title .act { margin-left:auto; display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:var(--green); background:var(--green-soft); border-radius:11px; padding:3px 10px; }
+
+  .vsnap .lg-title .act::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--green); }
+
+  .vsnap .guard-card { padding:18px 16px 14px; }
+
+  .vsnap .gbar-labels { display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:var(--tx2); margin-bottom:14px; }
+
+  .vsnap .gbar-labels b { color:var(--tx); font-size:13.5px; }
+
+  .vsnap .gbar-labels .lim { display:flex; align-items:center; gap:5px; color:var(--green); font-weight:600; font-size:13.5px; }
+
+  .vsnap .gbar-labels .lim .ic { width:16px; height:16px; }
+
+  .vsnap .gbar { position:relative; height:10px; border-radius:5px; background:var(--card2); margin:4px 2px 0; }
+
+  .vsnap .gbar .restzone { position:absolute; right:0; top:3.5px; height:3px; background-image:radial-gradient(circle, var(--tx3) 1.2px, transparent 1.3px); background-size:8px 3px; background-repeat:repeat-x; }
+
+  .vsnap .gbar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:5px; background:linear-gradient(90deg, #1FA84A, var(--green)); transition:width .4s; }
+
+  .vsnap .gbar .knob { position:absolute; top:50%; transform:translate(-50%,-50%); width:21px; height:21px; border-radius:50%; background:var(--knob); box-shadow:0 1px 6px rgba(0,0,0,.45); transition:left .4s; }
+
+  .vsnap .gbar-scale { display:flex; justify-content:space-between; font-size:11px; color:var(--tx3); margin:9px 2px 0; }
+
+  .vsnap .guard-sub { font-size:12.5px; color:var(--tx2); margin-top:13px; text-align:center; }
+
+  .vsnap .guard-gain { font-size:14px; color:var(--green); font-weight:600; margin-top:7px; min-height:20px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; }
+
+  .vsnap .guard-gain .ic { width:16px; height:16px; }
+
+  .vsnap .guard-gain.plain { color:var(--tx2); font-weight:500; }
+
+  .vsnap .modes { display:flex; gap:10px; }
+
+  .vsnap .mode-card { flex:1; border:1.5px solid var(--cline); background:var(--card); border-radius:16px; padding:14px 6px 12px; text-align:center; cursor:pointer; transition:all .15s; }
+
+  .vsnap .mode-card.on { border-color:var(--brand); background:var(--brand-soft); }
+
+  .vsnap .mode-card .mic { width:24px; height:24px; display:inline-flex; color:var(--brand); }
+
+  .vsnap .mode-card .nm { font-size:13px; font-weight:600; margin-top:6px; }
+
+  .vsnap .mode-card .pct { font-size:21px; font-weight:600; margin-top:3px; letter-spacing:-.3px; font-variant-numeric:tabular-nums; }
+
+  .vsnap .mode-card .ds { font-size:9.5px; color:var(--tx3); margin-top:3px; }
+
+  .vsnap .mode-hint { font-size:12px; margin-top:10px; line-height:1.6; border-radius:10px; padding:8px 12px; }
+
+  .vsnap .mode-hint.info { color:var(--tx2); background:var(--card2); min-height:54px; display:flex; align-items:center; }
+
+  .vsnap .duo { display:flex; gap:10px; margin-top:14px; }
+
+  .vsnap .duo .fn { flex:1; padding:13px 14px; cursor:pointer; }
+
+  .vsnap .duo .fn .t { font-size:13.5px; font-weight:600; display:flex; align-items:flex-start; gap:7px; line-height:1.35; }
+
+  .vsnap .duo .fn .t .ic { width:17px; height:17px; margin-top:1px; }
+
+  .vsnap .duo .fn .s { font-size:11.5px; color:var(--tx2); margin-top:9px; display:flex; align-items:center; justify-content:space-between; }
+
+  .vsnap .duo .fn.wide { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+
+  .vsnap .duo .fn.wide .t { align-items:center; }
+
+  .vsnap .duo .fn.wide .t .ic { margin-top:0; color:var(--brand); }
+
+  .vsnap .duo .fn.wide .s { margin-top:0; gap:8px; }
+
+  .vsnap .duo .fn.wide .chev2 { color:var(--tx3); }
+
+  .vsnap .switch { width:42px; height:24px; border-radius:13px; background:var(--card2); border:1px solid var(--line); position:relative; transition:background .2s; flex:none; }
+
+  .vsnap .switch::after { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:left .2s; }
+
+  .vsnap .switch.on { background:var(--brand); border-color:var(--brand); }
+
+  .vsnap .switch.on::after { left:20px; }
+
+  .vsnap .lastchg { margin:auto 0 12px; background:var(--card); border-radius:16px; padding:12px 14px; font-size:12.5px; color:var(--tx2); display:flex; align-items:center; gap:6px; flex-wrap:wrap; box-shadow:var(--shadow); }
+
+  .vsnap .lastchg .ic { width:15px; height:15px; color:var(--tx2); margin-right:2px; }
+
+  .vsnap .lastchg b.gain { color:var(--green); }
+
+  .vsnap .lastchg b.save { color:var(--green); }
+
+  .vsnap .lastchg .w { color:var(--tx); font-weight:600; }
+
+
+  /* ============ Tab3 Battery IQ ============ */
+  .vsnap .segment { display:flex; background:var(--card); border-radius:22px; padding:4px; margin:10px 0; box-shadow:var(--shadow); }
+
+  .vsnap .segment .sg { flex:1; text-align:center; font-size:13.5px; font-weight:600; padding:9px 0; border-radius:18px; color:var(--tx2); cursor:pointer; }
+
+  .vsnap .segment .sg.on { background:var(--brand); color:#fff; }
+
+  .vsnap .iq-stats { display:flex; align-items:stretch; background:var(--card); border-radius:16px; box-shadow:var(--shadow); }
+
+  .vsnap .iq-stats .st { flex:1; padding:11px 4px 10px; text-align:center; }
+
+  .vsnap .iq-stats .st + .st { border-left:1px solid var(--line); }
+
+  .vsnap .iq-stats .st .k { font-size:10.5px; color:var(--tx3); }
+
+  .vsnap .iq-stats .st .v { font-size:14px; font-weight:600; margin-top:4px; }
+
+  .vsnap .iq-stats .st .v .id { color:var(--tx2); font-weight:600; font-size:11px; margin-right:3px; }
+
+  .vsnap .iq-stats .st.hi .v em { font-style:normal; color:var(--brand); }
+
+  .vsnap .iq-stats .st.lo .v em { font-style:normal; color:var(--blue); }
+
+  .vsnap .iq-stats .st.delta .v { color:var(--green); display:flex; align-items:center; justify-content:center; gap:4px; }
+
+  .vsnap .iq-stats .st.delta .v .ic { width:14px; height:14px; }
+
+  .vsnap .iq-stats .st.delta.warn .v { color:var(--red); }
+
+  .vsnap .iq-stats .st .k2 { font-size:10px; color:var(--tx3); margin-top:2px; }
+
+  .vsnap .cellgrid { display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:1fr; gap:7px; margin-top:10px; flex:1; }
+
+  .vsnap .cell { background:var(--card); border-radius:12px; padding:9px 6px 9px; text-align:center; cursor:pointer; border:1.5px solid transparent; box-shadow:var(--shadow); display:flex; flex-direction:column; justify-content:center; }
+
+  .vsnap .cell .no { font-size:10.5px; color:var(--tx3); font-weight:600; }
+
+  .vsnap .cell .mv { font-size:14.5px; font-weight:600; margin-top:3px; letter-spacing:-.3px; }
+
+  .vsnap .cell .bar { height:4.5px; border-radius:3px; background:var(--card2); margin-top:8px; overflow:hidden; }
+
+  .vsnap .cell .bar i { display:block; height:100%; border-radius:3px; background:var(--green); }
+
+  .vsnap .cell.hi { border-color:var(--brand); }
+
+  .vsnap .cell.hi .bar i { background:var(--brand); }
+
+  .vsnap .cell.lo { border-color:var(--blue); }
+
+  .vsnap .cell.lo .bar i { background:var(--blue); }
+
+  .vsnap .cell.warn { background:var(--yellow-soft); }
+
+  .vsnap .cell.warn .mv { color:var(--yellow); }
+
+  .vsnap .cell.warn .bar i { background:var(--yellow); }
+
+  .vsnap .cell.bad { background:var(--red-soft); border-color:var(--red); }
+
+  .vsnap .cell.bad .mv { color:var(--red); }
+
+  .vsnap .cell.bad .bar i { background:var(--red); width:18% !important; }
+
+  .vsnap .iq-foot { display:flex; gap:8px; margin:10px 0 12px; }
+
+  .vsnap .iq-foot .f { flex:1; background:var(--card); border-radius:16px; padding:12px 13px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+
+  .vsnap .iq-foot .f .fic { width:21px; height:21px; flex:none; }
+
+  .vsnap .iq-foot .f .k { font-size:10.5px; color:var(--tx3); }
+
+  .vsnap .iq-foot .f .v { font-size:15px; font-weight:600; margin-top:1px; }
+
+
+  .vsnap .fault-ok { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+
+  .vsnap .fault-ok .shield { width:100px; height:100px; border-radius:50%; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center; padding:26px; margin-bottom:10px; }
+
+  .vsnap .fault-ok h2 { font-size:20px; font-weight:600; }
+
+  .vsnap .fault-ok .s1 { font-size:13.5px; color:var(--tx2); }
+
+  .vsnap .fault-ok .s2 { font-size:12.5px; color:var(--tx3); }
+
+  .vsnap .fault-sum { background:var(--bn-bad-bg); color:var(--bn-bad-tx); border-radius:12px; padding:13px 14px; font-size:14.5px; font-weight:600; display:flex; align-items:center; gap:9px; margin-bottom:11px; }
+
+  .vsnap .fault-sum .ic { width:19px; height:19px; color:var(--red); }
+
+  .vsnap .fault-card { border-left:4px solid var(--red); padding:13px 15px; margin-bottom:10px; }
+
+  .vsnap .fault-card .t1 { font-size:15px; font-weight:600; color:var(--red); display:flex; align-items:center; gap:8px; }
+
+  .vsnap .fault-card .t3 { font-size:12.5px; color:var(--tx2); margin-top:6px; }
+
+  .vsnap .fold-link { text-align:center; font-size:13px; color:var(--tx2); padding:13px 0; cursor:pointer; }
+
+  .vsnap .btn-report { margin-top:auto; margin-bottom:12px; }
+
+
+  /* ============ Tab4 Support ============ */
+  .vsnap .diag-hero {
+    margin-top:12px; border-radius:16px; padding:24px 20px; cursor:pointer; color:#fff;
+    background:linear-gradient(135deg, #FF8A3D, #F95120 72%); box-shadow:0 8px 24px rgba(249,81,32,.32);
+  }
+
+  .vsnap .diag-hero .hic { width:46px; height:46px; border-radius:13px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; padding:11px; }
+
+  .vsnap .diag-hero h2 { font-size:18.5px; font-weight:600; margin-top:13px; }
+
+  .vsnap .diag-hero p { font-size:12.5px; opacity:.92; margin-top:5px; }
+
+  .vsnap .svc-list { margin-top:14px; padding:2px 16px; }
+
+  .vsnap .svc-row { display:flex; align-items:center; gap:13px; height:64px; cursor:pointer; }
+
+  .vsnap .svc-row + .svc-row { border-top:1px solid var(--line); }
+
+  .vsnap .svc-row .sic { width:36px; height:36px; border-radius:10px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; padding:8px; flex:none; }
+
+  .vsnap .svc-row .t { font-size:14px; font-weight:600; white-space:nowrap; }
+
+  .vsnap .svc-row .st { margin-left:auto; font-size:11.5px; color:var(--tx2); white-space:nowrap; }
+
+  .vsnap .svc-row .st.okk { color:var(--green); }
+
+  .vsnap .svc-row .arr { color:var(--tx3); width:15px; height:15px; }
+
+  .vsnap .mini-seg { margin-left:auto; display:flex; background:var(--card2); border-radius:10px; padding:2.5px; }
+
+  .vsnap .mini-seg b { padding:6px 14px; border-radius:8px; font-size:11.5px; font-weight:600; color:var(--tx2); cursor:pointer; }
+
+  .vsnap .mini-seg b.on { background:var(--brand); color:#fff; }
+
+  .vsnap .dev-info { margin-top:auto; margin-bottom:14px; font-size:11.5px; color:var(--tx3); line-height:1.9; text-align:center; }
+
+
+  /* ============ 弹窗 / 抽屉 ============ */
+  .vsnap .mask { position:absolute; inset:0; background:var(--mask); z-index:50; animation:fadein .25s; }
+
+  @keyframes fadein { from{opacity:0;} }
+
+  .vsnap .drawer {
+    position:absolute; left:0; right:0; bottom:0; z-index:51; background:var(--bg2);
+    border-radius:22px 22px 0 0; max-height:60%; display:flex; flex-direction:column;
+    animation:slideup .3s ease-out; padding-bottom:24px;
+  }
+
+  @keyframes slideup { from{transform:translateY(100%);} }
+
+  .vsnap .drawer .grip { width:40px; height:4.5px; border-radius:3px; background:var(--line); margin:10px auto 2px; }
+
+  .vsnap .drawer .dhead { display:flex; align-items:center; gap:9px; padding:10px 20px 12px; border-bottom:1px solid var(--line); }
+
+  .vsnap .drawer .dhead h3 { font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px; }
+
+  .vsnap .drawer .dhead h3 .ic { width:18px; height:18px; color:var(--brand); }
+
+  .vsnap .drawer .dhead .x { margin-left:auto; font-size:17px; color:var(--tx2); cursor:pointer; padding:4px 6px; }
+
+  .vsnap .drawer .dbody { overflow-y:auto; padding:14px 20px; }
+
+  .vsnap .modal {
+    position:absolute; left:7.5%; right:7.5%; top:50%; transform:translateY(-50%); z-index:51;
+    background:var(--bg2); border-radius:17px; padding:24px 20px; animation:pop .3s cubic-bezier(.2,1.4,.4,1);
+  }
+
+  .vsnap .modal h3 { font-size:17px; font-weight:600; text-align:center; }
+
+  .vsnap .modal .mic2 { width:52px; height:52px; margin:0 auto 12px; color:var(--brand); display:flex; padding:4px; }
+
+  .vsnap .modal p { font-size:13px; color:var(--tx2); line-height:1.8; margin-top:10px; }
+
+  .vsnap .modal .mbtns { display:flex; gap:10px; margin-top:20px; }
+
+  .vsnap .modal .mbtns button { flex:1; height:46px; border-radius:12px; font-size:14.5px; font-weight:600; cursor:pointer; border:none; }
+
+  .vsnap .modal .mbtns .ghost { background:var(--card2); color:var(--tx2); }
+
+  .vsnap .modal .mbtns .solid { background:var(--brand); color:#fff; }
+
+  .vsnap .modal .mbtns .danger { background:var(--red); color:#fff; }
+
+
+  .vsnap .offpeak-note { font-size:12px; color:var(--tx2); background:var(--card2); border-radius:10px; padding:9px 12px; line-height:1.6; margin-bottom:14px; }
+
+
+  .vsnap .chk-row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+
+  .vsnap .chk-row .cic { width:16px; height:16px; color:var(--green); flex:none; }
+
+  .vsnap .chk-row.bad { color:var(--red); font-weight:600; }
+
+
+  .vsnap .chart-box { background:var(--card2); border-radius:12px; padding:12px 8px 6px; margin-top:8px; }
+
+  .vsnap .chart-meta { display:flex; gap:14px; font-size:12px; color:var(--tx2); margin-bottom:8px; padding:0 6px; }
+
+  .vsnap .chart-meta b { color:var(--tx); }
+
+
+  .vsnap .ota-ver { display:flex; align-items:center; justify-content:center; gap:14px; font-size:15px; font-weight:600; margin-top:12px; }
+
+  .vsnap .ota-ver .new { color:var(--brand); }
+
+  .vsnap .ota-log { background:var(--card2); border-radius:10px; padding:11px 14px; font-size:12.5px; color:var(--tx2); line-height:1.9; margin-top:12px; }
+
+  .vsnap .ota-bar { height:8px; border-radius:4px; background:var(--card2); margin-top:18px; overflow:hidden; }
+
+  .vsnap .ota-bar i { display:block; height:100%; width:0; border-radius:4px; background:var(--brand); transition:width 2.4s ease; }
+
+  .vsnap .ota-done { width:52px; height:52px; border-radius:50%; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center; padding:13px; margin:14px auto 4px; }
+
+
+  /* 诊断报告 */
+  .vsnap .drawer.tall { max-height:88%; height:88%; }
+
+  .vsnap .rep-banner { border-radius:15px; padding:22px 16px; text-align:center; }
+
+  .vsnap .rep-banner.ok { background:var(--bn-ok-bg); }
+
+  .vsnap .rep-banner.bad { background:var(--bn-bad-bg); }
+
+  .vsnap .rep-banner .bic { width:46px; height:46px; margin:0 auto; display:flex; padding:2px; }
+
+  .vsnap .rep-banner.ok .bic { color:var(--green); }
+
+  .vsnap .rep-banner.bad .bic { color:var(--red); }
+
+  .vsnap .rep-banner h2 { font-size:20px; font-weight:600; margin-top:9px; }
+
+  .vsnap .rep-banner.ok h2 { color:var(--green); }
+
+  .vsnap .rep-banner.bad h2 { color:var(--red); }
+
+  .vsnap .rep-banner .bs { font-size:12.5px; margin-top:5px; }
+
+  .vsnap .rep-banner.ok .bs { color:var(--bn-ok-tx); opacity:.75; }
+
+  .vsnap .rep-banner.bad .bs { color:var(--bn-bad-tx); opacity:.8; }
+
+  .vsnap .rep-fault { display:flex; gap:10px; background:var(--red-soft); border-left:4px solid var(--red); border-radius:10px; padding:11px 13px; margin-top:9px; align-items:flex-start; }
+
+  .vsnap .rep-fault .dot { margin-top:4px; background:var(--red); }
+
+  .vsnap .rep-fault .ft { font-size:13.5px; font-weight:600; color:var(--red); }
+
+  .vsnap .rep-fault .fd { font-size:11.5px; color:var(--tx2); margin-top:2px; }
+
+  .vsnap .rep-sec { font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:1.2px; text-transform:uppercase; margin:18px 2px 6px; }
+
+  .vsnap .rep-card { background:var(--card); border-radius:16px; padding:2px 15px; box-shadow:var(--shadow); }
+
+  .vsnap .rep-row { display:flex; align-items:center; min-height:42px; font-size:13.5px; }
+
+  .vsnap .rep-row + .rep-row { border-top:1px solid var(--line); }
+
+  .vsnap .rep-row .k { color:var(--tx2); }
+
+  .vsnap .rep-row .v { margin-left:auto; font-weight:600; }
+
+  .vsnap .rep-row .v.good { color:var(--green); }
+
+  .vsnap .rep-row .v.warn { color:var(--red); }
+
+  .vsnap .rep-meta { text-align:center; font-size:11px; color:var(--tx3); margin-top:14px; line-height:1.8; }
+
+  .vsnap .rep-actions { flex:none; display:flex; gap:10px; padding:12px 20px 4px; border-top:1px solid var(--line); }
+
+  .vsnap .rep-actions button { flex:1; height:48px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; border:none; }
+
+  .vsnap .rep-actions .ghost { background:var(--card2); color:var(--tx2); }
+
+  .vsnap .rep-actions .solid { background:var(--brand); color:#fff; flex:1.6; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+  .vsnap .rep-actions .solid .ic { width:16px; height:16px; }
+
+
+  .vsnap .toast {
+    position:absolute; left:50%; bottom:110px; transform:translateX(-50%); z-index:60;
+    background:rgba(24,25,28,.94); color:#fff; font-size:13px; padding:11px 18px; border-radius:12px;
+    white-space:nowrap; animation:fadein .25s; box-shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+
+
+  @media (max-width: 980px) { .vsnap #notesPanel { display:none; }
+ }
+
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow"><b>VEVOR</b> 球车电池 4.0 · App UI 改版交付 · V3.1 · 2026-07-16</p>
+  <h1>深蓝 × VEVOR 橙：V3.1 视觉与交互定稿</h1>
+  <p class="lede">
+    本页是球车电池 App（4 SKU 统一）UI 改版的<strong>交付说明</strong>：最新四个 Tab 界面快照、
+    V2.2 → V3.1 的全部改动（按类型分组）、以及开发团队的使用指南。
+    <strong>在线原型是唯一规格基准</strong>，验收标准见配套文档。
+  </p>
+
+  <div class="links">
+    <a class="linkcard" href="https://cqxkm289-dev.github.io/vevor-battery-app-prototype/" target="_blank" rel="noopener">
+      <div class="k">在线交互原型（规格基准）</div>
+      <div class="u">cqxkm289-dev.github.io/vevor-battery-app-prototype</div>
+      <div class="d">可点击交互 · 覆盖连接流程 6 屏 + 4 Tab + 全部弹窗抽屉 · 每屏带中文规格标注</div>
+    </a>
+    <a class="linkcard" href="https://github.com/cqxkm289-dev/vevor-battery-app-prototype" target="_blank" rel="noopener">
+      <div class="k">GitHub 源码仓库</div>
+      <div class="u">github.com/cqxkm289-dev/vevor-battery-app-prototype</div>
+      <div class="d">单文件 index.html（CSS 设计变量 + JS 模板 + 双语文案表）· 提交历史即改版记录</div>
+    </a>
+  </div>
+  <div class="toolbar-tip">
+    原型顶部工具栏：<b>跳转下拉</b>可直达任意一屏 ·
+    <b>界面语言</b>切换中/英（英文为最终交付文案）·
+    <b>中文标注</b>开关右侧规格说明面板 ·
+    <b>模拟告警</b>查看全部异常态 · 深/浅主题在 App 内 <b>Support → Appearance</b> 切换
+  </div>
+
+  <h2><span class="no">01</span>最新四个 Tab 界面（English · Dark）</h2>
+  <p class="subnote">以下为 V3.1 静态快照（含 CSS 动画）。告警态、浅色主题、连接流程 6 屏及弹窗请开在线原型查看。</p>
+  <div class="shots">
+<figure class="shot">
+  <div class="shotbox"><div class="vsnap"><div class="phone"><div class="notch"></div><div class="screen" data-theme="dark"><div class="statusbar"><span>9:41</span>
+    <span class="sb-icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="13.5" y="0" width="3" height="11" rx="0.8"/></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 110 1.4 1.4 1.4 0 010-1.4zM8 9.6l2.2-2.4a3.2 3.2 0 00-4.4 0L8 9.6z"/><path d="M3.4 4.8a6.6 6.6 0 019.2 0l-1.5 1.6a4.4 4.4 0 00-6.2 0L3.4 4.8z" opacity=".85"/><path d="M.8 2.2a10.3 10.3 0 0114.4 0l-1.5 1.6a8.1 8.1 0 00-11.4 0L.8 2.2z" opacity=".7"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+    </span></div><div class="appheader">
+    <span class="dev"><span class="bw">VEVOR</span>-BT-A3F2</span>
+    <span class="conn">Connected</span>
+    <span class="bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 10-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 004 0"/></svg></span>
+  </div><div class="content">
+    <div class="soc-zone">
+      <div class="ring-box">
+        <svg width="248" height="248" viewBox="0 0 248 248">
+          <defs>
+            <linearGradient id="rg" x1="0.75" y1="0.933" x2="0.25" y2="0.067">
+              <stop offset="0%" stop-color="#F95120"/><stop offset="55%" stop-color="#FF7A3A"/><stop offset="100%" stop-color="#FFA04D"/>
+            </linearGradient>
+            <filter id="rglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+          </defs>
+          <circle cx="124" cy="124" r="98" fill="none" stroke="var(--card2)" stroke-width="11"/>
+          <circle cx="124" cy="124" r="98" fill="none" stroke="url(#rg)" stroke-width="11" stroke-linecap="round" stroke-dasharray="443.3415552745916 615.7521601035994" filter="url(#rglow)" opacity=".65"/>
+          <circle cx="124" cy="124" r="98" fill="none" stroke="url(#rg)" stroke-width="11" stroke-linecap="round" stroke-dasharray="443.3415552745916 615.7521601035994"/>
+        </svg>
+        <svg class="orbit-svg" width="248" height="248" viewBox="0 0 248 248">
+          <circle cx="124" cy="124" r="98" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="11" stroke-linecap="round" stroke-dasharray="2.5 613.3"/>
+        </svg>
+        <div class="ring-center">
+          <div class="val">72<small>%</small></div>
+          <div class="amp">↑ 12.5 A · Charging</div>
+        </div>
+      </div>
+      <div class="flow-line">
+        <span class="node"><span class="ic " style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3.5v5M15 3.5v5"/><path d="M7 8.5h10v3a5 5 0 01-10 0v-3z"/><path d="M12 16.5v4"/></svg></span> Charger</span>
+        <span class="fdots"><i></i><i></i><i></i></span>
+        <span class="node" style="color:var(--tx2)">Battery</span>
+        <span class="hl">Health <b>94</b><small>/100</small></span>
+      </div>
+    </div>
+    <div class="quad">
+      <div class="q"><div class="k">Pack Voltage</div><div class="v">48.2<small>V</small></div></div>
+      <div class="q"><div class="k">Current</div><div class="v">12.5<small>A</small></div></div>
+      <div class="q"><div class="k">Cell Temp · Max</div><div class="v">90<small>°F</small></div></div>
+      <div class="q"><div class="k">Cell Temp · Min</div><div class="v">82<small>°F</small></div></div>
+    </div>
+    <div class="alert-banner ok"><span class="okdot"></span><span>All Systems Normal</span><span class="arr">View ›</span></div>
+  </div><div class="tabbar">
+    <div class="tab on"><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><span>Home</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M12.6 7.5l-3.1 5h2.4l-.9 4 3.5-5.2h-2.4l.5-3.8z" fill="currentColor" stroke="none"/></svg></span><span>Charge</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-6"/><path d="M10 20V8"/><path d="M15 20v-9"/><path d="M20 20V4"/></svg></span><span>Battery IQ</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1 2.1 1.6 3.5 1.6s2.6-.6 3.5-1.6"/><circle cx="9" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".7" fill="currentColor" stroke="none"/></svg></span><span>Support</span></div>
+  </div></div></div></div></div>
+  <figcaption><b>Tab 1 · Home</b><span>总览：SOC 圆环 / 数据卡 / 状态横幅</span></figcaption>
+</figure>
+<figure class="shot">
+  <div class="shotbox"><div class="vsnap"><div class="phone"><div class="notch"></div><div class="screen" data-theme="dark"><div class="statusbar"><span>9:41</span>
+    <span class="sb-icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="13.5" y="0" width="3" height="11" rx="0.8"/></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 110 1.4 1.4 1.4 0 010-1.4zM8 9.6l2.2-2.4a3.2 3.2 0 00-4.4 0L8 9.6z"/><path d="M3.4 4.8a6.6 6.6 0 019.2 0l-1.5 1.6a4.4 4.4 0 00-6.2 0L3.4 4.8z" opacity=".85"/><path d="M.8 2.2a10.3 10.3 0 0114.4 0l-1.5 1.6a8.1 8.1 0 00-11.4 0L.8 2.2z" opacity=".7"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+    </span></div><div class="appheader">
+    <span class="dev"><span class="bw">VEVOR</span>-BT-A3F2</span>
+    <span class="conn">Connected</span>
+    <span class="bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 10-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 004 0"/></svg></span>
+  </div><div class="content" style="overflow-y:hidden;">
+    <div class="lg-title"><span class="ic " style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5L13 2z" fill="currentColor" stroke="none"/></svg></span><h2>Lifetime Guard™</h2><span class="act">Active</span></div>
+    <div class="card guard-card">
+      <div class="gbar-labels"><span>Current: <b>72%</b></span><span class="lim"><span class="ic " style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M8.5 11.5l2.5 2.5 4.5-4.5"/></svg></span> 85%</span></div>
+      <div class="gbar">
+        <div class="restzone" style="width:15%"></div>
+        <div class="fill" style="width:72%"></div>
+        <div class="knob" style="left:72%"></div>
+      </div>
+      <div class="gbar-scale"><span>0%</span><span>100%</span></div>
+      <div class="guard-sub">Charging stops automatically at 85%</div>
+      <div class="guard-gain"><span class="ic " style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-8"/><path d="M14 7h6v6"/></svg></span> Est. battery life extension +30%</div>
+    </div>
+    <div class="sec-title">Charge Limit Mode</div>
+    <div class="modes">
+      <div class="mode-card on">
+    <span class="mic ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21C6 12 12 5 21 4c-.5 9-6 16-15 17z"/><path d="M6 21c3-6 7-10 12-13"/></svg></span><div class="nm">Daily</div><div class="pct">85%</div><div class="ds">Daily recommended</div>
+  </div>
+      <div class="mode-card ">
+    <span class="mic ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 11L7 6.5h10L18.5 11"/><rect x="3" y="11" width="18" height="6" rx="2"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/></svg></span><div class="nm">Long Trip</div><div class="pct">100%</div><div class="ds">Full range today</div>
+  </div>
+      <div class="mode-card ">
+    <span class="mic ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/><path d="M12 11v10"/></svg></span><div class="nm">Storage</div><div class="pct">50%</div><div class="ds">Long-term parking</div>
+  </div>
+    </div>
+    <div class="mode-hint info">Charges to 85% daily — the sweet spot between range and lifespan.</div>
+    <div class="duo">
+      <div class="fn card wide">
+        <div class="t"><span class="ic " style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5L13 2z" fill="currentColor" stroke="none"/></svg></span><span>Supply Mode · Geek Boost</span></div>
+        <div class="s"><span style="color:var(--tx3); font-weight:600;">Off</span><span class="chev2">›</span></div>
+      </div>
+    </div>
+    <div class="lastchg"><span class="ic " style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4a3 3 0 016 0"/><path d="M9 11h6M9 15h4"/></svg></span><span class="w">Last charge</span>&nbsp; <b class="gain">+23Ah</b> · 1h 20min · Saved <b class="save">$0.8</b></div>
+  </div><div class="tabbar">
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><span>Home</span></div>
+    <div class="tab on"><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M12.6 7.5l-3.1 5h2.4l-.9 4 3.5-5.2h-2.4l.5-3.8z" fill="currentColor" stroke="none"/></svg></span><span>Charge</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-6"/><path d="M10 20V8"/><path d="M15 20v-9"/><path d="M20 20V4"/></svg></span><span>Battery IQ</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1 2.1 1.6 3.5 1.6s2.6-.6 3.5-1.6"/><circle cx="9" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".7" fill="currentColor" stroke="none"/></svg></span><span>Support</span></div>
+  </div></div></div></div></div>
+  <figcaption><b>Tab 2 · Charge</b><span>充电管家：Lifetime Guard™ 上限 / 三模式</span></figcaption>
+</figure>
+<figure class="shot">
+  <div class="shotbox"><div class="vsnap"><div class="phone"><div class="notch"></div><div class="screen" data-theme="dark"><div class="statusbar"><span>9:41</span>
+    <span class="sb-icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="13.5" y="0" width="3" height="11" rx="0.8"/></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 110 1.4 1.4 1.4 0 010-1.4zM8 9.6l2.2-2.4a3.2 3.2 0 00-4.4 0L8 9.6z"/><path d="M3.4 4.8a6.6 6.6 0 019.2 0l-1.5 1.6a4.4 4.4 0 00-6.2 0L3.4 4.8z" opacity=".85"/><path d="M.8 2.2a10.3 10.3 0 0114.4 0l-1.5 1.6a8.1 8.1 0 00-11.4 0L.8 2.2z" opacity=".7"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+    </span></div><div class="appheader">
+    <span class="dev"><span class="bw">VEVOR</span>-BT-A3F2</span>
+    <span class="conn">Connected</span>
+    <span class="bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 10-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 004 0"/></svg></span>
+  </div><div class="content"><div class="segment">
+    <div class="sg on">Cell Status</div>
+    <div class="sg ">Fault Detection</div>
+  </div>
+    <div class="iq-stats">
+      <div class="st hi"><div class="k">Highest Cell</div><div class="v"><span class="id">#03</span><em>3.302V</em></div></div>
+      <div class="st delta "><div class="k">Delta</div><div class="v">13mV <span class="ic " style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span></div><div class="k2">Normal</div></div>
+      <div class="st lo"><div class="k">Lowest Cell</div><div class="v"><span class="id">#11</span><em>3.289V</em></div></div>
+    </div>
+    <div class="cellgrid"><div class="cell ">
+      <div class="no">#01</div><div class="mv">3.296V</div>
+      <div class="bar"><i style="width:76.66666666666667%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#02</div><div class="mv">3.297V</div>
+      <div class="bar"><i style="width:78.33333333333333%"></i></div>
+    </div><div class="cell  hi">
+      <div class="no">#03</div><div class="mv">3.302V</div>
+      <div class="bar"><i style="width:86.66666666666667%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#04</div><div class="mv">3.299V</div>
+      <div class="bar"><i style="width:81.66666666666667%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#05</div><div class="mv">3.294V</div>
+      <div class="bar"><i style="width:73.33333333333333%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#06</div><div class="mv">3.295V</div>
+      <div class="bar"><i style="width:75%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#07</div><div class="mv">3.293V</div>
+      <div class="bar"><i style="width:71.66666666666667%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#08</div><div class="mv">3.292V</div>
+      <div class="bar"><i style="width:70%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#09</div><div class="mv">3.291V</div>
+      <div class="bar"><i style="width:68.33333333333333%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#10</div><div class="mv">3.290V</div>
+      <div class="bar"><i style="width:66.66666666666666%"></i></div>
+    </div><div class="cell  lo">
+      <div class="no">#11</div><div class="mv">3.289V</div>
+      <div class="bar"><i style="width:65%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#12</div><div class="mv">3.292V</div>
+      <div class="bar"><i style="width:70%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#13</div><div class="mv">3.290V</div>
+      <div class="bar"><i style="width:66.66666666666666%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#14</div><div class="mv">3.290V</div>
+      <div class="bar"><i style="width:66.66666666666666%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#15</div><div class="mv">3.291V</div>
+      <div class="bar"><i style="width:68.33333333333333%"></i></div>
+    </div><div class="cell ">
+      <div class="no">#16</div><div class="mv">3.293V</div>
+      <div class="bar"><i style="width:71.66666666666667%"></i></div>
+    </div></div>
+    <div class="iq-foot">
+      <div class="f"><span class="fic ic" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M8.5 11.5l2.5 2.5 4.5-4.5"/></svg></span><div><div class="k">Battery Health</div><div class="v">94 / 100</div></div></div>
+      <div class="f"><span class="fic ic" style="color:var(--tx2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4a2 2 0 014 0v9a4.5 4.5 0 11-4 0V4z"/><circle cx="12" cy="17" r="1.6" fill="currentColor" stroke="none"/></svg></span><div><div class="k">Cycles · Avg Temp</div><div class="v">127 · 84°F</div></div></div>
+    </div></div><div class="tabbar">
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><span>Home</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M12.6 7.5l-3.1 5h2.4l-.9 4 3.5-5.2h-2.4l.5-3.8z" fill="currentColor" stroke="none"/></svg></span><span>Charge</span></div>
+    <div class="tab on"><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-6"/><path d="M10 20V8"/><path d="M15 20v-9"/><path d="M20 20V4"/></svg></span><span>Battery IQ</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1 2.1 1.6 3.5 1.6s2.6-.6 3.5-1.6"/><circle cx="9" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".7" fill="currentColor" stroke="none"/></svg></span><span>Support</span></div>
+  </div></div></div></div></div>
+  <figcaption><b>Tab 3 · Battery IQ</b><span>电池诊断：16 电芯 / 故障检测</span></figcaption>
+</figure>
+<figure class="shot">
+  <div class="shotbox"><div class="vsnap"><div class="phone"><div class="notch"></div><div class="screen" data-theme="dark"><div class="statusbar"><span>9:41</span>
+    <span class="sb-icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="13.5" y="0" width="3" height="11" rx="0.8"/></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 110 1.4 1.4 1.4 0 010-1.4zM8 9.6l2.2-2.4a3.2 3.2 0 00-4.4 0L8 9.6z"/><path d="M3.4 4.8a6.6 6.6 0 019.2 0l-1.5 1.6a4.4 4.4 0 00-6.2 0L3.4 4.8z" opacity=".85"/><path d="M.8 2.2a10.3 10.3 0 0114.4 0l-1.5 1.6a8.1 8.1 0 00-11.4 0L.8 2.2z" opacity=".7"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+    </span></div><div class="appheader">
+    <span class="dev"><span class="bw">VEVOR</span>-BT-A3F2</span>
+    <span class="conn">Connected</span>
+    <span class="bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 10-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 004 0"/></svg></span>
+  </div><div class="content">
+    <div class="diag-hero">
+      <div class="hic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.2"/></svg></div>
+      <h2>One-Tap Diagnostic Report</h2>
+      <p>Auto-bundles data & screenshots · Straight to our support team</p>
+    </div>
+    <div class="card svc-list">
+      <div class="svc-row"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V6"/><path d="M7 11l5-5 5 5"/><path d="M5 20h14"/></svg></span><span class="t">OTA Firmware Update</span><span class="st okk">Up to date ✓</span><span class="arr ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span></div>
+      <div class="svc-row"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/><path d="M12 6v14"/></svg></span><span class="t">Digital Product Manual</span><span class="st">View</span><span class="arr ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span></div>
+      <div class="svc-row"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.5 0-3-.4-4.2-1L3 20l1-4.3A8.5 8.5 0 1121 11.5z"/></svg></span><span class="t">Contact Support</span><span class="st">Live chat</span><span class="arr ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span></div>
+      <div class="svc-row" style="cursor:default;"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/></svg></span><span class="t">Appearance</span>
+        <span class="mini-seg">
+          <b class="on">Dark</b>
+          <b class="">Light</b>
+        </span>
+      </div>
+      <div class="svc-row" style="cursor:default;"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4a2 2 0 014 0v9a4.5 4.5 0 11-4 0V4z"/><circle cx="12" cy="17" r="1.6" fill="currentColor" stroke="none"/></svg></span><span class="t">Temperature Unit</span>
+        <span class="mini-seg">
+          <b class="on">°F</b>
+          <b class="">°C</b>
+        </span>
+      </div>
+    </div>
+    <div class="dev-info">SN: VEVOR-BT-2024-A3F2<br>Firmware v2.3.1 · App v1.2.0</div>
+  </div><div class="tabbar">
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><span>Home</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5L12 2z"/><path d="M12.6 7.5l-3.1 5h2.4l-.9 4 3.5-5.2h-2.4l.5-3.8z" fill="currentColor" stroke="none"/></svg></span><span>Charge</span></div>
+    <div class="tab "><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-6"/><path d="M10 20V8"/><path d="M15 20v-9"/><path d="M20 20V4"/></svg></span><span>Battery IQ</span></div>
+    <div class="tab on"><span class="ic " style="width:23px;height:23px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1 2.1 1.6 3.5 1.6s2.6-.6 3.5-1.6"/><circle cx="9" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".7" fill="currentColor" stroke="none"/></svg></span><span>Support</span></div>
+  </div></div></div></div></div>
+  <figcaption><b>Tab 4 · Support</b><span>服务支持：一键诊断 / OTA / 设置</span></figcaption>
+</figure>
+  </div>
+
+  <h2><span class="no">02</span>本次改动内容（V2.2 → V3.1）</h2>
+  <p class="subnote">按改动类型分组；每条均已落在原型中，逐屏可对照。</p>
+  <div class="tablewrap"><table>
+    <tr><th style="width:130px">类型</th><th>改动内容</th></tr>
+    <tr>
+      <td class="cat">视觉体系<small>Visual</small></td>
+      <td>
+        · 全局底色：纯黑 → <b>深海军蓝径向渐变</b>（<code>#12263F → #0B1626 → #081020</code>）<br>
+        · 卡片：实色 → <b>玻璃拟态</b>（<code>rgba(255,255,255,.045)</code> 半透底 + 1px 细描边）<br>
+        · 品牌主色切换为 <b>VEVOR 橙</b>：深色主题文字/图标 <code>#FF6A35</code>、渐变深端 <code>#F95120</code>；浅色主题 <code>#E8430D</code>（保证白底对比度）<br>
+        · SOC 圆环：<b>橙色渐变 + 发光 + 白色光点绕行动画</b>（5s/圈）；SOC 20~50% 黄橙渐变、&lt;20% 红色渐变（低电量警示保留）<br>
+        · 语义色规则：<b>绿 = 正常/健康</b>（已连接、健康分、系统正常）、<b>红 = 告警</b>、<b>橙 = 品牌/交互</b>、蓝仅用于「最低电芯」数据标识
+      </td>
+    </tr>
+    <tr>
+      <td class="cat">版式与字体<small>Typography</small></td>
+      <td>
+        · 全站三档字重：<b>200</b>（超大展示数字）/ <b>600</b>（正文、数值、标题、按钮）/ <b>700</b>（品牌词、区块小标、编号角标），杜绝 800 粗黑<br>
+        · SOC 大数字 64px / 字重 200；数据卡数值 21px / 600 + 等宽数字（tabular-nums）<br>
+        · <b>Dashboard 重排</b>：圆环细化 17px→11px、起点改 12 点方向；数据卡一行四格居中 → <b>2×2 左对齐</b>（标签上、数值下）；新增 Charger⋯Battery 能量流动画行 + Health 94/100；已连接改绿色胶囊；状态条改绿点 + View ›<br>
+        · 卡片圆角统一 <b>16px</b>（胶囊/小控件除外）
+      </td>
+    </tr>
+    <tr>
+      <td class="cat">交互与功能<small>Interaction</small></td>
+      <td>
+        · <b>Tab2 重构</b>：充电上限只在右上角「盾 + 数值」展示（滑杆绿色填充止于上限、上限以右为点状虚线不充区），删除滑杆上的第二个盾标记（原 85% 时重叠）<br>
+        · 三充电模式：说明框<b>常驻两行等高</b>、统一灰色样式，内容随选中切换；进度条下方固定两行（Daily/Storage 显示寿命增益，Long Trip 显示灰色 Standard full charge）；<b>切换模式全页零位移</b><br>
+        · 模式图标与选中态统一橙色（弃用蓝车/紫箱配色），与全站「选中 = 橙」语义一致<br>
+        <span class="warnrow">· 预约错峰充电（Scheduled Off-Peak Charging）功能取消，整块移除 —— 请勿开发</span><br>
+        · Supply Mode 改整行入口（开启仍需弹窗二次确认）
+      </td>
+    </tr>
+    <tr>
+      <td class="cat">文案<small>Copy</small></td>
+      <td>
+        · Tab 名：Dashboard / Lifetime Guard™ / Battery IQ™ / Support → <b>Home / Charge / Battery IQ / Support</b>（页内功能名仍用 Lifetime Guard™ 等品牌名）<br>
+        · 数据卡：Total Voltage → <b>Pack Voltage</b>；Max/Min Temp → <b>Cell Temp · Max / Min</b><br>
+        · 三模式两行说明（英文交付文案）：Daily「Charges to 85% daily — the sweet spot between range and lifespan.」/ Long Trip「Charges to 100% and stays there until you switch modes.」/ Storage「Holds 50% for long-term storage — the healthiest level when parked for weeks.」<br>
+        · Long Trip 原橙色长警告文案移除，改中性说明
+      </td>
+    </tr>
+    <tr>
+      <td class="cat">缺陷修复<small>Fixes</small></td>
+      <td>
+        · 85% 上限时双盾牌图标重叠 · Long Trip 少一行导致布局跳动 · BT-03 长设备名换行 ·
+        手机框被 flex 压缩变形 · Tab2 渐变文字标题残留（全站唯一，已改纯白）
+      </td>
+    </tr>
+  </table></div>
+
+  <h2><span class="no">03</span>开发使用指南</h2>
+  <div class="principle">
+    <b>原型即规格（Prototype = Spec）。</b>最终实现须与在线原型完全一致；本文档与原型不一致处，一律以原型为准。
+    无法按原型实现的点，请先提变更、由产品确认并更新原型后再实施。详细验收清单见配套《验收标准》。
+  </div>
+  <div class="twocol" style="margin-top:14px">
+    <div class="panel">
+      <h3>怎么用原型开发</h3>
+      <ul class="clean">
+        <li>英文界面 = 交付文案，逐字实现；中文仅供内部评审</li>
+        <li>打开<b>中文标注</b>：每一屏右侧有布局占比、尺寸、颜色逻辑、交互规则说明</li>
+        <li>打开<b>模拟告警</b>：Dashboard 横幅 / 诊断故障态 / 报告红色版全部切到异常态</li>
+        <li>动效基准：光点绕行 5s/圈 · 能量流点 1.2s · 抽屉滑出 300ms · 系统 <code>prefers-reduced-motion</code> 时停用装饰动画</li>
+        <li>自动跳转时序（演示值）：扫描 2.5s → 发现；连接 2.2s → 成功；成功停留 1.6s → 首页；真实逻辑为扫描 15s 超时 → BT-06</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>设计 Token 速查（源码 <code>#screen[data-theme]</code> 变量表）</h3>
+      <ul class="clean">
+        <li>深色底：径向渐变 <code>#12263F→#0B1626→#081020</code>；卡片 <code>rgba(255,255,255,.045)</code> + 描边 <code>rgba(255,255,255,.09)</code></li>
+        <li>品牌橙：深色 <code>#FF6A35</code> / 渐变深端 <code>#F95120</code> / 浅色主题 <code>#E8430D</code></li>
+        <li>语义色：绿 <code>#3DD670</code> · 红 <code>#FF453A</code> · 黄 <code>#FFD60A</code></li>
+        <li>SOC 环：半径 98 · 描边 11 · 12 点起点 · 渐变 <code>#F95120→#FF7A3A→#FFA04D</code> · 高斯发光 blur 9</li>
+        <li>字重 200/600/700 三档 · 卡片圆角 16px · 数字一律 tabular-nums</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    交付版本 V3.1（GitHub commit <code>ee7a32d</code> 后含文档提交）· 生成于 2026-07-16 ·
+    变更流程：任何对原型的调整 → 产品确认 → 先改原型 → 再进开发。
+    配套文档：<a href="./acceptance.html" style="color:var(--brand)">《V3.1 验收标准》</a>
+  </footer>
+</div>
+</body>
+</html>
